@@ -10,8 +10,6 @@ public class Product implements Serializable {
     private Double price;
     private String name;
     private String desc;
-    //oneToOne
-    private Company company;
     private String concreteType;
     private Set<String> commonType;
     //manyToMany
@@ -57,14 +55,6 @@ public class Product implements Serializable {
 
     public void setDesc(String desc) {
         this.desc = desc;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
     }
 
     public String getConcreteType() {

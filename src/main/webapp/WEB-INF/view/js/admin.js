@@ -7,7 +7,7 @@ adminApp.controller('insertProductController', ['$scope', '$http', function($sco
         
 }]);
 
-adminApp.controller('insertCompanyController', ['$scope', '$http', function($scope, $http) {
+adminApp.controller('companyController', ['$scope', '$http', function($scope, $http) {
     
         $scope.insertCompany = function() {
             
