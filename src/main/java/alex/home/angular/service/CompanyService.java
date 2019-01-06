@@ -3,16 +3,11 @@ package alex.home.angular.service;
 import alex.home.angular.dao.CompanyDao;
 import alex.home.angular.domain.Company;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +19,23 @@ public class CompanyService implements CompanyDao {
 
     private JdbcTemplate jdbcTemplate;
     
-    @Override
-    public boolean isCompanyExist(String name) {
-        return (name != null) ? selectCompanyByName(name) != null : false;
-    }
-    
     @Override @Transactional(readOnly = true)
+    public boolean isCompanyNameExist(String name) {
+        if (name != null) {
+            try {
+                final String sql = "SELECT(EXISTS (SELECT 1 FROM company WHERE name = ?))::int;".intern();
+                return jdbcTemplate.queryForObject(sql, new Object[] {name}, Integer.class) == 1;
+            } catch(DataAccessException ex) {
+              ex.printStackTrace();
+              return false;
+            }
+        }
+        return false;
+    }
+     
+    @Override @Transactional
     public boolean insertCompany(String name, String desc, String address) {
-        if (desc != null && address != null && !isCompanyExist(name)) {
+        if (desc != null && address != null && !isCompanyNameExist(name)) {
             try {
                 final String sql = "INSERT INTO company (name, description, address) VALUES (?, ?, ?)".intern();
                 return jdbcTemplate.update(sql, name, desc, address) == 1;
@@ -43,9 +47,9 @@ public class CompanyService implements CompanyDao {
         return false;
     }
 
-    @Override
+    @Override @Transactional
     public boolean deleteCompanyByName(String name) {
-        if (isCompanyExist(name)) {
+        if (isCompanyNameExist(name)) {
             try {
                 final String sql = "DELETE FROM company WHERE name = ?".intern();
                 return jdbcTemplate.update(sql, name) == 1;
@@ -57,9 +61,9 @@ public class CompanyService implements CompanyDao {
         return false;
     }
 
-    @Override
+    @Override @Transactional
     public boolean updateCompanyName(String oldName, String newName) {
-        if (newName != null && isCompanyExist(oldName)) {
+        if (newName != null && isCompanyNameExist(oldName)) {
             try {
                 final String sql = "UPDATE TABLE company SET name = ? WHERE name = ?".intern();
                 return jdbcTemplate.update(sql, newName, oldName) == 1;
@@ -73,7 +77,7 @@ public class CompanyService implements CompanyDao {
     
     @Override
     public boolean updateCompanyDesc(String name, String desc) {
-        if (desc != null && isCompanyExist(name)) {
+        if (desc != null && isCompanyNameExist(name)) {
             try {
                 final String sql = "UPDATE TABLE company SET description = ? WHERE name = ?".intern();
                 return jdbcTemplate.update(sql, name, desc) == 1;
@@ -85,9 +89,9 @@ public class CompanyService implements CompanyDao {
         return false;
     }
     
-    @Override
+    @Override @Transactional
     public boolean updateCompanyAddress(String name, String address) {
-        if (address != null && isCompanyExist(name)) {
+        if (address != null && isCompanyNameExist(name)) {
             try {
                 final String sql = "UPDATE TABLE company SET address = ? WHERE name = ?".intern();
                 return jdbcTemplate.update(sql, address, name) == 1;
@@ -99,7 +103,7 @@ public class CompanyService implements CompanyDao {
         return false;
     }
 
-    @Override
+    @Override @Transactional(readOnly = true)
     public List<Company> selectLimitOffsetPagination(int limit, int offset) {
         try {
             final String sql = "SELECT * FROM company ORDER BY name LIMIT ? OFFSET ?".intern();
@@ -112,7 +116,7 @@ public class CompanyService implements CompanyDao {
         }
     }
 
-    @Override
+    @Override @Transactional(readOnly = true)
     public int selectCompanyCount() {
         try {
             final String sql = "SELECT COUNT(id) AS count FROM company".intern();
@@ -133,7 +137,7 @@ public class CompanyService implements CompanyDao {
                 return company;
             } catch (DataAccessException ex) {
                 ex.printStackTrace();
-            } 
+            }
         }
         return null;
     }

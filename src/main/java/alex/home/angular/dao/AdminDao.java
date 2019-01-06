@@ -8,7 +8,7 @@ public interface AdminDao {
     
     Admin selectAdminByNick(String nick);
     
-    boolean isAdminExist(String nick);
+    boolean isAdminNickExist(String nick);
     
     boolean insertAdmin(String nick, String password, int status);
     

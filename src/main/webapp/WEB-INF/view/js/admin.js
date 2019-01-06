@@ -11,6 +11,18 @@ adminApp.controller('insertCompanyController', ['$scope', '$http', function($sco
     
         $scope.insertCompany = function() {
             
+            let form = $scope.companyForm;
+            
+            alert(angular.toJson(form));
+            $http({
+                method: 'POST',
+                url: '/insertCompany',
+                data: form
+            }).then(function(rsp) {
+                alert(angular.toJson(rsp.data));
+            }, function(rsp) {
+                alert(angular.toJson(rsp.data));
+            });
         };
 }]);
 
@@ -47,10 +59,10 @@ authApp.controller('authenticationController', ['$scope', '$http', function($sco
                 url: '/auth',
                 data: 'nick=' + nick + '&password=' + password,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            }, function(resp) {
-                console.log(1);
-            }, function(resp) {
-                console.log(0);
+            }, function(rsp) {
+                alert(angular.toJson(rsp.data));
+            }, function(rsp) {
+                alert(angular.toJson(rsp.data));
             });
         };
 }]);

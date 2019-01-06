@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CompanyDao {
     
-    boolean isCompanyExist(String name);
+    boolean isCompanyNameExist(String name);
     
     boolean insertCompany(String name, String desc, String address);
     

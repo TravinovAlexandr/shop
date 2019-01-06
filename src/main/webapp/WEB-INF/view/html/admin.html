@@ -39,10 +39,13 @@
                 
         </div>
 
-        <div ng-controller="insertCompanyController()">
-            <input type="text"ng-model="name"/>
-            <input type="text" ng-model="address"/>
-            <textarea ng-model="desc"></textarea>
+        <div ng-controller="insertCompanyController">
+            <form ng-submit="insertCompany()">
+                <input type="text"ng-model="companyForm.name"/>
+                <input type="text" ng-model="companyForm.address"/>
+                <textarea ng-model="companyForm.desc"></textarea>
+                <button>Ok</button>
+            </form>>
         </div>
 
     </body>

@@ -19,7 +19,7 @@ public class ValidationUtil {
     }
     
     public static boolean isAdminAuthenticated(@Nullable Principal principal) {
-        return principal == null;
+        return principal != null;
     }
     
     public static boolean isFirstAdmin(@Nullable Authentication auth) {

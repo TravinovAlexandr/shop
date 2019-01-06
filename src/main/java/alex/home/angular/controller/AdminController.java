@@ -25,8 +25,7 @@ public class AdminController {
     @PostMapping(value = "/insertAdmin", produces = "application/json")
     @ResponseBody public ResponseRsWrapper insertAdmin(@RequestBody RegDto dto, Authentication auth) {
         final ResponseRsWrapper resp = new ResponseRsWrapper();
-        if (dto != null
-                && ValidationUtil.isFirstAdmin(auth)
+        if (dto != null && ValidationUtil.isFirstAdmin(auth)
                 && ValidationUtil.isCorrectNick(dto.getNick())
                 && ValidationUtil.isCorrectPassword(dto.getPassword())) {
             if (adminDao.insertAdmin(dto.getNick(), passwordEncoder.encode(dto.getPassword()), dto.getRole())) {
@@ -38,19 +37,23 @@ public class AdminController {
         return resp.addMessage("Bad").addResponseMessage("BAD");
     }
     
-    public ResponseRsWrapper insertCompany(@RequestBody InsertCompanyDto dto, Authentication auth) {
-        final ResponseRsWrapper resp = new ResponseRsWrapper();
-        
-        return null;
+    @PostMapping(value = "/insertCompany", produces = "application/json")
+    @ResponseBody public ResponseRsWrapper insertCompany(@RequestBody InsertCompanyDto dto, Authentication auth) {
+        final ResponseRsWrapper rrw = new ResponseRsWrapper();
+        if (dto != null && ValidationUtil.isAdminAuthenticated(auth)) {
+            companyDao.insertCompany(dto.getName(), dto.getDesc(), dto.getAddress());
+            return rrw.addMessage("1");
+        } 
+        return rrw.addMessage("0");
     }
     
     
-
     @Autowired
     public void setAdminDao(AdminDao adminDao) {
         this.adminDao = adminDao;
     }
 
+    @Autowired
     public void setCompanyDao(CompanyDao companyDao) {
         this.companyDao = companyDao;
     }
