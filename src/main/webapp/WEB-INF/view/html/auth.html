@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>AdminPage</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>    
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+        <script src="js/angular-table-min.js"></script>
+        <script src="js/admin.js"></script>
+    </head>
+
+    <body>
+        <div ng-app="authPage">
+            <div ng-controller="authenticationController">
+                <form id="authForm" ng-submit="userAuthentication()">
+                    <input type="text" name="nick" ng-model="nick" />
+                    <input type="password" name="password" ng-model="password" />
+                    <button>Ok</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

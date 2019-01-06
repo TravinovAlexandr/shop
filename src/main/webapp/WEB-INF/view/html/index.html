@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AlexShop</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+    <script src="js/angular-table-min.js"></script>
+    <script src="js/index.js"></script>
+
+</head>
+
+<body>
+    <div ng-app="index" class="main" style="padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto;">
+        
+        <div ng-controller="navigationBarController" class="navigationBar" style="background-color: #000;">
+            <div class="row">
+                <div class="col-md-3 name" style="color:white; padding-left: 30px; padding-bottom: 8px;">
+                        <h1>Site Name</h1>
+                </div>
+                <div class="col-md-6 search" style="padding-top:20px;">
+                    <form ng-submit="searchFormSubmit()">
+                        <div class="row">
+                            <div class="col-md-11">
+                                <input class="form-control" type="text" placeholder="Input product name or type" ng-model="searchForm" />
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-3 some">
+                    <!---->
+                </div>
+            </div>
+        </div>
+        
+        <div class="searchTree">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>SEARCH TREE</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="productBar" style="background-color:black;">
+            <div class="row">
+                <div class="col-md-8">
+                        <div class="productDescription">
+                            <p id="PRODUCT_DESCRIPTION">PRODUCT DESCRIPTION</p>
+                        </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="productPicture">
+                            <h1>PRODUCT FOTO</h1>
+                            <img id=PRODUCT_PICTURE src=""/>
+                    </div>
+                </div>            
+            </div>
+        </div>
+
+        <div class="row">
+                <div class="col-md-12">
+                    <h1>SIMILAR PRODUCTS</h1>
+                </div>
+            </div>
+
+        <div class="productComments" style="background-color:black;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="comment">
+                        <div class="avatar" style="display:inline-block;">
+                            <h1>AVATAR</h1>
+                        </div>
+                        <div class="message" style="display:inline-block;">
+                            <h1>MESSAGE</h1>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+            <div class="commentTextarea">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <form>
+                                <label for="comment">Write you comment here:</label>
+                                <textarea class="form-control" rows="5" id="comment" style="resize: none;"></textarea>
+                                <button class="btn" style="margin-top:5px;">Ok</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <!---->
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="fotter">
+                <div class="row">
+                        <div class="col-md-12">
+                                <h1>FOOTER</h1>
+                        </div>
+                    </div>
+        </div>
+
+    </div>
+</body>
+</html>
