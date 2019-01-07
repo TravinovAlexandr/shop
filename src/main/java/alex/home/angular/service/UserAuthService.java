@@ -3,7 +3,6 @@ package alex.home.angular.service;
 import alex.home.angular.dao.AdminDao;
 import alex.home.angular.domain.Admin;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

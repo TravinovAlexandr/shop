@@ -4,10 +4,10 @@ import java.util.Date;
 
 public class Admin {
     
-    private String nick;
-    private String password;
-    private int role;
-    private Date creationDate;
+    public String nick;
+    public String password;
+    public int role;
+    public Date creationDate;
     
     public Admin() {}
     
