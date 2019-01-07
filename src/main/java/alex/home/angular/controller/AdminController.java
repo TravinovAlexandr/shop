@@ -32,7 +32,7 @@ public class AdminController {
                 return resp.addMessage("InternalError").addResponseMessage("INTERNAL_SERVER_ERROR");
             }
         }
-        return resp.addMessage("Bad").addResponseMessage("BAD");
+        return resp.addMessage("Bat").addResponseMessage("BAD");
     }
     
     @ResponseBody public ResponseRsWrapper deleteAdmin(@RequestParam("nick") String nick, Authentication auth) {

@@ -3,22 +3,33 @@
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>AdminPage</title>
+        <title>AdminAdmin</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>    
+
+        
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+                
+        <script src="js/angular-route1.6.7.js"></script>
         <script src="js/angular-table-min.js"></script>
         <script src="js/admin.js"></script>
     </head>
 
     <body ng-app="adminPage">
-        <h1>ADMIN</h1>
+        
+        <header></header>
+        <main></main>
+        <footer></footer>
+        
+        <a href="/b">asdsafasfasg</a>
+        <div ng-view></div>        
+        
         
         <h1>ADD NEW ADMIN</h1>
-        <div ng-controller="insertAdminController">
+        <div ng-controller="adminController">
             <form ng-submit="insertAdmin()">
                 <label>Insert Nick
                     <input type="text" name="nick" ng-model="nick" />
@@ -36,33 +47,17 @@
             </form>
         </div>
         
-        <h1>ADD NEW PRODUCT</h1>
-        <div ng-controller="insertProductController">
-                
-        </div>
+        <h1>DELETE NEW ADMIN</h1>
         
-        <h1>ADD NEW COMPANY</h1>
-        <div ng-controller="companyController">
-            
-            <form ng-submit="insertCompany()">
-                <label>COMPANY NAME
-                    <input type="text"ng-model="companyForm.name"/>
-                </label>
-                <label>COMPANY ADDRESS
-                    <input type="text" ng-model="companyForm.address"/>
-                </label>
-                <label>COMPANY DESCRIPTION
-                    <textarea ng-model="companyForm.desc"></textarea>
-                </label>
-                <button>Ok</button>
-            </form>
-            
-            
-<!--            <div id="comp_modal">
-                >
-            </div>-->
-            
-        </div>
+        
+        
+        
+        
+        
+        <h1>ADD NEW PRODUCT</h1>
+        <div ng-controller="productController">
+                
+
         
        
 <a data-toggle="modal" data-target="#basicModal">Click to see companies</a>

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PageController {
-    
+
     @GetMapping("/")
     public String getIndexPage() {
         return "index";
@@ -20,5 +20,10 @@ public class PageController {
     public String getAdminPage() {
         return "admin";
     }
-   
+    
+    @GetMapping("/ang")
+    public String getAng() {
+        String a ="saaaaaaaaadsaaaadasdwrwaaaaa";
+        return "ang";
+    }
 }
