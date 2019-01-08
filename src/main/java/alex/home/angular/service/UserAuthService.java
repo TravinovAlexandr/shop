@@ -20,7 +20,7 @@ public class UserAuthService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String nick) throws UsernameNotFoundException {
 
-        final Admin admin = adminDao.selectAdminByNick(nick);
+        final Admin admin = adminDao.selectAdmin(nick);
         final List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(String.valueOf(admin.getRole())));
         

@@ -9,14 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import alex.home.angular.dao.AdminDao;
 import alex.home.angular.utils.DateUtil;
-import java.sql.SQLException;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-//create table admin (nick varchar(30) not null, password varchar(150) not null, role int not null, time_s timestamp);
-//create index on admin(nick);
 
 @Service
 public class AdminService implements AdminDao {
@@ -24,27 +19,11 @@ public class AdminService implements AdminDao {
     private JdbcTemplate jdbcTemplate;
     private PasswordEncoder passwordEncoder;
     
-    @Override @Transactional(readOnly = true)
-    public Admin selectAdminByNick(@Nullable String nick) {
-        if (nick != null) {
-            try {
-                final String sql = "SELECT * FROM admin WHERE nick = ?".intern();
-                final Admin admin = jdbcTemplate.queryForObject(sql, new Object [] {nick}, (ResultSet rs, int i) 
-                        -> new Admin(rs.getString("nick"), String.valueOf(rs.getArray("password")), rs.getInt("role"), rs.getTimestamp("time_s")));
-                return admin;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
-        }
-        return null;
-    }
-    
-    @Override @Transactional(readOnly = true)
+    @Override
     public boolean isAdminNickExist(@Nullable String nick) {
         if (nick != null) {
             try {
-                final String sql = "SELECT(EXISTS (SELECT 1 FROM admin WHERE nick = ?))::int;".intern();
+                final String sql = "SELECT(EXISTS (SELECT * FROM admin WHERE nick = ?))::int;".intern();
                 return jdbcTemplate.queryForObject(sql, new Object[] {sql} ,Integer.class) == 1;
             } catch (DataAccessException ex) {
                 ex.printStackTrace();
@@ -54,7 +33,7 @@ public class AdminService implements AdminDao {
         return false;
     }
  
-    @Override @Transactional
+    @Override
     public boolean insertAdmin(String nick, String password, int status) {
         if (nick != null && password != null && !isAdminNickExist(nick)) {
             try {
@@ -82,7 +61,7 @@ public class AdminService implements AdminDao {
         return false;
     }
 
-    @Override @Transactional
+    @Override
     public boolean updatePassword(String nick, String password) {
         if (nick != null && password != null) {
             try {
@@ -97,11 +76,20 @@ public class AdminService implements AdminDao {
     } 
     
     @Override
-    public boolean deleteAdmin(String nick) {
-        throw new UnsupportedOperationException("upasgqewqrgasgasa t."); 
+    public boolean deleteAdmin(@Nullable String nick) {
+        if (nick != null) {
+            try {
+                final String sql = "DELETE FROM admin WHERE nick = ?".intern();
+                return jdbcTemplate.update(sql, nick) == 1;
+            } catch (DataAccessException ex) {
+                ex.printStackTrace();
+                return false;
+            }
+        } 
+        return false;
     }
 
-    @Override @Transactional
+    @Override
     public boolean updateStatus(String nick, int status) {
         if (isAdminNickExist(nick)) {
             try {
@@ -113,6 +101,22 @@ public class AdminService implements AdminDao {
             }
         }
         return false;
+    }
+        
+    @Override
+    public Admin selectAdmin(@Nullable String nick) {
+        if (nick != null) {
+            try {
+                final String sql = "SELECT * FROM admin WHERE nick = ?".intern();
+                final Admin admin = jdbcTemplate.queryForObject(sql, new Object [] {nick}, (ResultSet rs, int i) 
+                        -> new Admin(rs.getString("nick"), String.valueOf(rs.getArray("password")), rs.getInt("role"), rs.getTimestamp("time_s")));
+                return admin;
+            } catch (DataAccessException ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+        return null;
     }
     
     @Override
@@ -136,5 +140,4 @@ public class AdminService implements AdminDao {
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
-
 }

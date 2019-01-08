@@ -19,7 +19,7 @@ public interface AdminDao {
     
     boolean deleteAdmin(String nick);
     
-    Admin selectAdminByNick(String nick);
+    Admin selectAdmin(String nick);
     
     List<Admin> selectAllAdmins();
 }

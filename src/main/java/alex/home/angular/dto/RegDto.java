@@ -29,6 +29,5 @@ public class RegDto {
     public void setRole(int role) {
         this.role = role;
     }
-    
-    
+   
 }
