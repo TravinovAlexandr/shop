@@ -1,6 +1,7 @@
 package alex.home.angular.dao;
 
 import alex.home.angular.domain.Product;
+import alex.home.angular.dto.InsertProdDto;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -8,32 +9,38 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductDao {
 
-    Product selectProduct(String name);
+    Product selectProduct(Long id);
     
-    Product selectProductCategory(String name);
+    Product selectProductWithImage(Long id);
     
-    Product selectProductCategoryComments(String name);
+    Product selectProductCategories(Long id);
     
-    List<Product> selectProductsLimitOffsetPagination(String categoryName, int limit, int offset);
+    Product selectProductCategoriesComments(Long id);
     
-    boolean doSoldActions(String name, int quant, int buyStat, Date lastBuy);
+    List<Product> selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset);
     
-    boolean updateProductName(String oldName, String newName);
+    List<Product> selectProductsWhereCategoryNotExist(Integer limit, Integer offset);
     
-    boolean updateProductDesc(String name, String desc);
+    List<Product> selectProductsInSomeTimePeriod(Long mils, Integer limit, Integer offset);
     
-    boolean updateProductCategory(String name, String categoryName);
+    List<Product> productComplexSelection();
     
-    boolean updateProductPrice(String name, double price);
+    boolean doSoldActions(Long id, Integer quant, Integer buyStat, Date lastBuy);
     
-    boolean updateProductQuant(String name, int quant);
+    boolean updateProductName(Long id, String newName);
     
-    boolean updateProductMark(String name, int mark);
+    boolean updateProductDesc(Long id, String desc);
     
-    boolean insertProduct(String name);
+    boolean updateProductCategory(Long id, Long oldCategoryId, Long newCategoryId);
     
-    boolean insertProduct(String name, String desc);
+    boolean updateProductPrice(Long id, Double price);
     
-    boolean insertProduct(String name, String desc, int price, int quantity);
-   
+    boolean updateProductQuant(Long id, Integer quant);
+    
+    boolean updateProductMark(Long id, Integer mark);
+    
+    boolean insertProduct(InsertProdDto dto);
+    
+    boolean deleteProduct(Long id);
+ 
 }

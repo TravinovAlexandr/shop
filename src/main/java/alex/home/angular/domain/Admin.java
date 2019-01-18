@@ -6,12 +6,12 @@ public class Admin {
     
     public String nick;
     public String password;
-    public int role;
+    public Integer role;
     public Date creationDate;
     
     public Admin() {}
     
-    public Admin(String nick, String password, int role, Date creationDate) {
+    public Admin(String nick, String password, Integer role, Date creationDate) {
         this.nick = nick;
         this.password = password;
         this.role = role;

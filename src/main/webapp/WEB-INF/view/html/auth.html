@@ -1,32 +1,48 @@
-<!DOCTYPE HTML>
+
 <html 
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>AdminPage</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>    
+    xmlns:th="http://www.thymeleaf.org"
+    lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>Аутентификация</title>
+    
+    <link rel="stylesheet" href="css/product.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/index.css" />
 
-        
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
-                
-        <script src="js/angular-route1.6.7.js"></script>
-        <script src="js/angular-table-min.js"></script>
-        <script src="js/admin.js"></script>
-    </head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+    <script src="js/angular-route1.6.7.js"></script>
+    <script src="js/admin.js"></script>
+</head>
 
-    <body>
-        <div ng-app="authPage">
-            <div ng-controller="authenticationController">
-                <form id="authForm" ng-submit="userAuthentication()">
-                    <input type="text" name="nick" ng-model="nick" />
-                    <input type="password" name="password" ng-model="password" />
-                    <button>Ok</button>
-                </form>
+<body ng-app="authPage">
+    
+    <header>
+            <ng-include src="'html/nav_bar.html'"></ng-include>
+    </header>
+    <main>
+            <div class="authMainWrapper">
+                <div class="authFormWrapper">
+                    <div>
+                        <div ng-controller="authenticationController">
+                            <p class="authenticationText">Аутентификация</p>
+                            <form id="authForm" ng-submit="userAuthentication()">
+                                <div class="authElements">
+                                    <label for="authName">Введите имя:</label>
+                                        <input id="authName" type="text" name="nick" ng-model="nick" />
+                                </div>
+                                <div class="authElements">
+                                    <label for="authPssword">Введите пароль:</label>
+                                    <input id="authPssword" type="password" name="password" ng-model="password" />
+                                </div>
+                                <div class="authElements">
+                                    <button>Ok</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </body>
+        </main>
+</body>
 </html>

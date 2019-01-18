@@ -1,5 +1,5 @@
 package alex.home.angular.dto;
 
-public class ProductInsertDto {
+public class UpdateProdDto {
     
 }

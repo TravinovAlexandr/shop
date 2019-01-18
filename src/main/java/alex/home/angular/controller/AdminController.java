@@ -27,17 +27,16 @@ public class AdminController {
                 && ValidationUtil.isCorrectNick(dto.getNick())
                 && ValidationUtil.isCorrectPassword(dto.getPassword())) {
             if (adminDao.insertAdmin(dto.getNick(), passwordEncoder.encode(dto.getPassword()), dto.getRole())) {
-                return resp.addMessage("Ok").addResponseMessage(HttpStatus.OK);
+                return resp.addResponse("Ok").addResponseMessage(HttpStatus.OK);
             } else {
-                return resp.addMessage("InternalError").addResponseMessage("INTERNAL_SERVER_ERROR");
+                return resp.addResponse("InternalError").addResponseMessage("INTERNAL_SERVER_ERROR");
             }
         }
-        return resp.addMessage("Bat").addResponseMessage("BAD");
+        return resp.addResponse("Bat").addResponseMessage("BAD");
     }
     
     @ResponseBody public ResponseRsWrapper deleteAdmin(@RequestParam("nick") String nick, Authentication auth) {
         if (nick != null && ValidationUtil.isFirstAdmin(auth)) {
-//            adminDao.
         }
         return null;
     }

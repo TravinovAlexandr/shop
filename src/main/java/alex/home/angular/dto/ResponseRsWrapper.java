@@ -1,22 +1,31 @@
 package alex.home.angular.dto;
 
 import java.io.Serializable;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 
 public class ResponseRsWrapper implements Serializable {
     
-    private Object message;
+    private Object response;
     private String responseMessage;
     private String[] urls;
     
     public ResponseRsWrapper() {}
     
-    public ResponseRsWrapper(Object message) {
-        this.message = message;
+    public ResponseRsWrapper(Object response) {
+        this.response = response;
     }
     
-    public ResponseRsWrapper addMessage(Object message) {
-        this.message = message;
+    public ResponseRsWrapper addHttpErrorStatus(HttpServletResponse resp, @Nullable Integer errStatus) {
+        if (resp != null) {
+            resp.setStatus((errStatus != null) ? errStatus : 500);
+        }
+        return this;
+    }
+    
+    public ResponseRsWrapper addResponse(Object response) {
+        this.response = response;
         return this;
     }
     
@@ -35,12 +44,12 @@ public class ResponseRsWrapper implements Serializable {
         return this;
     }
 
-    public Object getMessage() {
-        return message;
+    public Object getResponse() {
+        return response;
     }
 
-    public void setMessage(Object message) {
-        this.message = message;
+    public void setResponse(Object response) {
+        this.response = response;
     }
 
     public String getResponseMessage() {

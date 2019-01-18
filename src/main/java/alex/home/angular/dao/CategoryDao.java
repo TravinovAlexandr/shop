@@ -7,38 +7,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoryDao {
     
-/*CREATE OR REPLACE FUNCTION INSERT_CATEGORY(catname VARCHAR, catdesk VARCHAR)
-RETURNS INT AS $$
-BEGIN
-      SELECT id FROM category WHERE name = catname;
-      IF NOT FOUND THEN
-          INSERT INTO category (name, description) VALUES (catname, catdesk);
-              RETURN 1;
-      ELSE
-          RETURN 0;
-      END IF;
-END
-$$ LANGUAGE plpgsql;*/
     boolean insertCategory(String name, String description);
     
-    boolean deleteCategory(String name);
+    boolean deleteCategory(Long id);
+
+    boolean upadateCategoryName(Long id , String newName);
     
- /*CREATE OR REPLACE FUNCTION UPDATE_CATEGORY_NAME(oldname VARCHAR, newname VARCHAR)
-RETURNS VOID AS $$
-BEGIN
-    SELECT  id FROM category WHERE name = catname;
-    IF NOT FOUND THEN 
-        UPDATE category SET name = newname WHERE name = oldname;
-    END IF;
-END;
-$$
-language 'plpgsql';*/
-    boolean upadateCategoryName(String oldName , String newName);
+    boolean updateCategoryDesc(Long id ,String desc);
     
-    boolean updateCategoryDesc(String name ,String desc);
+    Category selectCategory(Long id); 
     
-    Category selectCategory(String name); 
-    
-    List<Category> selectAllCategory();
+    List<Category> selectAllCategories();
     
 }

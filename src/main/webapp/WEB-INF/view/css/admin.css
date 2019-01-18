@@ -1,0 +1,223 @@
+.mainWrapper {
+    width: 100%;
+    margin: 0 auto;
+}
+.leftMainWrapper {
+    width: 30%;
+    float: left;
+    font-size: 18px; 
+}
+.left {
+    width: 30%;
+    float: left;
+}
+.right {
+    width: 70%;
+    float: right;
+}
+.rightMainWrapper {
+    width: 70%;
+    float: right;
+}
+.changeAdminDataNick {
+    display: none;
+    background-color: #CEFF81;
+    float: left;
+    width: 100%;
+    padding: 3%;
+}
+.changeAdminDataPassword {
+    display: none;
+    background-color: #CEFF81;
+    float: left;
+    width: 100%;
+    padding: 3%;
+}
+.adminGreetings p {
+    cursor: pointer;
+    max-width: 50%;
+}
+.adminka {
+    font-size: 26px;
+    /* -webkit-transition: font-size 0.7s; */
+    font-size: 40px;
+    color: #157700;
+    margin-top: 5px;
+}
+.changeAdminData button {
+    margin-top:5px;
+}
+.changeNickPrgf {
+    margin-left: 15px;
+    font-size: 20px;
+    text-decoration: underline;
+}
+.changeNickPrgf:hover {color: #157700;}
+.changePasswordPrgf:hover {color: #157700;}
+
+.changePasswordPrgf {
+    margin-left: 15px;
+    font-size: 20px;
+    text-decoration: underline;
+}
+.changeAdminData input {
+    display: block;
+    margin: 10px;
+}
+.adminNavigation li {
+    list-style-type: none;
+    left: -100px;
+}
+.navCategory {
+    -webkit-transition: font-size 0.7s;
+    transition: 1s;
+}
+.navCategory:hover {
+    background-color: #CEFF81;
+    cursor: pointer;
+    transition: 1s;
+}
+.navCategory p {
+    font-size: 20px;
+    
+}
+.navCategory li {
+    margin-top : 2px;
+    margin-bottom : 2px;
+}
+input[type=file] {
+    display: none;
+}
+.addImageButton {
+    text-align: center;
+    cursor: pointer;
+    line-height: 70px;
+}
+.addImageButton:hover {
+    text-decoration: underline;
+    color:#157700;
+}
+.addProductButton {
+    height: 30px;
+} 
+.navCategory a {
+    font-size: 18px;
+    margin-top: 5px;
+    color : black;
+}
+.hidden {
+    display: none;
+    background-color: white; 
+} 
+.adminNavigation {
+    padding-top: 2%;
+    margin-left: -4%;
+}
+.navigaciya {
+    font-size: 26px;
+    /* -webkit-transition: font-size 0.7s; */
+    font-size: 36px;
+    color: #157700;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    margin-left: 3%;
+}
+
+
+
+
+
+
+.addProductWrapper {
+    width: 100%;
+}
+.addProductDataWrapper {
+    width: 40%;
+    float: left;
+    background-color: #CEFF81;
+    padding: 20px;
+}
+.addProductImageWrapper {
+    width: 50%;
+    display: inline-block;
+}
+.productElement {
+    width: 100%;
+    margin: 5px;
+    margin-bottom: 10px;
+    clear: both;
+}
+.productElement textarea {
+    width: 98%;
+    max-width: 98%;
+    height: 100px;
+}
+.productElement input[type=text] {
+    width: 350px;
+    height: 30px;
+    max-width: 70%;
+}
+.productElement input[type=number] {
+    width: 350px;
+    height: 30px;
+    max-width: 70%;
+}
+.categoryCheckBoxBlock {
+    float: left;
+}
+.categoryCheckBoxWrapper {
+    margin-bottom: 10px; 
+}
+#prodBigImage {
+    width : 70%;
+    transition: 0.7s;
+}
+#prodBigImage:hover {
+    width : 90%;
+}
+.productAddImageShift {
+    margin-left: 50px;
+}
+/*AUTH*/
+.authMainWrapper {
+    width: 100%;
+    padding: 230px 0 0 34%;
+}
+.authFormWrapper {
+    background-color: yellow;
+    width: 30%;
+    min-width: 200px;
+    float: left;
+    padding: 10px;
+    background-color: #CEFF81;
+    border: 1px solid #252525;
+}
+.authElements {
+    width: 100%;
+    float: left;
+}
+.authElements input {
+    margin-bottom: 10px;
+    width: 100%;
+    height: 30px;
+}
+.authElements button {
+    width: 12%;
+}
+.authElements label {
+    width: 100%;
+    height: 30px;
+}
+.authenticationText {
+    width: 100%;
+    font-size: 25px;
+    text-decoration: underline;
+}
+.authenticationText:hover {
+    color: #157700;
+}
+
+/*SEARH_TABLE.HTML*/
+.doubleSearchInput {
+    display: none;
+}

@@ -49,7 +49,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .usernameParameter("nick")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin", "/addProduct").authenticated();
+//                .antMatchers("/admin", "/addProduct").authenticated();
+                .antMatchers("/543").authenticated();
     }
 
     public void configureGlobal(@Autowired AuthenticationManagerBuilder auth) throws Exception {

@@ -1,0 +1,66 @@
+<div class="addProductWrapper">
+        <div class="addProductDataWrapper">
+            <p>Добавить товар</p>
+            <form ng-submit="addNewProduct()">
+                <div class="productElement">
+                    <div class="productElement">
+                        <label for="productAddName">Имя:</label>
+                    </div>
+                    <input id="productAddName" ng-model="addName" type="text" />
+                </div>
+                <div class="productElement">
+                    <div class="productElement">
+                        <label for="productAddDesk">Описание:</label>
+                    </div>
+                    <textarea id="productAddDesk" ng-model="addDesc"></textarea>
+                </div>
+                <div class="productElement">
+                    <div class="productElement">
+                        <label for="productAddPrice">Цена:</label>
+                    </div>
+                    <input id="productAddPrice" type="number" ng-model="addPrice"/>
+                </div>
+                <div class="productElement">
+                    <div class="productElement">
+                        <label for="productAddQuant">Количество:</label>
+                    </div>
+                    <input id="productAddQuant" type="number" ng-model="addQuant"/>
+                </div>
+                
+                <div class="productElement">
+                    <div class="productElement">
+                        <label>Категории:</label>
+                    </div>
+
+                    <div class="categoryCheckBoxWrapper">
+                        <div class="categoryCheckBoxBlock" ng-repeat="cat in categories">
+                            <div class="singleCheckElem">
+                                <input class="productAddCategory" type="checkbox" value="{{cat.id}}" /><a>{{cat.name}}</a>
+                            </div>
+                        </div>
+                    </div>
+                           
+                </div>
+
+            <div class="productElement">
+                <div class="productElement">
+                    <label class="addImageButton" for="productAddImage">Добавить картинку</label>
+                </div>
+<!--                <input id="productAddImage" type="file" ng-model="addImage" accept="image/*" ng-file-up/>-->
+                    <input id="productAddImage" type="file" accept="image/*" ng-model="addImage"  ng-file-up/>
+            </div>
+
+            <div class="productElement">
+                <button  class="addProductButton">Отправить форму</button>
+            </div>
+    </form>
+
+
+</div>
+<div class="addProductImageWrapper">
+    <div class="productAddImageShift">
+        <img id="prodBigImage" src="img/no_photo.png" /></div>
+</div>
+
+
+</div>

@@ -1,0 +1,54 @@
+<div class="left"></div>
+<div ng-controller="adminNavController" class="right">
+    <div class="changeAdminDataBlock">
+        <div class="adminGreetings">
+            <a class="adminka" href="/admin">Админка</a>
+            <p ng-click="nickVisible()" class="changeNickPrgf">Сменить Ник</p>
+            <p ng-click="passwordVisible()" class="changePasswordPrgf">Сменить Пароль</p>
+        </div>
+    </div>
+
+    <div class="changeAdminDataBlock">
+        <div class="changeAdminData changeAdminDataNick">
+            <form>
+                <label for="nickCh"> Новый Ник:<label>
+                        <input id="nickCh" type="text" />
+                        <label for="nickChPswd"> Пароль:<label>
+                                <input id="nickChPswd" type="password" />
+                                <button>Подтвердить</button>
+                                </form>
+                                </div>
+                                <div class="changeAdminData changeAdminDataPassword">
+                                    <form>
+                                        <label for="pswdCh"> Новый Пароль:<label>
+                                                <input id="pswdCh" type="password" />
+                                                <label for="pswdChRet">Подтверждение:<label>
+                                                        <input id="pswdChRet" type="password" />
+                                                        <label for="pswdChPswd">Текущий Пароль:<label>
+                                                                <input id="pswdChPswd" type="password" />
+                                                                <button>Подтвердить</button>
+                                                                </form>
+                                                                </div>
+                                                                </div>
+
+                                                                <div class="changeAdminDataBlock">
+                                                                    <div class="adminNavigation">
+                                                                        <p class="navigaciya">Навигация</p>
+                                                                        <ul>
+                                                                            <li class="navCategory">
+                                                                                <p ng-click="productUlVisible()">Операции с товарами</p>
+                                                                                <ul class="hidden">
+                                                                                    <li><a href="/addNewProduct">Добавить товар</a></li>
+                                                                                    <li><a href="/searchProduct">Найти товар</a></li>
+                                                                                </ul>
+                                                                            </li>
+                                                                            <li class="navCategory">
+                                                                                <p ng-click="categoryUlVisible()">Операции с категориями</p>
+                                                                                <ul class="hidden">
+                                                                                    <li><a href="#">Добавить Категорию</a></li>
+                                                                                </ul>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                                </div>

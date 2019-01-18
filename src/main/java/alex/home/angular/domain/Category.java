@@ -4,7 +4,7 @@ package alex.home.angular.domain;
 
 public class Category {
     
-    public long id;
+    public Long id;
     public String name;
     public String description;
     //O-M
