@@ -63,12 +63,13 @@ adminApp.controller('searchTableController', function($scope, $http, $q, $timeou
         }, function(resp) {
             alert(resp.data.response);
     });
-    
+
     function defSearchChangeEvent(e)  {
         var searhInputsDiv = $($(e.target).parent().parent());
         searhInputsDiv.find('.searchOptionHidden').val(e.target.value);
+        console.log(e.target.value);
         var doubleSearchInput = searhInputsDiv.find('.doubleSearchInput');
-        if (e.target.value === 'beetwen' || e.target.value === '>= and <') {
+        if (e.target.value === 'Between' || e.target.value === '>= And <') {
                 doubleSearchInput.show();
         } else {
             doubleSearchInput.hide();
@@ -79,27 +80,44 @@ adminApp.controller('searchTableController', function($scope, $http, $q, $timeou
         var searchReqList = [];    
    
         function SearchElement() {
-            this.name; this.operator; this.data;
+            this.columnName; this.operator; this.type; this.data;
             this.push = function(el) {
                 if (!this.data) { this.data = []; }
-                this.data.push(el); };
+                this.data.push(el); 
+            };
         }
         
         var searchInputs = $('.searchInputWrapper');
         
+        //ALL push: ƒ, columnName: "quant", operator: ">", data: Array(1), type: "number"}
+        //BOOLEAN {columnName: "exist", operator: "False", data: [null], type: "undefined"}
+        //Cложность из-за добавленной exist boolean строки
+        //инпут данных отсутствует, тип берется с инпута , а оператор на сервер должен быть передан как данные
+        //boolean приведен к columnName: "exist", type: "boolean", operator: undefined, data: Array(1)
         for (var i = 0; i < searchInputs.length; i++) {
             var serchElement = new SearchElement();
             var searchInputEl = $(searchInputs[i]);
-            serchElement.name = searchInputEl.find('.searchNameHidden').val();
-            serchElement.operator = searchInputEl.find('.searchOptionHidden').val();
-            serchElement.push(searchInputEl.find('.mainSearchInput').val());
+            var sInputType = searchInputEl.find('.mainSearchInput').attr('type');
+            var sOperator = searchInputEl.find('.searchOptionHidden').val();
+            var sMainValue = searchInputEl.find('.mainSearchInput').val();
+            serchElement.columnName = searchInputEl.find('.searchNameHidden').val();
+            serchElement.type = (sInputType !== undefined) ? sInputType : 'boolean';
+            serchElement.operator = (sInputType !== undefined) ? sOperator : null;
+            serchElement.push((sInputType !== undefined) ? sMainValue : sOperator);
             var doubleInput = searchInputEl.find('.doubleSearchInput');
             if (doubleInput.is(':visible') && doubleInput.val() !== null && doubleInput.val() !== undefined) {
                 serchElement.push(doubleInput.val());
             }
             searchReqList.push(serchElement);
         }
+        
+        $http({method : 'POST', url :'/searchQuery', data: {searchQuery : searchReqList}}).then(function(resp) {
+            console.log(resp.data);
+        }, function(resp) {
+            console.log(resp.data);
+        });
     };
+    
 });
 
 adminApp.controller('adminNavController', function($scope) {

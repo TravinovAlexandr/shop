@@ -22,7 +22,7 @@ public class AngularApplication {
     public ImageWriter fsImageWriter() {
         ImageWriter ifsw = new ImageFSWriter();
         ifsw.confRootImgDir("/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/img/products");
-        ifsw.confExctention(".jpg");
+        ifsw.confExctention("png");
         ifsw.confSize(300);
         return ifsw;
     }

@@ -1,4 +1,4 @@
-package alex.home.angular.utils.db;
+package alex.home.angular.sql.search;
 
 public class PGField {
     

@@ -13,7 +13,7 @@ public class SizeScarlConverter implements SizeConverter {
 
     @Override @Nullable 
     public byte[] convert(@Nullable byte[] img, @Nullable Integer size, @Nullable String extension) {
-        if (img != null) {  
+        if (img != null && size != null && extension != null) {  
             try {
                 InputStream in = new ByteArrayInputStream(img);
                 BufferedImage image = ImageIO.read(in);
@@ -21,7 +21,7 @@ public class SizeScarlConverter implements SizeConverter {
                     Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, size, Scalr.OP_ANTIALIAS);
                 byte[] newImage;
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    ImageIO.write(scaledImg, extension , baos);
+                    ImageIO.write(scaledImg, (extension.charAt(0) == '.') ?  extension.substring(1) : extension, baos);
                     newImage = baos.toByteArray();
                     baos.flush();
                 }

@@ -1,7 +1,7 @@
 package alex.home.angular.service;
 
 import alex.home.angular.dao.PGDao;
-import alex.home.angular.utils.db.PGField;
+import alex.home.angular.sql.search.PGField;
 import java.sql.ResultSet;
 import java.util.List;
 import javax.annotation.Nullable;

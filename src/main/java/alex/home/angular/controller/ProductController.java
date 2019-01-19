@@ -5,9 +5,16 @@ import alex.home.angular.dao.ProductDao;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ResponseRsWrapper;
-import alex.home.angular.utils.db.SearchRow;
+import alex.home.angular.dto.SearchQuery;
+
+import alex.home.angular.sql.query.QueryFactory;
+import alex.home.angular.sql.query.SqlQuery;
+import alex.home.angular.sql.query.SqlQueryProduct;
+import alex.home.angular.sql.search.SearchTableRow;
+import alex.home.angular.sql.search.TableRow;
 import alex.home.angular.utils.img.write.ImageWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -77,8 +85,17 @@ public class ProductController {
     
     @PostMapping(value = "/getSearchTable", produces ="application/json")
     @ResponseBody public ResponseRsWrapper getSearchTable(ResponseRsWrapper rrw) {
-        rrw.addResponse(SearchRow.getSearchElements(pGDao.selectPGFieldMeta("product")));
+        TableRow tr = new SearchTableRow();
+        rrw.addResponse(tr.getRows(pGDao.selectPGFieldMeta("product")));
         return rrw;
+    }
+    
+
+    @PostMapping(value = "/searchQuery")
+    @ResponseBody public String retrieveSearchQuery(@RequestBody SearchQuery queryList) {
+        SqlQuery sq = new QueryFactory().getSquelQuery(queryList.searchQuery, QueryFactory.TABLE.PRODUCT);
+        String f = sq.getQueryRow();
+        return null;
     }
     
 

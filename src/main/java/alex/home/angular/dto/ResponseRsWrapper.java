@@ -67,5 +67,4 @@ public class ResponseRsWrapper implements Serializable {
     public void setUrls(String[] urls) {
         this.urls = urls;
     }
-   
 }
