@@ -1,0 +1,86 @@
+<!--<div class="productTable"><form><table><thead><tr><div class="THeadProducTable"><td><p>Название</p></td></div><div class="THeadProducTable"><td><p>Описание</p></td></div><div class="THeadProducTable"><td><p>Цена</p></td></div><div class="THeadProducTable"><td><p>Кол-во</p></td></div><div class="THeadProducTable"><td><p>Оценка</p></td></div><div class="THeadProducTable"><td><p>Добавлен</p></td></div><div class="THeadProducTable"><td><p>Последняя продажа</p></td></div><div class="THeadProducTable"><td><p>В наличии</p></td></div></tr></thead><tbody><div class="productTableRow" ng-repeat="element in row "><input class="productTableId" type="hidden" value="" /><tr><td><div class="productTableElem"><p class="productTableId">{{element.id}}</p></div></td><td><div class="productTableElem"><p class="productTableName">{{element.name}}</p></div></td><td><div class="productTableElem"><p class="productTableDescription">{{element.description}}</p></div></td><td><div class="productTableElem"><p class="productTablePrice">{{element.price}}</p></div></td><td><div class="productTableElem"><p class="productTableQuant">{{element.quant}}</p></div></td><td><div class="productTableElem"><p class="productTableMark">{{element.mark}}</p></div></td><td><div class="productTableElem"><p class="productTableStart">{{element.name}}</p></div></td><td><div class="productTableElem"><p class="productTableLast">{{element.last}}</p></div></td><td><div class="productTableElem"><p class="productTableExist">{{element.exist}}</p></div></td></tr></div></tbody></table></form></div>-->
+
+<div class="productTable">
+        <table>
+            <thead>
+                <tr>
+                    <div class="THeadProducTable">
+                        <td><p>Название</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Описание</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Цена</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Кол-во</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Оценка</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Добавлен</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>Последняя продажа</p></td>
+                    </div>
+                    <div class="THeadProducTable">
+                        <td><p>В наличии</p></td>
+                    </div>
+                </tr>
+            </thead>
+            <tbody>
+            <div class="productTableRow"  >
+                <!-- ELEMENT CAN NOT BE RENAMED -->
+                <tr ng-repeat="element in productTableRow" ng-click="selectProduct()">
+                    <div >
+                        <td>
+                            <input class="productTableId" type="hidden" value="{{element.id}}" />
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableName">{{element.name}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableDescription">{{element.description}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTablePrice">{{element.price}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableQuant">{{element.quant}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableMark">{{element.mark}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableStart">{{element.startDate}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableLast">{{element.lastBuyDate}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="productTableElem">
+                                <p class="productTableExist">{{element.isExist}}</p>
+                            </div>
+                        </td>
+                    </div>
+                </tr>
+            </div>
+        </tbody>
+        </table>
+</div>

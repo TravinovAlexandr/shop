@@ -1,25 +1,34 @@
+body { padding: 0; margin: 0; font-family: sans-serif; }
 body input[type=text] { font-size: 17px; }
 body input[type=password] { font-size: 17px; }
 body input[type=number] { font-size: 17px; }
+body input[type=date] { font-size: 17px; }
 body textarea { font-size: 17px; }
 
 /*HEADER*/
 .headerWrapper { width: 100%; margin: 0 auto 70px; float: left; height: 100px; background-color: #252525; }
 .headerWrapper a { color: white; text-decoration: none; }
-.leftHeaderWrapper { width: 30%; float: left; background-color: #252525; padding-bottom: 31px; margin-bottom: 30px; }
-.rightHeaderWrapper { width: 70%; float: right; background-color: #252525; margin-bottom: 30px; }
+.leftHeaderWrapper { width: 30%; float: left; background-color: #252525;  }
+.rightHeaderWrapper { width: 70%; float: right; background-color: #252525; }
 .serchRowWrapper { margin-top: 20px; }
 .searchRow { width: 600px; height: 30px; margin: 0 0; padding: 0 0; }
 .logoWrapper { width: 25%; }
 .logo { width: 100%; }
-.navButtonsRow { height: 50px; background-color: #252525; color: white; overflow:hidden; margin-bottom: 20px; }
+.navButtonsRow { height: 50px; background-color: #252525; color: white; overflow:hidden;  }
 .navButtonWrapper { padding-left: 40px; }
 .navButton { border-right: 0.5px solid #808080; float: left; padding-left: 10px; padding-right: 10px; height: 80px; }
 .navButton:hover { transition: 0.2s; background-color: #157700; cursor: pointer; }
 .navButton a { text-decoration: none; color: white; margin-top: 5px; }
-.searchRow { width: 650px; margin-left: 110px; }
 .serchRowWrapper { background-color: #252525; padding-top: 23px; }
+.searchRow { width: 600px; height: 30px; margin: 0 auto; padding: 0 auto; }
 .searchBotton { height: 29px; width: 80px; }
 
+/*NAV_MENU*/
+.navMenuRow { overflow:hidden; }
+.navMenuBut { float:left; border-right: 0.5px solid #808080; border-left: 0.5px solid #808080; padding-right: 10px; padding-left: 10px; }
+.navMenuBut:hover { transition: 0.2s; background-color: #157700; cursor: pointer; }
+
 /*FOOTER*/
-.footerWrapper { min-height: 200px; width: 100%; margin: 0 auto; background-color: #252525; clear: both; min-height: 150px; background-color: #252525; }
+.footerWrapper { min-height: 200px; width: 100%; margin: 0 auto; background-color: #252525; clear: both; min-height: 150px;  }
+
+

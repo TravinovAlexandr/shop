@@ -1,0 +1,87 @@
+<div class="adminProdUp">
+    <form>
+        <div class="adminProdUpSingleBlock" ng-repeat="adminProd in prods">
+            
+            <p class="adminProdUpLink" ng-click="getDeleteProduct()">Удалить товар</p>
+            
+            <input type="hidden" value="{{adminProd.id}}" ng-model="adminProd.id"/>
+            <div class="adminProdUpSingleParent">
+                <label>Название:
+                    <input type="text" value="{{adminProd.name}}" placeholder="{{adminProd.name}}"/>
+                </label>
+                <p class="adminProdUpLink" ng-click="getOriginSingleVal()">Востановить</p>
+            </div>
+            
+            <div class="adminProdUpSingleParent">
+                <label>Описание:  
+                    <textarea ng-model="adminProd.description">{{adminProd.description}}</textarea>
+                </label>
+                <p class="adminProdUpLink" ng-click="getOriginSingleVal()">Востановить</p>
+            </div>
+            
+            <div class="adminProdUpSingleParent">
+                <label>Цена: 
+                    <input type="text" value="{{adminProd.price}}" placeholder="{{adminProd.price}}"  ng-model="adminProd.price"/>
+                </label>
+                <p class="adminProdUpLink" ng-click="getOriginSingleVal()">Востановить</p>
+            </div>
+            
+            <div class="adminProdUpSingleParent">
+                <label>Оценка: 
+                    <input type="text" value="{{adminProd.mark}}" placeholder="{{adminProd.mark}}" ng-model="adminProd.mark"/>
+                </label>
+                <p class="adminProdUpLink" ng-click="getOriginSingleVal()">Востановить</p>
+            </div>
+            
+            <div class="adminProdUpSingleParent">
+                <label>Кол-во:
+                    <input type="text" value="{{adminProd.quantity}}" placeholder="{{adminProd.quantity}}" ng-model="adminProd.quantity"/>
+                </label>
+                <p class="adminProdUpLink" ng-click="getOriginSingleVal()">Востановить</p>
+            </div>
+            
+            <div class="adminProdUpCtegoryBlock" ng-repeat="cat in adminProd.category">
+                <div class="adminProdUpCurrentCtegories">
+                    <p>{{cat.name}}</p>
+                </div>
+            </div>
+        
+        <div class="adminProdUpCommentBlock">
+            <div class="adminProdUpComment" ng-repeat="com in adminProd.comments">
+                <input type="hidden" value="{{com.id}}" ng-model="com.id"/>
+                
+                <div class="dminProdUpCommentParrent">
+                    <label>Ник: 
+                        <input type="text" value="{{com.nick}}"  ng-model="com.nick"/>
+                    </label>
+                    <p class="adminProdUpLink" ng-click="getOriginCommentVal()">Востановить</p>
+                </div>
+                
+                <div class="dminProdUpCommentParrent">
+                    <label>Название: 
+                        <input type="text" text="{{com.header}}" ng-model="com.header"/>
+                    </label>
+                    <p class="adminProdUpLink" ng-click="getOriginCommentVal()">Востановить</p>
+                </div>
+                
+                <div class="dminProdUpCommentParrent">
+                    <label>Комментарий: 
+                        <input type="text" value="{{com.body}}" ng-model="com.body"/>
+                    </label>
+                    <p class="adminProdUpLink" ng-click="getOriginCommentVal()">Востановить</p>
+                </div>
+                
+                <p class="adminProdUpLink" ng-click="deleteComment()">Удалить коммент</p>
+            </div>
+        </div>
+            
+            
+            <div class="adminProdUpImgBlock">
+            <div class="adminProdUpImg">
+                <img ng-src="{{adminProd.imgUrl}}">
+            </div>
+        </div>
+            
+            </div>
+    </form>
+</div>

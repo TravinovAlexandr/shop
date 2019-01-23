@@ -3,27 +3,25 @@ package alex.home.angular.service;
 import alex.home.angular.dao.ProductDao;
 import alex.home.angular.domain.Category;
 import alex.home.angular.domain.Comment;
-import alex.home.angular.domain.Img;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
+import alex.home.angular.dto.ProductRow;
+import alex.home.angular.exception.AdminException;
 import alex.home.angular.utils.ConnectionUtil;
 import alex.home.angular.utils.DateUtil;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +52,7 @@ public class ProductService implements ProductDao {
     public Product selectProductWithImage(@Nullable Long id) {
         if (id != null) {
             try {
-                String sql = "SELECT p.*, i.url  FROM product AS p INNER JOIN img AS i ON p.img_id = i.id  WHERE p.id = ".intern() + id;
+                String sql = "SELECT p.*, i.url  FROM product AS p JOIN img AS i ON p.img_id = i.id  WHERE p.id = "+ id;
                 Product product = jdbcTemplate.queryForObject(sql, (ResultSet rs, int i)
                         -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
                                 rs.getInt("mark"), rs.getDouble("price"), rs.getString("name"), rs.getString("description"), 
@@ -87,143 +85,135 @@ public class ProductService implements ProductDao {
         }
         return null;
     }
-
-    @Override @Nullable @Transactional
+    
+    @Override @Nullable
     public Product selectProductCategoriesComments(@Nullable Long id) {
-        if (id != null) {
-            Product product = selectProductCategories(id);
-            if (product == null) {
-                return null;
-            }
-            try {
-                String sql = "SELECT * FROM comment WHERE product_id = ".intern() + id;
-                List<Comment> cmnts = jdbcTemplate.query(sql, (ResultSet rs, int i) -> 
-                        new Comment(rs.getLong("id"), rs.getString("header") ,rs.getString("body"), rs.getString("nick"), rs.getDate("date")));
-                product.comments = cmnts;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
-            return product;
+        AdminException exception = new AdminException();
+        
+        if (id == null) {
+            throw exception.addExceptionName("IllegalArgumentException")
+                    .addMessage("Переданный id = NULL. Запрос: /admin/product/{id}. Ошибка валидации на уровне контроллера.");
         }
-        return null;
+        
+        try {
+            List<Category> categories = new ArrayList<>();
+            List<Comment> comments = new ArrayList<>();
+            Product product = new Product();
+            EntityCheck check = new EntityCheck(2);
+            String query = "SELECT p.*, i.url, c.id AS cat_id, c.name AS cat_name, "
+                    + "cm.id  AS cm_id, cm.nick AS cm_nick, cm.date AS cm_date, cm.header AS cm_header, cm.body AS cm_body  FROM product p "
+                    + "LEFT JOIN img i ON  p.img_id = i.id "
+                    + "LEFT JOIN category_products cp ON p.id = cp.product_id "
+                    + "LEFT JOIN category c ON c.id = cp.category_id "
+                    + "LEFT JOIN coments cm ON cm.product_id = p.id WHERE p.id = " + id;
+            
+            jdbcTemplate.query(query, (ResultSet rs, int i) -> {
+                if (check.isInit == false) {
+                    product.id = rs.getLong("id"); 
+                    product.buyStat = rs.getInt("buyStat");
+                    product.quantity = rs.getInt("quant");
+                    product.mark = rs.getInt("mark");
+                    product.price = rs.getDouble("price"); 
+                    product.name = rs.getString("name"); 
+                    product.description = rs.getString("description");
+                    product.isExist = rs.getBoolean("exist"); 
+                    product.startDate = rs.getDate("start"); 
+                    product.lastBuyDate = rs.getDate("last");
+                    product.imgUrl =  rs.getString("url");
+                    product.imgId = rs.getLong("img_id");
+                    check.init();
+                }
+                
+                Category category =  new Category(rs.getLong("cat_id"), rs.getString("cat_name"));
+                
+                if (!check.isLastEntity(0, category.id)) {
+                    categories.add(category);
+                }
+                
+                Comment comment = new Comment(rs.getLong("cm_id"), rs.getString("cm_header"), rs.getString("cm_body"), rs.getString("cm_nick"), rs.getDate("cm_date"));
+                
+                if (!check.isLastEntity(1, comment.id)) {
+                    comments.add(comment);
+                }
+                
+                return product;
+            });
+            
+            product.category = categories;
+            product.comments = comments;
+            return product;
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw exception.addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
+        }
     }
 
     @Override @Nullable
     public List<Product> selectProductsWhereCtegoryId(@Nullable Long categoryId, @Nullable Integer limit, @Nullable Integer offset) {
         if (categoryId != null && limit != null && offset != null) {
             try {
-                String sql = "SELECT p.*, i.url FROM product p INNER JOIN category_products cp ON "
-                        + "cp.product_id = p.id AND cp.category_id = " + categoryId + " INNER JOIN img i ON p.img_id = i.id " + " LIMIT " + limit + " OFFSET " + offset * limit;
-                List<Product> prdcts = jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
+                String sql = "SELECT p.*, i.url FROM product p INNER JOIN category_products cp ON cp.product_id = p.id AND cp.category_id = " + categoryId 
+                        + " INNER JOIN img i ON p.img_id = i.id " + " LIMIT " + limit + " OFFSET " + offset * limit;
+                
+                return jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
                                 rs.getInt("mark"), rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getDate("start"), 
                         rs.getDate("last"), rs.getString("url")));
-                return prdcts;
             } catch (DataAccessException ex) {
                 ex.printStackTrace();
                 return null;
             }
         }
+        
         return null;
     }
     
-    @Override @Nullable
+    @Override @NotNull
     public List<Product> selectProductsWhereCategoryNotExist(@Nullable Integer limit, @Nullable Integer offset) {
-        if (limit != null && offset != null) {
-            try {
-                String sql = String.format("SELECT * FROM product WHERE id NOT IN (SELECT id FROM category_products) LIMIT $n OFFSET $n;".intern(), limit, limit * offset);
-                List<Product> prdcts = jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
-                                    rs.getInt("mark"), rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),rs.getDate("start"), rs.getDate("last")));
-                return prdcts;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-            }
+        if (limit == null && offset == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException.")
+                    .addMessage("Переданные аргументы == NULL. Ошибка валидации на уровне контроллера.");
         }
-        return null;
+        
+        try {
+            String sql = String.format("SELECT * FROM product WHERE id NOT IN (SELECT id FROM category_products) LIMIT $n OFFSET $n;", limit, limit * offset);
+
+            return jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), rs.getDouble("price"), 
+                    rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getDate("start"), rs.getDate("last")));
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
     }
     
     @Override @Nullable
-    public List<Product> selectProductsInSomeTimePeriod(@Nullable Long mils, @Nullable Integer limit, @Nullable Integer offset) {
-        if (mils != null && limit != null && offset != null) {
+    public List<Product> selectProductsInSomeTimePeriod(@NotNull Long mils, @NotNull Integer limit, @NotNull Integer offset) {
             try {
                 String sql = "SELLECT * FROM product WHERE start > ? LIMIT ? OFFSET ?;".intern();
                 List<Product> prdcts = jdbcTemplate.query(sql, new Object[] {DateUtil.getTimeStamp(mils), limit , limit * offset}, (ResultSet rs, int i) -> 
                         new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), rs.getDouble("price"), 
                                 rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),rs.getDate("start"), rs.getDate("last")));
                 return prdcts;
-            } catch (DataAccessException ex) {
+            } catch (NullPointerException | DataAccessException ex) {
                 ex.printStackTrace();
             }
-        }
         return null;
     }
     
-    /*
-        SELECT DISTINCT table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema='public'
-        AND table_name = 'PRODUCT';
-    */
-    
-    /*
-    {
-    'where' : [
-            'name' : null,                   LIKE %real symbols%,  IF NULL LIKE '%%'
-            'description' : null,       LIKE %real symbols%,  IF NULL LIKE '%%'
-            'price' : null,                    = n, > n, < n, > n0 and <n1  IF NULL > 0
-            'mark' : null,                    = n, > n, < n, > n0 and <n1  IF NULL > 0
-            'buystat ' : null,              = n, > n, < n, > n0 and <n1  IF NULL > 0
-            'start' : null,                     > timestamp,  < timestamp, BEETWEN timestamp0 and timestamp1   IF NULL < now()
-            'last' : null,                       > timestamp,  < timestamp, BEETWEN timestamp0 and timestamp1   IF NULL < now()
-            'quant' : null,                   = n, > n, < n, > n0 and <n1  IF NULL > 0
-            'exist' : null                      = 'true', <>  'true'     IF NULL  = 'true' OR <> 'true'
-        ],
-    'innerJoin' : {
-        'categories' : [],                  IF NULL SELECT id FROM category 
-        'operator' :                          IN, NOT IN
-    }
-    */
-    
-    /*
-    SELECT attrelid ,attname ,atttypid ,attstattarget ,attlen ,attnum 
-    ,attndims , attcacheoff , atttypmod ,attbyval , attstorage , attalign , attnotnull , atthasdef , attidentity FROM pg_attribute WHERE attrelid = 'PRODUCT'::regclass;
-    */
-    
-    /*
-    SELECT attisdropped ,attislocal ,attinhcount ,attcollation ,attacl ,attoptions, attfdwoptions FROM pg_attribute WHERE attrelid = 'PRODUCT'::regclass;
-    */
-    
-    //atttypid - ТИП ДАННЫХ СТОЛБЦА
-        //1043 - VARCHAR,  700 - REAL
-    @Override
-    public List<Product> productComplexSelection() {
-        String[] categories = null;
-        String operator = null;
-        String[] where = null;
-        
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT")
-                .append((categories != null) ? " DISTINCT * FROM product p INNER JOIN category_products cp  ON p.id = cp.product_id AND  cp.product_id "
-                        + operator + " " + categories : " * FROM product p");
-        if (where != null) {
-            sql.append(" WHERE ").append(where[0]);
-            for (int i = 1; i < where.length; i++) {
-                sql.append(" AND ").append(where[i]);
-            }
+    @Override @NotNull
+    public List<ProductRow> searchTableSelection(@NotNull String query) {
+        if (query == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException")
+                    .addMessage("NULL значение строки запроса не предусмотренно. Ошибка валидации на уровне контроллера.");
         }
-        sql.append(";");
-                
         
-                
-      
-        //SELECT DISTINCT p.* FROM product p INNER JOIN category_products cp  ON p.id = cp.product_id AND  cp.product_id IN (1,2,3,4,5,6,7);
-
-        
-        //AND name LIKE (%real symbol%  or  '%%')
-        //AND description LIKE (%real symbol%  or  '%%')
-        //AND price (> 5  OR price < 5 OR price  > 5 AND price  < 5)
-        //
-        return null;
+        try {
+            return jdbcTemplate.query(query, (ResultSet rs, int i) -> new ProductRow(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
+                    rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), 
+                    DateUtil.getDate(rs.getDate("start")), DateUtil.getDate(rs.getDate("last"))));
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException().addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
+        }
     }
     
     @Override
@@ -231,19 +221,17 @@ public class ProductService implements ProductDao {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public boolean updateProductName(@Nullable Long id, @Nullable String name) {
-        if (id != null && name != null) {
-            try {
-                String sql = "UPDATE product SET name = ? WHERE id =".intern() + id;
-                return jdbcTemplate.update(sql, name) == 1;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return false;
-            }
+    @Override @NotNull
+    public boolean updateProductName(@NotNull Long id, @NotNull String name) {
+        try {
+            String sql = "UPDATE product SET name = ? WHERE id =".intern() + id;
+            return jdbcTemplate.update(sql, name) == 1;
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException().addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
         }
-        return false;    
     }
+    
 
     @Override
     public boolean updateProductDesc(@Nullable Long id, @Nullable String desc) {
@@ -356,34 +344,32 @@ public class ProductService implements ProductDao {
     $$ LANGUAGE plpgsql;
     */
     
-    //OLD FUNCTION
-    /*
-    CREATE OR REPLACE FUNCTION INSERT_PRODUCT(prname VARCHAR, prdesc VARCHAR, prprice REAL, prquant INT, catid BIGINT) RETURNS INT AS $res$ DECLARE tid BIGINT; BEGIN PERFORM id FROM product WHERE name = prname; IF NOT FOUND THEN INSERT INTO product(name, description, price, quant, start) VALUES (prname, prdesc, prprice, prquant, NOW()); ELSE  RETURN 0; END IF; IF catid IS NULL THEN RETURN 1; ELSE PERFORM id FROM category WHERE id = catid;  IF FOUND THEN SELECT INTO tid id FROM product WHERE name = prname; INSERT INTO category_products (category_id, product_id) VALUES (catid, tid); RETURN 2; ELSE RETURN 1; END IF; END IF; END; $res$ LANGUAGE plpgsql;
-    */
-    
     @Override
-    public boolean insertProduct(@Nullable InsertProdDto dto) {
-        if (dto != null && dto.name != null && dto.url != null) {
-            Connection con = null;
-            try {
-                DataSource ds = jdbcTemplate.getDataSource();
-                if (ds == null) {
-                    return false;
-                }
+    public void insertProduct(@NotNull InsertProdDto dto) {
+        if (dto == null || dto.name == null || dto.url == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException")
+                    .addMessage("@Nullable InsertProdDto dto == null || dto.name == null || dto.url == null. Ошибка валидации на уровне контроллера.");
+        }
+        
+        Connection con = null;
+        
+        try {
+            DataSource ds = jdbcTemplate.getDataSource();
+            
+            if (ds != null) {
                 con = ds.getConnection();
                 Array catIds = (dto.categoryIds != null) ? con.createArrayOf("BIGINT", dto.categoryIds) : null;
-                String sql = "SELECT INSERT_PRODUCT(?, ?, ?, ?, ?, ?);".intern();
-                jdbcTemplate.query(sql, new Object[] {dto.name, dto.description, dto.url, catIds , dto.price, dto.quantity}, (rs) -> {
-                    return null;
-                });
-                return true;
-            } catch (DataAccessException | SQLException  ex) {
-                ex.printStackTrace();
-            } finally {
-                ConnectionUtil.closeConnection(con);
+                String sql = "SELECT INSERT_PRODUCT(?, ?, ?, ?, ?, ?);";
+                
+                jdbcTemplate.query(sql, new Object[]{dto.name, dto.description, dto.url, catIds, dto.price, dto.quantity}, (rs) -> {});
             }
+            
+        } catch (DataAccessException | SQLException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        } finally {
+            ConnectionUtil.closeConnection(con);
         }
-        return false;
     }
 
     @Override
@@ -404,6 +390,40 @@ public class ProductService implements ProductDao {
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    
+    private static class EntityCheck {
+        
+        private boolean isInit = false;
+        private final List<Number> ids = new ArrayList<>();
+        
+        public EntityCheck() {}
+        
+        public EntityCheck(Integer elemQuant) {
+            for (int i = 0; i < elemQuant; i++) {
+                ids.add(-1);
+            }
+        }
+        
+        public  void init() {
+            isInit = true;
+        }
+        
+        public boolean isInit() {
+            return isInit;
+        }
+        
+        public boolean isLastEntity(int entityIndex, Long value) {
+            if (entityIndex > ids.size()) {
+                throw new ArrayIndexOutOfBoundsException();
+            } else if (value == null || value.equals(0L)) {
+                return true;
+            } else if (ids.get(entityIndex).equals(value)) {
+                return true;
+            } else {
+                ids.set(entityIndex, value);
+                return false;
+            }
+        }
+    }
 
 }

@@ -13,12 +13,13 @@ import java.util.List;
 public class Product implements Serializable {
 
     public Long id;
+    public Long imgId;
     public Integer buyStat;
     public Integer quantity;
     public Integer mark;
     public Double price;
     //O-O
-    public String imgeUrl;
+    public String imgUrl;
     public String name;
     public String description;
     public Boolean isExist;
@@ -48,7 +49,7 @@ public class Product implements Serializable {
     
     //With image
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Double price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate, String imgeUrl) {
+            Double price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate, String imgUrl) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -60,7 +61,7 @@ public class Product implements Serializable {
         this.isExist = isExist;
         this.startDate = startDate;
         this.lastBuyDate = lastBuyDate;
-        this.imgeUrl = imgeUrl;
+        this.imgUrl = imgUrl;
     }    
     
     public  Product(Long id, String name, String description , Double price) {
@@ -69,4 +70,118 @@ public class Product implements Serializable {
         this.description = description;
         this.price = price;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getImgId() {
+        return imgId;
+    }
+
+    public void setImgId(Long imgId) {
+        this.imgId = imgId;
+    }
+
+    public Integer getBuyStat() {
+        return buyStat;
+    }
+
+    public void setBuyStat(Integer buyStat) {
+        this.buyStat = buyStat;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Integer getMark() {
+        return mark;
+    }
+
+    public void setMark(Integer mark) {
+        this.mark = mark;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getIsExist() {
+        return isExist;
+    }
+
+    public void setIsExist(Boolean isExist) {
+        this.isExist = isExist;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getLastBuyDate() {
+        return lastBuyDate;
+    }
+
+    public void setLastBuyDate(Date lastBuyDate) {
+        this.lastBuyDate = lastBuyDate;
+    }
+
+    public List<Category> getCategory() {
+        return category;
+    }
+
+    public void setCategory(List<Category> category) {
+        this.category = category;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+    
+    
 }

@@ -1,23 +1,26 @@
 package alex.home.angular.sql.query;
 
+import alex.home.angular.dto.SearchQuery;
 import alex.home.angular.dto.SearchQuery.SearchField;
 import alex.home.angular.sql.PGMeta;
 import java.util.List;
 
 public class SqlQueryProduct implements SqlQuery {
     
-    private final List<SearchField> fields;
+    private final SearchQuery query;
     
-    public SqlQueryProduct(List<SearchField> fields) {
-        this.fields = fields;
+    public SqlQueryProduct(SearchQuery query) {
+        this.query = query;
     }
  
     @Override
-    //запрос уязвим для инъекций
-    public String getQueryRow() {
-        if (fields == null){
+    public  String getQueryRow() {
+        if (query == null || query.limit == null || query.offset == null 
+                || query.searchQuery == null || query.searchQuery.isEmpty()){
             return null;
         }
+        
+        List<SearchField> fields = query.searchQuery;    
         StringBuilder sb = new StringBuilder("SELECT ");
         int categoryIndex = -1;
         int fieldsSize = fields.size();
@@ -118,8 +121,18 @@ public class SqlQueryProduct implements SqlQuery {
                     sb.append(" AND ");
                 }  
             }
-            sb.append(";");
        }
+        
+        if (String.format("SELECT * FROM %s WHERE ", PGMeta.PRODUCT_TABLE).equals(sb.toString())) {
+            return null;
+        }
+        
+        sb.append(" LIMIT ")
+                .append(query.limit)
+                .append(" OFFSET ")
+                .append(query.offset)
+                .append(";");
+        
         return sb.toString();
     }
     

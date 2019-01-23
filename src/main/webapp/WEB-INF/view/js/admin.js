@@ -5,16 +5,22 @@ adminApp.config(function($routeProvider, $locationProvider) {
     $routeProvider.when('/addNewProduct', {
         templateUrl : '/html/add_product.html',
         controller: 'addProductController'
-    });
-    
-    $routeProvider.when('/searchProduct', {
-        templateUrl : '/html/search_table.html',
+        
+    }).when('/searchProduct', {
+        templateUrl : '/html/search_form.html',
         controller: 'searchTableController'
+        
+    }).when('/productTable', {
+        templateUrl : '/html/product_table.html',
+        controller: 'productTableController'
+        
+    }).when('/admin/product/:prId', {
+        templateUrl : '/html/admin_product_update.html',
+        controller: 'adminProductController'
     });
     
     $routeProvider.otherwise({redirectTo: '/admin'});
 
-    
     $locationProvider.html5Mode({enabled: true, requireBase: false});
 });
 
@@ -53,13 +59,15 @@ adminApp.controller('addProductController', function($scope, $http) {
     };
 });
 
-adminApp.controller('searchTableController', function($scope, $http, $q, $timeout) {       
-    $http({method : 'POST', url : '/getSearchTable'}).then(
+adminApp.controller('searchTableController', function($scope, $http, $timeout, $location, $rootScope) {
+    var exception = new Exception();
+    
+    $http({method : 'POST', url : '/searchTable'}).then(
         function(resp) {
-                $scope.searchTab = angular.fromJson(resp.data.response);
-                $timeout(function(){
-                    $('.searchSelect').on('change', defSearchChangeEvent);        
-                }, 2000);
+            $scope.searchTab = angular.fromJson(resp.data.response);
+//            $timeout(function(){
+                $('.searchSelect').on('change', defSearchChangeEvent);        
+//                }, 2000);
         }, function(resp) {
             alert(resp.data.response);
     });
@@ -67,7 +75,6 @@ adminApp.controller('searchTableController', function($scope, $http, $q, $timeou
     function defSearchChangeEvent(e)  {
         var searhInputsDiv = $($(e.target).parent().parent());
         searhInputsDiv.find('.searchOptionHidden').val(e.target.value);
-        console.log(e.target.value);
         var doubleSearchInput = searhInputsDiv.find('.doubleSearchInput');
         if (e.target.value === 'Between' || e.target.value === '>= And <') {
                 doubleSearchInput.show();
@@ -78,22 +85,13 @@ adminApp.controller('searchTableController', function($scope, $http, $q, $timeou
    
     $scope.submitSerchForm = function() {
         var searchReqList = [];    
-   
-        function SearchElement() {
-            this.columnName; this.operator; this.type; this.data;
-            this.push = function(el) {
-                if (!this.data) { this.data = []; }
-                this.data.push(el); 
-            };
-        }
-        
         var searchInputs = $('.searchInputWrapper');
         
         //ALL push: ƒ, columnName: "quant", operator: ">", data: Array(1), type: "number"}
         //BOOLEAN {columnName: "exist", operator: "False", data: [null], type: "undefined"}
         //Cложность из-за добавленной exist boolean строки
         //инпут данных отсутствует, тип берется с инпута , а оператор на сервер должен быть передан как данные
-        //boolean приведен к columnName: "exist", type: "boolean", operator: undefined, data: Array(1)
+        //boolean приведен к columnName: "exist", type: "boolean", operator: undefined, data: Array(1) -> False
         for (var i = 0; i < searchInputs.length; i++) {
             var serchElement = new SearchElement();
             var searchInputEl = $(searchInputs[i]);
@@ -110,14 +108,43 @@ adminApp.controller('searchTableController', function($scope, $http, $q, $timeou
             }
             searchReqList.push(serchElement);
         }
-        
-        $http({method : 'POST', url :'/searchQuery', data: {searchQuery : searchReqList}}).then(function(resp) {
-            console.log(resp.data);
+
+        $http({
+            method : 'POST', 
+            url : '/searchQuery', 
+            data: {
+                searchQuery: searchReqList,
+                limit : 50,
+                offset : 0 
+            }
+        }).then(function(resp) {
+            $location.path('/productTable');
+                $rootScope.shared =  angular.fromJson(resp.data.response);
         }, function(resp) {
-            console.log(resp.data);
+            exception.init(resp.data.response);
+            exception.showExMessage();
         });
     };
+});
+
+adminApp.controller('productTableController', function($scope, $http, $rootScope, $location) {    
+    $scope.productTableRow = $rootScope.shared;
     
+    $scope.selectProduct = function() {
+        pathPTVariable = '/admin/product/' + this.element.id;
+        $http({method: 'GET', url: pathPTVariable})
+                .then(function(resp) {
+                    $location.path(pathPTVariable);
+                    $rootScope.shared = angular.fromJson(resp.data.response);
+                    console.log($rootScope.shared);
+                }, function(resp) {
+                    console.log(resp.data.response);
+                });
+    };
+});
+
+adminApp.controller('adminProductController', function($scope, $rootScope) {
+    $scope.prods = [$rootScope.shared];
 });
 
 adminApp.controller('adminNavController', function($scope) {
@@ -158,9 +185,11 @@ adminApp.controller('adminNavController', function($scope) {
             navEl1.show();
         }
     };
-    
 });
 
+///SERVICES
+
+///DIRECTIVES
 adminApp.directive('ngFileUp', function() {
     return {
         restrict : 'A',
@@ -174,7 +203,7 @@ adminApp.directive('ngFileUp', function() {
                 var addElm = $(el.target).prop('files')[0];
                 ngModel.$setViewValue(addElm);
                 var addImgReader = new FileReader();
-                addImgReader.onload = function(){
+                addImgReader.onload = function() {
                         $('#prodBigImage').attr('src', addImgReader.result);
                 };
                 addImgReader.readAsDataURL(addElm);
@@ -183,114 +212,47 @@ adminApp.directive('ngFileUp', function() {
     };
 });
 
+///SUBROUTINES
 
+///ADMIN_EXCEPTION_OBJECT
+function Exception() {
+    var exceptionModal = $('.exceptionModalWindow');
+    this.exceptionName;
+    this.message;
+    this.cause;
+    this.sTrace;
+    this.isInit = 0;
+    this.init = function(dataResponse) {
+        this.exceptionName = dataResponse.exceptionName || '';
+        this.message = dataResponse.message || '';
+        this.cause = dataResponse.cause || '';
+        this.sTrace = dataResponse.sTrace || '';
+        this.isInit = 1;
+    };
+    this.showExMessage = function() {
+        if (isInit === 0) {
+            console.log('Exception was not initiolized.');
+            return;
+        }
+        if (exceptionModal.is(':visible')) {
+            exceptionModal.hide();
+        } else {
+            exceptionModal.show();
+        }
+        isInit = 0;
+    };
+}
 
-//adminApp.controller('navController', function($scope){
-//    $scope.navBar = "html/nav_bar.html";
-//});
-
-//////ANGULAR SERVICES $rootScope, $location, $http, $window , $dirty
-//
-////$q - deffered object  
-////$timeout
-//
-////$routeProvider, $locationProvider
-//let authApp = angular.module('authPage', []);
-//let adminApp = angular.module('adminPage', ['ngRoute'])
-//        .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-//                $routeProvider.when('/b' ,{
-//                    template : '<h1>HELLO ANGUU</h1>',
-//                    controller: 'bController'
-//                });
-////                $routeProvider.when('/admin' , {
-////                    templateUrl : 'html/admin.html',
-////                    controller: 'defferController',
-////                    resolve: {
-////                        main: function( $q, $timeout, $log) {
-////                            $log.log($q);
-////                            let defer = $q.defer();
-////                            $timeout(function() {
-////                                defer.resolve();
-////                            }, 2000);
-////                        return defer.promise;
-////                        }
-////                    }
-////                });
-////                $routeProvider.otherwise({redirectTo: '/auth'});
-//                
-//                $locationProvider.html5Mode({enabled: true, requireBase: false});
-//}]);
-//
-//                adminApp.controller('bController', function($window) {
-//                    $window.log(1);
-//                });
-//                
-////                adminApp.controller('defferController', function($q) {
-////                    let defer = $q.defer();
-////                    defer.promise.then(function(data) {
-////                        let resp = data;
-////                        alert(data);
-////                        return resp;
-////                    });
-////                    defer.resolve("Alex");
-////                });
-//
-//
-//
-//adminApp.controller('productController', ['$scope', '$http', function($scope, $http){
-//        
-//}]);
-//
-//
-//adminApp.controller('adminController', ['$scope', '$http', function($scope, $http) {
-//        
-//        let allAdmins = {};
-//        
-//        $scope.insertAdmin = function() {           
-//            let adminForm = {
-//               nick : $scope.nick,
-//               password: $scope.password,
-//               role: $scope.role
-//           };
-//           $http({
-//                   method: 'POST',
-//                   url: '/insertAdmin',
-//                   data: adminForm
-//            }).then(function(rsp) {
-//                alert(angular.toJson(rsp.data));
-//            }, function(rsp) {
-//                alert(angular.fromJson(rsp.data));
-//            });
-//        };
-//        
-//        $scope.deleteAdmin = function() {
-//           
-//           
-//        };
-//        
-//        $scope.getAllAdmins = function() {
-//            
-//        };
-//}]);
-//
-//
-//
-//authApp.controller('authenticationController', ['$scope', '$http', function($scope, $http){
-//        
-//        $scope.userAuthentication = function() {
-//            let nick = $scope.nick;
-//            let password = $scope.password;
-//
-//            $http({
-//                method: 'POST',
-//                url: '/auth',
-//                data: 'nick=' + nick + '&password=' + password,
-//                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-//            }, function(rsp) {
-//                alert(angular.toJson(rsp.data));
-//            }, function(rsp) {
-//                alert(angular.toJson(rsp.data));
-//            });
-//        };
-//}]);
-
+///OBJECT FOR SEARCH TABLE REQUEST
+function SearchElement() {
+    this.columnName; 
+    this.operator; 
+    this.type; 
+    this.data;
+    this.push = function(el) {
+        if (!this.data) { 
+            this.data = []; 
+        }
+        this.data.push(el); 
+        };
+    }

@@ -2,6 +2,7 @@ package alex.home.angular.dao;
 
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
+import alex.home.angular.dto.ProductRow;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -23,7 +24,7 @@ public interface ProductDao {
     
     List<Product> selectProductsInSomeTimePeriod(Long mils, Integer limit, Integer offset);
     
-    List<Product> productComplexSelection();
+    List<ProductRow> searchTableSelection(String query);
     
     boolean doSoldActions(Long id, Integer quant, Integer buyStat, Date lastBuy);
     
@@ -39,7 +40,7 @@ public interface ProductDao {
     
     boolean updateProductMark(Long id, Integer mark);
     
-    boolean insertProduct(InsertProdDto dto);
+    void insertProduct(InsertProdDto dto);
     
     boolean deleteProduct(Long id);
  

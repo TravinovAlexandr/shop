@@ -4,32 +4,39 @@
     </div>
     <form ng-submit="submitSerchForm()">
         <table class="searchTable">
-            <thead>
-            <div class="searchTHeaderWrapper" >
-                <tr>
-                    <td><p>Имя</p></td>
-                    <td><p>Запрос</p></td>
-                    <td><p>Условие</p></td>
-                </tr>
-            </div>
-            </thead>
             <tbody>
             <div class="searchTBodyWrapper" ng-repeat="obj in searchTab">
                 <div  class="searchChangeElem" ng-if="obj.type !== 'UNDEFINED'">
-                    <div class="nameSearchWrapper">
-                        <p>{{obj.name}}</p>
+                    <div class="searchFormEl">
+                        <div class="nameSearchWrapper">
+                            <p>{{obj.name}}</p>
+                        </div>
                     </div>
                     <div class="searchInputWrapper">
-                        <input class="searchNameHidden" type="hidden" value="{{obj.name}}" />
+                        <div class="searchFormEl">
+                            <input class="searchNameHidden" type="hidden" value="{{obj.name}}" />
+                        </div>
+                        <div class="searchFormEl">
                         <input class="searchTypeHidden" type="hidden" value="{{obj.type}}" />
+                        </div>
+                        <div class="searchFormEl">
                         <input class="searchOptionHidden" type="hidden" value="{{obj.conditions[0]}}" />
+                        </div>
+                        <div class="searchFormEl">
                         <input class="mainSearchInput" type="{{obj.type}}" ng-if="obj.type !== 'radio'"/>
+                        </div>
+                        <div class="searchFormEl">
                         <input class="doubleSearchInput" type="number"ng-if="obj.type === 'number'"/>
+                        </div>
+                        <div class="searchFormEl">
                         <input class="doubleSearchInput" type="date"ng-if="obj.type === 'date'"/>
-                        <div class="conditionWrapper">
-                            <select class="searchSelect">
-                                <option ng-repeat="op in obj.conditions" value="{{op}}">{{op}}</option>
-                            </select>
+                        </div>
+                        <div class="searchFormEl">
+                            <div class="conditionWrapper">
+                                <select class="searchSelect">
+                                    <option ng-repeat="op in obj.conditions" value="{{op}}">{{op}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>

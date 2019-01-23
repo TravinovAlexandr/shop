@@ -1,0 +1,10 @@
+.searchTableWrapper {padding-left: 2%; float: left; }
+.searchTableWrapper button { clear: both; height: 30px; font-size: 18px;}
+.searchTableWrapper input[type=date]{ width: 100%; }
+.searchTableWrapper input[type=text]{ width: 100%; }
+.searchTableWrapper input[type=number]{ width: 100%; }
+.searchInputWrapper select { font-size: 19px; width: 70px; height: 30px;}
+.searchInputWrapper option { font-size: 18px; }
+.searchChangeElem { clear: both; }
+.searchFormEl { float: left; width: 200px; background-color: white; margin: 0px; padding: 0px; }
+.nameSearchWrapper p { vertical-align: top; margin: 0px; padding: 0px; }

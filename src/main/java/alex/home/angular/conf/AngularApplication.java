@@ -2,14 +2,13 @@ package alex.home.angular.conf;
 
 import alex.home.angular.utils.img.write.ImageFSWriter;
 import alex.home.angular.utils.img.write.ImageWriter;
-import javax.servlet.MultipartConfigElement;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 @SpringBootApplication(scanBasePackages = "alex.home.angular")
 public class AngularApplication {
@@ -32,5 +31,15 @@ public class AngularApplication {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
         multipartResolver.setMaxUploadSizePerFile(997152);
         return multipartResolver;
+    }
+    
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(Runtime.getRuntime().availableProcessors());
+        executor.setQueueCapacity(100);
+        executor.initialize();
+        return executor;
     }
  }

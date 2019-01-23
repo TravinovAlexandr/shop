@@ -25,6 +25,7 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
         if (flds != null) {
             return fieldConverter(flds);
         }
+        
         return null; 
     }
     

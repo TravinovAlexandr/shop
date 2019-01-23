@@ -7,6 +7,8 @@ import org.springframework.util.AutoPopulatingList;
 public class SearchQuery implements Serializable {
 
     public List<SearchField> searchQuery = new AutoPopulatingList<>(SearchField.class);
+    public Integer limit;
+    public Integer offset;
     
     public static class SearchField {
     
