@@ -14,6 +14,7 @@ public class AdminException extends RuntimeException {
     
     public AdminException(Throwable throwable) {
         adminCallBack = new AdminCallback();
+        
         setExceptionName(throwable.getClass().getSimpleName());
         setSTrace(throwable);
     }
@@ -32,7 +33,9 @@ public class AdminException extends RuntimeException {
     
     public final void setSTrace(Throwable throwable) {
         StringBuilder sb = new StringBuilder();
+        
         collectSTrace(sb, throwable);
+        
         adminCallBack.sTrace = sb.toString();
     }
     
@@ -53,7 +56,9 @@ public class AdminException extends RuntimeException {
     
     public final AdminException addSTrace(Throwable throwable) {
         StringBuilder sb = new StringBuilder();
+        
         collectSTrace(sb, throwable);
+        
         adminCallBack.sTrace = sb.toString();
         return this;
     }
@@ -62,10 +67,11 @@ public class AdminException extends RuntimeException {
         if (throwable == null) {
             return;
         }
+        
         for (StackTraceElement e : throwable.getStackTrace()) {
-             sb.append(e.toString())
-                     .append("-||-");
+             sb.append(e.toString()).append("<br>");
          }
+        
         collectSTrace(sb, throwable.getCause());
     }
     
@@ -73,7 +79,7 @@ public class AdminException extends RuntimeException {
         return adminCallBack;
     } 
     
-    public static class AdminCallback implements Serializable {
+    private static class AdminCallback implements Serializable {
     
         private String exceptionName;
         private String message;

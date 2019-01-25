@@ -1,133 +1,42 @@
+/*EXCEPTION*/
+.adminExWrapper { width: 40%;  z-index: 999; position: absolute; margin: 20px 0; margin-left: 30%; }
+.adminExInfo { width: 100%; float: left; background-color: red; padding: 1vh 1vh 0vh 1vh; }
+.exceptionModalStrace { width: 100%; float: left; background-color: yellow; max-height: 500px; overflow: auto; margin: 0;}
+.adminExName { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
+.adminExName p { margin: 2vh 0vh; }
+.adminExMessage { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
+.adminExMessage p {  margin: 2vh 0vh; }
+.adminExCause { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
+.adminExCause p {  margin: 2vh 0vh; }
+.adminExSTrace { width: 100%; float: left; background-color: red; padding: 0vh 1vh 1vh 1vh; }
+.quitWrapper { float: right; height: available; width: 3vw; min-width: 30px; text-align: center; transition: 0.7s;  }
+.quitWrapper:hover { cursor: pointer; transition: 0.7s; 
+	-o-transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-moz-transform: rotate(-90deg);
+	-webkit-transform: rotate(-90deg);
+	transform: rotate(-90deg);
+}
+.quitWrapper p { margin: 2vh 0vh; }
+.exceptionModalStrace { font-size: 16px;  }
 
-.mainWrapper {
-    width: 100%;
-    float: left;
-    background-color: yellow;
-    padding: 20px 0 20px 0;
-    margin: 20px 0 20px 0;
-}
-.leftMainWrapper {
-    width: 30%;
-    float: left;
-    font-size: 18px; 
-}
-.rightMainWrapper {
-    width: 70%;
-    float: right;
-    margin-bottom: 30px;
-}
-.left {
-    width: 30%;
-    float: left;
-}
-.right {
-    width: 70%;
-    float: right;
-}
+/* add product*/
+.addImageButton { text-align: center; cursor: pointer; line-height: 70px;}
+.addImageButton:hover { text-decoration: underline; color:#157700; }
+.addProductButton { height: 30px; } 
+#productAddImage { display: none; }
 
-.changeAdminDataNick {
-    display: none;
-    background-color: #CEFF81;
-    float: left;
-    width: 100%;
-    padding: 3%;
-}
-.changeAdminDataPassword {
-    display: none;
-    background-color: #CEFF81;
-    float: left;
-    width: 100%;
-    padding: 3%;
-}
-.adminGreetings p {
-    cursor: pointer;
-    max-width: 50%;
-}
-.adminka {
-    font-size: 26px;
-    /* -webkit-transition: font-size 0.7s; */
-    font-size: 40px;
-    color: #157700;
-    margin-top: 5px;
-}
-.changeAdminData button {
-    margin-top:5px;
-}
-.changeNickPrgf {
-    margin-left: 15px;
-    font-size: 20px;
-    text-decoration: underline;
-}
-.changeNickPrgf:hover {color: #157700;}
-.changePasswordPrgf:hover {color: #157700;}
 
-.changePasswordPrgf {
-    margin-left: 15px;
-    font-size: 20px;
-    text-decoration: underline;
-}
-.changeAdminData input {
-    display: block;
-    margin: 10px;
-}
-.adminNavigation li {
-    list-style-type: none;
-    left: -100px;
-}
-.navCategory {
-    -webkit-transition: font-size 0.7s;
-    transition: 1s;
-}
-.navCategory:hover {
-    background-color: #CEFF81;
-    cursor: pointer;
-    transition: 1s;
-}
-.navCategory p {
-    font-size: 20px;
-    
-}
-.navCategory li {
-    margin-top : 2px;
-    margin-bottom : 2px;
-}
-input[type=file] {
-    display: none;
-}
-.addImageButton {
-    text-align: center;
-    cursor: pointer;
-    line-height: 70px;
-}
-.addImageButton:hover {
-    text-decoration: underline;
-    color:#157700;
-}
-.addProductButton {
-    height: 30px;
-} 
-.navCategory a {
-    font-size: 18px;
-    margin-top: 5px;
-    color : black;
-}
-.hidden {
-    display: none;
-    background-color: white; 
-} 
-.adminNavigation {
-    padding-top: 2%;
-    margin-left: -4%;
-}
-.navigaciya {
-    font-size: 26px;
-    /* -webkit-transition: font-size 0.7s; */
-    font-size: 36px;
-    color: #157700;
-    margin-top: 5px;
-    margin-bottom: 0px;
-    margin-left: 3%;
-}
+
+
+
+
+
+.mainWrapper { width: 100%; float: left; padding: 20px 0 20px 0; margin: 20px 0 20px 0; height: fit-content; min-height: 500px; }
+.leftMainWrapper { width: 30%; float: left; font-size: 18px; }
+.rightMainWrapper { width: 70%; float: right; }
+
+
 
 
 
@@ -190,7 +99,6 @@ input[type=file] {
     padding: 230px 0 0 34%;
 }
 .authFormWrapper {
-    background-color: yellow;
     width: 30%;
     min-width: 200px;
     float: left;
@@ -221,12 +129,4 @@ input[type=file] {
 }
 .authenticationText:hover {
     color: #157700;
-}
-
-/*SEARH_TABLE.HTML*/
-.doubleSearchInput {
-    display: none;
-}
-.searchTableWrapper {
-    
 }

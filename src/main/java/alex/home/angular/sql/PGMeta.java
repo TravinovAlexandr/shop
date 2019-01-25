@@ -27,7 +27,7 @@ public class PGMeta {
     public static final String PG_INVALID_ATTNAME [] = new String [] { "tableoid", "cmax", "xmax", "cmin", "xmin", "ctid", "id", "img_id" };
     
     public static final String CHAR_COND [] = new String [] { "=", "Like" };
-    public static final String NUM_COND [] = new String [] { ">", "<", "=", "<>", ">= And <"};
+    public static final String NUM_COND [] = new String [] { ">", "<", "=", "<>", ">=<"};
     public static final String DATE_TIME_COND [] = new String [] { ">", "<", "Between" };
     public static final String BOOLEAN_COND [] = new String [] { "True", "False" };
     

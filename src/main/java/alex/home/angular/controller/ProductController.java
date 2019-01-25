@@ -94,8 +94,8 @@ public class ProductController {
         }
     }
     
-    @PostMapping(value = "/searchTable", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody public ResponseRsWrapper getSearchTable(ResponseRsWrapper rrw) {
+    @PostMapping(value = "/searchForm", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody public ResponseRsWrapper getSearchForm(ResponseRsWrapper rrw) {
         Properties props = null;
         List<SearchElement> rows = null;
         FutureTask futureTask = null;
@@ -169,7 +169,7 @@ public class ProductController {
                 props = propLoader.load("/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
                 
                 if (props == null) {
-                    return rrw.addResponse("File Not Found: /home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties")
+                    return rrw.addResponse("Propertie File Not Found: /home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties")
                             .addHttpErrorStatus(httpServletResponse, 500);
                 }
                 
@@ -192,7 +192,7 @@ public class ProductController {
             String sqlRow = sqlQuery.getQueryRow();
 
             if (sqlRow != null) {
-                return rrw.addResponse(productDao.searchTableSelection(sqlRow));
+                return rrw.addResponse(productDao.searchFormsSelection(sqlRow));
             }
 
             return rrw.addResponse("sqlQuery.getQueryRow(). Парсинг запроса не возможен.").addHttpErrorStatus(httpServletResponse, 400);

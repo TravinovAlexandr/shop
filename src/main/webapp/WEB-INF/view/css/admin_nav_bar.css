@@ -1,0 +1,21 @@
+.changeAdminDataNick { display: none; background-color: #CEFF81; float: left; width: 100%; padding: 3%; }
+.changeAdminDataPassword { display: none; background-color: #CEFF81; float: left; width: 100%; padding: 3%; }
+.adminGreetings p { cursor: pointer; max-width: 50%; }
+.adminka { font-size: 26px; font-size: 40px; color: #157700; }
+.left { width: 30%; float: left; }
+.right { width: 70%; float: right; }
+.changeAdminData button { margin-top:5px; }
+.changeNickPrgf { margin-left: 15px; font-size: 20px; text-decoration: underline; }
+.changeNickPrgf:hover { color: #157700; }
+.changePasswordPrgf:hover { color: #157700; }
+.changePasswordPrgf { margin-left: 15px; font-size: 20px; text-decoration: underline; }
+.changeAdminData input { display: block; margin: 10px; }
+.adminNavigation li { list-style-type: none; left: -100px; }
+.navCategory { -webkit-transition: font-size 0.7s; transition: 1s; }
+.navCategory:hover { background-color: #CEFF81; cursor: pointer; transition: 1s; }
+.navCategory p { font-size: 20px; }
+.navCategory li { margin-top: 2px; margin-bottom : 2px; }
+.navCategory a { font-size: 18px; margin-top: 5px; color : black; }
+.hidden { display: none; background-color: white } 
+/*.adminNavigation {padding-top: 2%;margin-left: -4%; }*/
+.navigaciya { font-size: 26px; font-size: 36px; color: #157700; margin-top: 5px; margin-bottom: 0px; margin-left: 3%; }

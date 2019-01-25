@@ -1,0 +1,11 @@
+.productTable { margin-top: 10px; width: fit-content; border: solid 1px #157700;}
+.prodTableBody { }
+.prodTableBody:hover {transition: 0.2s; cursor:pointer; background-color: #CEFF81; }
+.productTableElem {padding-left: 5px; }
+.productTableElem:hover { }
+.productTableElem td { border: none;}
+.productTableElem p {height: auto; margin-right: 5px; }
+
+.prodTableHead { background-color: #157700; color: white;}
+.productTableHElem {padding-left: 5px;}
+.productTableHElem p{height: auto; margin-right: 5px; }

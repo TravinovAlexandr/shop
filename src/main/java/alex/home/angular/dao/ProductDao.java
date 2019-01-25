@@ -24,7 +24,7 @@ public interface ProductDao {
     
     List<Product> selectProductsInSomeTimePeriod(Long mils, Integer limit, Integer offset);
     
-    List<ProductRow> searchTableSelection(String query);
+    List<ProductRow> searchFormsSelection(String query);
     
     boolean doSoldActions(Long id, Integer quant, Integer buyStat, Date lastBuy);
     

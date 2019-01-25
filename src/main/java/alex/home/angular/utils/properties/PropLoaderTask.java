@@ -14,7 +14,7 @@ public class PropLoaderTask<Properties> implements Callable<java.util.Properties
     
     @Override
     public java.util.Properties call() throws Exception {
-        if (path == null || propertiesLoader == null) {
+        if (propertiesLoader == null || path == null) {
             throw new RuntimeException();
         }
         

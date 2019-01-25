@@ -1,11 +1,11 @@
-<div class="searchTableWrapper">
+<div class="searchFormWrapper ">
     <div class="searchProductTitle">
         <p>Поиск продукта:</p>
     </div>
     <form ng-submit="submitSerchForm()">
-        <table class="searchTable">
+        <table >
             <tbody>
-            <div class="searchTBodyWrapper" ng-repeat="obj in searchTab">
+            <div class="searchTBodyWrapper" ng-repeat="obj in searchForm">
                 <div  class="searchChangeElem" ng-if="obj.type !== 'UNDEFINED'">
                     <div class="searchFormEl">
                         <div class="nameSearchWrapper">
@@ -22,8 +22,11 @@
                         <div class="searchFormEl">
                         <input class="searchOptionHidden" type="hidden" value="{{obj.conditions[0]}}" />
                         </div>
-                        <div class="searchFormEl">
-                        <input class="mainSearchInput" type="{{obj.type}}" ng-if="obj.type !== 'radio'"/>
+                        <div class="searchFormEl" ng-if="obj.type !== 'radio' && obj.type !== 'textarea'">
+                            <input class="mainSearchInput" type="{{obj.type}}" />
+                        </div>
+                        <div class="searchFormEl" ng-if="obj.type === 'textarea'">
+                            <input class="mainSearchInput" type="text" />
                         </div>
                         <div class="searchFormEl">
                         <input class="doubleSearchInput" type="number"ng-if="obj.type === 'number'"/>
@@ -42,7 +45,9 @@
                 </div>
             </div>
             </tbody>
-        </table> 
-        <button>Поиск</button>
+        </table>
+        <div class="searchFormEl">
+            <button>Поиск</button>
+        </div>
     </form>
 </div>

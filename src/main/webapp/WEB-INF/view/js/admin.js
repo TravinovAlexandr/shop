@@ -8,7 +8,7 @@ adminApp.config(function($routeProvider, $locationProvider) {
         
     }).when('/searchProduct', {
         templateUrl : '/html/search_form.html',
-        controller: 'searchTableController'
+        controller: 'searchFormleController'
         
     }).when('/productTable', {
         templateUrl : '/html/product_table.html',
@@ -22,15 +22,20 @@ adminApp.config(function($routeProvider, $locationProvider) {
     $routeProvider.otherwise({redirectTo: '/admin'});
 
     $locationProvider.html5Mode({enabled: true, requireBase: false});
+    
 });
 
-adminApp.controller('addProductController', function($scope, $http) {
-    
-    $http({method : 'POST', url : '/getAllCategories'}).then(function(resp) {
-        var objResp = angular.fromJson(resp.data);
-        $scope.categories = objResp.response;
+//ИНИЦИАЛИЗАЦИЯ ГЛОБАЛЕЙ
+var exception = new Exception();
+
+
+adminApp.controller('addProductController', function($scope, $http) {    
+    $http({method : 'POST', url : '/getAllCategories'})
+            .then(function(resp) {
+                var objResp = angular.fromJson(resp.data);
+                $scope.categories = objResp.response;
     }, function(resp) {
-        alert('Categories are not found');
+        exception.init(resp.data.resonse);
     });
     
     $scope.addNewProduct = function() { 
@@ -59,32 +64,21 @@ adminApp.controller('addProductController', function($scope, $http) {
     };
 });
 
-adminApp.controller('searchTableController', function($scope, $http, $timeout, $location, $rootScope) {
-    var exception = new Exception();
+adminApp.controller('searchFormleController', function($scope, $http, $timeout, $location, $rootScope) {
+    //list-casche for searchQuery
+    var searchReqList = [];
     
-    $http({method : 'POST', url : '/searchTable'}).then(
+    $http({method : 'POST', url : '/searchForm'}).then(
         function(resp) {
-            $scope.searchTab = angular.fromJson(resp.data.response);
-//            $timeout(function(){
-                $('.searchSelect').on('change', defSearchChangeEvent);        
-//                }, 2000);
+            $scope.searchForm = angular.fromJson(resp.data.response);
+            $timeout(function() {
+                $('.searchSelect').on('change', searchChangeOptionEvent);        
+            }, 1500);
         }, function(resp) {
-            alert(resp.data.response);
+            exception.show(resp.data.response);
     });
 
-    function defSearchChangeEvent(e)  {
-        var searhInputsDiv = $($(e.target).parent().parent());
-        searhInputsDiv.find('.searchOptionHidden').val(e.target.value);
-        var doubleSearchInput = searhInputsDiv.find('.doubleSearchInput');
-        if (e.target.value === 'Between' || e.target.value === '>= And <') {
-                doubleSearchInput.show();
-        } else {
-            doubleSearchInput.hide();
-        }
-    }
-   
     $scope.submitSerchForm = function() {
-        var searchReqList = [];    
         var searchInputs = $('.searchInputWrapper');
         
         //ALL push: ƒ, columnName: "quant", operator: ">", data: Array(1), type: "number"}
@@ -92,12 +86,14 @@ adminApp.controller('searchTableController', function($scope, $http, $timeout, $
         //Cложность из-за добавленной exist boolean строки
         //инпут данных отсутствует, тип берется с инпута , а оператор на сервер должен быть передан как данные
         //boolean приведен к columnName: "exist", type: "boolean", operator: undefined, data: Array(1) -> False
+        
+        //переписать
         for (var i = 0; i < searchInputs.length; i++) {
             var serchElement = new SearchElement();
             var searchInputEl = $(searchInputs[i]);
             var sInputType = searchInputEl.find('.mainSearchInput').attr('type');
             var sOperator = searchInputEl.find('.searchOptionHidden').val();
-            var sMainValue = searchInputEl.find('.mainSearchInput').val();
+            var sMainValue = (sInputType !== 'textarea') ? searchInputEl.find('.mainSearchInput').val() : searchInputEl.find('.mainSearchInput').text();
             serchElement.columnName = searchInputEl.find('.searchNameHidden').val();
             serchElement.type = (sInputType !== undefined) ? sInputType : 'boolean';
             serchElement.operator = (sInputType !== undefined) ? sOperator : null;
@@ -108,37 +104,78 @@ adminApp.controller('searchTableController', function($scope, $http, $timeout, $
             }
             searchReqList.push(serchElement);
         }
-
+        ////УБРАТЬ из скопа для передачи между контроллерами
+        $rootScope.searchReqList = searchReqList;
+        
+        console.log(searchReqList);
         $http({
             method : 'POST', 
             url : '/searchQuery', 
             data: {
                 searchQuery: searchReqList,
-                limit : 50,
-                offset : 0 
+                limit : 5,
+                offset : 0
             }
         }).then(function(resp) {
             $location.path('/productTable');
+                //избавиться от шаред
                 $rootScope.shared =  angular.fromJson(resp.data.response);
         }, function(resp) {
-            exception.init(resp.data.response);
-            exception.showExMessage();
+            exception.show(resp.data.response);
+            searchReqList = null;
         });
     };
 });
 
-adminApp.controller('productTableController', function($scope, $http, $rootScope, $location) {    
+adminApp.controller('productTableController', function($scope, $http, $rootScope, $location, $compile) {
+    var tablePagLimit = 5;
+    //избавиться от $rootScope.shared через шаред класс или нг фактори
     $scope.productTableRow = $rootScope.shared;
     
+    if ($rootScope.shared[0] === undefined || $rootScope.shared[0] === null) {
+        $('.prodTabMessage').html('<p>Ни один товар не соответствует заданному условию поиска.</p>');
+        $rootScope.searchReqList = null;
+        
+    } else {
+        paginator($rootScope.shared[0].productsCount, $compile, $scope, tablePagLimit);
+    }
+    
+    var prevPagEl = null;
+    
+    $scope.getAnotherPage = function() {
+        if (prevPagEl !== null) {
+            $(prevPagEl).removeClass('curPagEl');
+        }
+        
+        var curPagEl = $($(event.currentTarget)[0]);
+        prevPagEl = curPagEl;
+        curPagEl.addClass('curPagEl');
+        
+        $http({
+            method : 'POST', 
+            url : '/searchQuery', 
+            data: {
+                searchQuery: $rootScope.searchReqList,
+                limit : tablePagLimit,
+                offset : ($(event.currentTarget)[0].querySelector('p').innerText - 1) * tablePagLimit
+            }
+        }).then(function(resp) {
+            $location.path('/productTable');
+//            $rootScope.shared =  angular.fromJson(resp.data.response);
+            $scope.productTableRow = angular.fromJson(resp.data.response);
+        }, function(resp) {
+            exception.show(resp.data.response);
+        });
+    };
+   
     $scope.selectProduct = function() {
         pathPTVariable = '/admin/product/' + this.element.id;
         $http({method: 'GET', url: pathPTVariable})
                 .then(function(resp) {
                     $location.path(pathPTVariable);
                     $rootScope.shared = angular.fromJson(resp.data.response);
-                    console.log($rootScope.shared);
                 }, function(resp) {
-                    console.log(resp.data.response);
+                    exception.show(resp.data.response);
                 });
     };
 });
@@ -196,53 +233,106 @@ adminApp.directive('ngFileUp', function() {
         require : 'ngModel',
         link : function(scope, element, attrs, ngModel) {
             if (!ngModel) {
-                console.log('Dirrective ng-file-up requires ng-model.');
+                console.warn('Dirrective ng-file-up requires ng-model.');
                 return;
             }
+            
             element.bind('change', function(el) {
+                var ImgReader = new FileReader();
                 var addElm = $(el.target).prop('files')[0];
+                
                 ngModel.$setViewValue(addElm);
-                var addImgReader = new FileReader();
-                addImgReader.onload = function() {
-                        $('#prodBigImage').attr('src', addImgReader.result);
+                
+                ImgReader.onload = function() {
+                        $('#prodBigImage').attr('src', ImgReader.result);
                 };
-                addImgReader.readAsDataURL(addElm);
+                
+                ImgReader.readAsDataURL(addElm);
             });  
         }
     };
 });
 
 ///SUBROUTINES
-
-///ADMIN_EXCEPTION_OBJECT
-function Exception() {
-    var exceptionModal = $('.exceptionModalWindow');
-    this.exceptionName;
-    this.message;
-    this.cause;
-    this.sTrace;
-    this.isInit = 0;
-    this.init = function(dataResponse) {
-        this.exceptionName = dataResponse.exceptionName || '';
-        this.message = dataResponse.message || '';
-        this.cause = dataResponse.cause || '';
-        this.sTrace = dataResponse.sTrace || '';
-        this.isInit = 1;
-    };
-    this.showExMessage = function() {
-        if (isInit === 0) {
-            console.log('Exception was not initiolized.');
-            return;
-        }
-        if (exceptionModal.is(':visible')) {
-            exceptionModal.hide();
-        } else {
-            exceptionModal.show();
-        }
-        isInit = 0;
-    };
+function searchChangeOptionEvent(e)  {
+    var searhInputsDiv = $($(e.target).parent().parent().parent());
+    var doubleSearchInput = searhInputsDiv.find('.doubleSearchInput');
+        
+    searhInputsDiv.find('.searchOptionHidden').val(e.target.value);
+    
+    if (e.target.value === 'Between' || e.target.value === '>=<') {
+        doubleSearchInput.show();
+    } else {
+        doubleSearchInput.hide();
+    }
 }
 
+function paginator(rowCount, compile, scope, limitPag) {
+    if (!rowCount || !compile || !scope || !limitPag) {
+        console.error("function paginator(rowCount, compile, scope, limitPag): any arguments === null or undefined.");
+    }
+    
+    var pagElement = '';
+    var mod = rowCount % limitPag;
+    
+    for (var i = 1; i <= rowCount % limitPag + ((mod === 0) ? 0 : 1); i++) {
+        pagElement += '<div class="pagElement" ng-click="getAnotherPage($event)"><p style="width:20px;" class="pagP">' + i + '</p></div>';
+    }
+    
+    var compiledScopedElem = compile(angular.element(pagElement))(scope);
+    
+    $('.paginationBar').html(compiledScopedElem);
+}
+    
+//JQUERY EVENTS INIT
+//close exception window
+setTimeout(function () {
+    var adminExWrap = $('.adminExWrapper');
+    
+    adminExWrap.find('.quitWrapper').click(function () {
+        adminExWrap.hide();
+        adminExWrap.attr('style', 'width: 40%; margin-left: 30%;');
+        exception.invalidate();
+    });
+}, 1000);
+
+//plus size exeption window
+setTimeout(function () {  
+    $('.adminExWrapper').find('.adminExName').dblclick(function () {
+        console.log(1);
+        $('.adminExWrapper').attr('style', 'width: 60%; margin-left: 20%;');
+    });
+}, 1000);
+
+///OBJECTS
+function Exception() {
+    var exceptionModal = $('.adminExWrapper');
+    var exName = exceptionModal.find('.exceptionModalName');
+    var exMess = exceptionModal.find('.exceptionModalMessage');
+    var exCause = exceptionModal.find('.exceptionModalCause');
+    var exStrace = exceptionModal.find('.exceptionModalStrace');
+    this.show = function(dataResponse) {
+        try {
+        exName.text(dataResponse.exceptionName || '');
+        exMess.text(dataResponse.message || '');
+        exCause.text(dataResponse.cause || '');
+        exStrace.html(dataResponse.strace || '');
+        exceptionModal.show();
+        } catch (ex) {
+            console.warn('Exception: fields are not init.');
+        }
+    };
+    this.invalidate = function() {
+        try {
+            exName.text('');
+            exMess.text('');
+            exCause.text('');
+            exStrace.html('');
+        } catch (ex) {
+            console.warn('Exception: fields are not init.');
+        }
+    };
+}
 ///OBJECT FOR SEARCH TABLE REQUEST
 function SearchElement() {
     this.columnName; 
@@ -254,5 +344,5 @@ function SearchElement() {
             this.data = []; 
         }
         this.data.push(el); 
-        };
-    }
+    };
+}

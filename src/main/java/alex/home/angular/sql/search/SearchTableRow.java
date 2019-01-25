@@ -36,6 +36,7 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
             
             for (int i = 0; i < flds.size(); i++) {
                 int j = -1;
+                
                 while(++j < PG_INVALID_ATTNAME.length) {
                     if (flds.get(i).attname.equals(PG_INVALID_ATTNAME [j])) {
                     flds.remove(i);
@@ -45,8 +46,12 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
             
             for(PGField pf : flds) {
                 SearchElement se = new SearchElement();
-                if (pf.atttypid == PG_VARCHAR || pf.atttypid == PG_TEXT) {
+                
+                if (pf.atttypid == PG_VARCHAR) {
                     se.type = "text";
+                    se.conditions = CHAR_COND;
+                } else if (pf.atttypid == PG_TEXT) {
+                    se.type = "textarea";
                     se.conditions = CHAR_COND;
                 } else if (pf.atttypid == PG_REAL || pf.atttypid == PG_BIGINT || pf.atttypid == PG_INT || pf.atttypid == PG_SMALLINT) {
                     se.type = "number";
@@ -58,6 +63,7 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
                     se.type = "radio";
                     se.conditions = BOOLEAN_COND;
                 }
+                
                 se.name = pf.attname;
                 serchElems.add(se);
             }

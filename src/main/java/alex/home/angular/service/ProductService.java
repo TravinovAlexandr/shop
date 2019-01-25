@@ -88,13 +88,11 @@ public class ProductService implements ProductDao {
     
     @Override @Nullable
     public Product selectProductCategoriesComments(@Nullable Long id) {
-        AdminException exception = new AdminException();
-        
         if (id == null) {
-            throw exception.addExceptionName("IllegalArgumentException")
+            throw new AdminException().addExceptionName("IllegalArgumentException")
                     .addMessage("Переданный id = NULL. Запрос: /admin/product/{id}. Ошибка валидации на уровне контроллера.");
         }
-        
+
         try {
             List<Category> categories = new ArrayList<>();
             List<Comment> comments = new ArrayList<>();
@@ -121,6 +119,7 @@ public class ProductService implements ProductDao {
                     product.lastBuyDate = rs.getDate("last");
                     product.imgUrl =  rs.getString("url");
                     product.imgId = rs.getLong("img_id");
+                    
                     check.init();
                 }
                 
@@ -142,9 +141,9 @@ public class ProductService implements ProductDao {
             product.category = categories;
             product.comments = comments;
             return product;
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException  ex) {
             ex.printStackTrace();
-            throw exception.addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
+            throw new AdminException().addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
         }
     }
 
@@ -200,19 +199,19 @@ public class ProductService implements ProductDao {
     }
     
     @Override @NotNull
-    public List<ProductRow> searchTableSelection(@NotNull String query) {
+    public List<ProductRow> searchFormsSelection(@NotNull String query) {
         if (query == null) {
-            throw new AdminException().addExceptionName("IllegalArgumentException")
-                    .addMessage("NULL значение строки запроса не предусмотренно. Ошибка валидации на уровне контроллера.");
+            throw new AdminException().addMessage("NULL значение строки запроса не предусмотренно. Ошибка валидации на уровне контроллера.")
+            .addExceptionName("IllegalArgumentException");
         }
-        
+
         try {
             return jdbcTemplate.query(query, (ResultSet rs, int i) -> new ProductRow(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
-                    rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), 
-                    DateUtil.getDate(rs.getDate("start")), DateUtil.getDate(rs.getDate("last"))));
-        } catch (DataAccessException ex) {
+                    rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),DateUtil.getDate(rs.getDate("start")), 
+                    DateUtil.getDate(rs.getDate("last")), rs.getInt("count")));
+        } catch (DataAccessException | IllegalArgumentException ex) {
             ex.printStackTrace();
-            throw new AdminException().addExceptionName(ex.getClass().getSimpleName()).addSTrace(ex);
+            throw new AdminException(ex);
         }
     }
     

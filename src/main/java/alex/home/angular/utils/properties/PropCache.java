@@ -7,7 +7,7 @@ public final class PropCache {
     
     private final Cache prodCashe = new Cache();
 
-    private synchronized void invalidateProdCache() {
+    public synchronized void invalidateProdCache() {
         invalidateCache(prodCashe);
     }
 

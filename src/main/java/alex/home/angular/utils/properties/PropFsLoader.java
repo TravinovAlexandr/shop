@@ -20,13 +20,13 @@ public class PropFsLoader implements PropLoader {
             if (!file.exists()) {
                 System.out.println("PropertiesFsLoader: file is not exist  " + path);
                 return null;
-            } else if (file.isDirectory()) {
-                System.out.println("PropertiesFsLoader: path to dir not soported " + path);
-                return null;
             } else if (!file.canRead()) {
                 System.out.println("PropertiesFsLoader: cant read file " + path);
                 return null;
-            }
+            } else if (file.isDirectory()) {
+                System.out.println("PropertiesFsLoader: path to dir not soported " + path);
+                return null;
+            } 
 
             try (FileInputStream fis = new FileInputStream(file)) {
                 Properties props = new Properties();

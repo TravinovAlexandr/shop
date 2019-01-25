@@ -1,10 +1,14 @@
-.searchTableWrapper {padding-left: 2%; float: left; }
-.searchTableWrapper button { clear: both; height: 30px; font-size: 18px;}
-.searchTableWrapper input[type=date]{ width: 100%; }
-.searchTableWrapper input[type=text]{ width: 100%; }
-.searchTableWrapper input[type=number]{ width: 100%; }
-.searchInputWrapper select { font-size: 19px; width: 70px; height: 30px;}
+.searchFormWrapper {padding-left: 4%; float: left; margin: 0;}
+.searchFormWrapper button { clear: both; height: 30px; font-size: 18px;}
+.searchFormWrapper input[type=date]{ width: 100%;  height: 29px; }
+.searchFormWrapper input[type=text]{ width: 100%; }
+.searchFormWrapper input[type=number]{ width: 100%; }
+.searchInputWrapper select { font-size: 18px; width: 70px; height: 29px; width: 40%;}
 .searchInputWrapper option { font-size: 18px; }
 .searchChangeElem { clear: both; }
-.searchFormEl { float: left; width: 200px; background-color: white; margin: 0px; padding: 0px; }
+.searchFormEl { float: left; width: 300px; background-color: white; margin: 0px; padding: 0px; }
 .nameSearchWrapper p { vertical-align: top; margin: 0px; padding: 0px; }
+.searchProductTitle p { font-size: 30px; text-decoration: underline; color: #157700; margin: 12px 0 20px 0;}
+.nameSearchWrapper p:hover {text-decoration: underline; color: #157700; cursor: pointer;}
+.searchTBodyWrapper { margin-bottom: 20px; float: left; }
+.doubleSearchInput { display: none; }

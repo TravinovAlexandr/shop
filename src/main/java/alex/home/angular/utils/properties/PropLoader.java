@@ -4,5 +4,5 @@ import java.util.Properties;
 
 public interface PropLoader {
 
-    Properties load(String path);
+    Properties load(String url);
 }
