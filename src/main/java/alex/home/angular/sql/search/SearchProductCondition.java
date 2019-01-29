@@ -13,15 +13,14 @@ import static alex.home.angular.sql.PGMeta.PG_SMALLINT;
 import static alex.home.angular.sql.PGMeta.PG_TEXT;
 import static alex.home.angular.sql.PGMeta.PG_TIMESTAMP;
 import static alex.home.angular.sql.PGMeta.PG_VARCHAR;
-import alex.home.angular.sql.search.SearchTableRow.SearchElement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class SearchTableRow implements TableRow<SearchElement, PGField> {
+public class SearchProductCondition implements SearchCondition<SearchElement, PGMetaColumn> {
 
     @Override @Nullable
-    public List<SearchElement> getRows(@Nullable List<PGField> flds) {
+    public List<SearchElement> getCondition(@Nullable List<PGMetaColumn> flds) {
         if (flds != null) {
             return fieldConverter(flds);
         }
@@ -30,7 +29,7 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
     }
     
     @Nullable
-    private static List<SearchElement>  fieldConverter(@Nullable List<PGField> flds) {
+    private static List<SearchElement>  fieldConverter(@Nullable List<PGMetaColumn> flds) {
         if (flds != null) {
             List<SearchElement> serchElems = new ArrayList<>();
             
@@ -44,7 +43,7 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
                 }
             }
             
-            for(PGField pf : flds) {
+            for(PGMetaColumn pf : flds) {
                 SearchElement se = new SearchElement();
                 
                 if (pf.atttypid == PG_VARCHAR) {
@@ -73,42 +72,5 @@ public class SearchTableRow implements TableRow<SearchElement, PGField> {
         return null; 
     }
     
-    public static class SearchElement {
 
-        public String name;
-        public String type;
-        public String [] conditions;
-        
-        public SearchElement() {}
-        
-        public SearchElement(String name, String type, String [] conditions) {
-            this.name = name;
-            this.type = type;
-            this.conditions = conditions;
-        }
-
-        public String getName() {
-            return name;
-        }
-        
-        public void setName(String name) {
-            this.name = name;
-        }
-        
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-        
-        public String [] getConditions() {
-            return conditions;
-        }
-
-        public void setConditions(String [] conditions) {
-            this.conditions = conditions;
-        }
-    }
 }

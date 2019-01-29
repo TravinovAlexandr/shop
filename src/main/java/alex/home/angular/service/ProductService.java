@@ -204,7 +204,7 @@ public class ProductService implements ProductDao {
             throw new AdminException().addMessage("NULL значение строки запроса не предусмотренно. Ошибка валидации на уровне контроллера.")
             .addExceptionName("IllegalArgumentException");
         }
-
+        
         try {
             return jdbcTemplate.query(query, (ResultSet rs, int i) -> new ProductRow(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
                     rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),DateUtil.getDate(rs.getDate("start")), 
@@ -316,7 +316,6 @@ public class ProductService implements ProductDao {
         return false;
     }
     
-    
     /*
     CREATE OR REPLACE FUNCTION INSERT_PRODUCT(prname VARCHAR, prdesc VARCHAR, imgurl  VARCHAR, categids BIGINT[], prprice REAL, prquant INT ) 
     RETURNS VOID AS $$
@@ -358,9 +357,8 @@ public class ProductService implements ProductDao {
             if (ds != null) {
                 con = ds.getConnection();
                 Array catIds = (dto.categoryIds != null) ? con.createArrayOf("BIGINT", dto.categoryIds) : null;
-                String sql = "SELECT INSERT_PRODUCT(?, ?, ?, ?, ?, ?);";
                 
-                jdbcTemplate.query(sql, new Object[]{dto.name, dto.description, dto.url, catIds, dto.price, dto.quantity}, (rs) -> {});
+                jdbcTemplate.query("SELECT INSERT_PRODUCT(?, ?, ?, ?, ?, ?);", new Object[]{dto.name, dto.description, dto.url, catIds, dto.price, dto.quantity}, (rs) -> {});
             }
             
         } catch (DataAccessException | SQLException ex) {
@@ -372,18 +370,20 @@ public class ProductService implements ProductDao {
     }
 
     @Override
-    public boolean deleteProduct(@Nullable Long id) {
-        if (id != null) {
-            try {
-                String sql = "DELETE FROM product WHERE id = " + id;
-                return jdbcTemplate.update(sql) == 1;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return false;
-            } 
-        } 
-        return false;    
-    }
+    public void deleteProduct(@NotNull Long id) {
+        if (id == null) {
+             throw new AdminException().addExceptionName("IllegalArgumentException")
+                    .addMessage("@NotNull Long id == null. Ошибка валидации на уровне контроллера.");
+        }
+        
+        try {
+            jdbcTemplate.update("DELETE FROM product WHERE id = " + id);
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
+    } 
+
 
     @Autowired
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {

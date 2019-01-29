@@ -1,14 +1,14 @@
 package alex.home.angular.sql.search;
 
-public class PGField {
+public class PGMetaColumn {
     
     public String  attname;
     public Integer atttypid;
     public String type;
         
-    public PGField() {}
+    public PGMetaColumn() {}
         
-    public PGField(String  attname, Integer atttypid) {
+    public PGMetaColumn(String  attname, Integer atttypid) {
             this.attname = attname;
             this.atttypid = atttypid;
         }

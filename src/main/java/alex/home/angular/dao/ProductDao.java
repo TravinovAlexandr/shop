@@ -42,6 +42,6 @@ public interface ProductDao {
     
     void insertProduct(InsertProdDto dto);
     
-    boolean deleteProduct(Long id);
+    void deleteProduct(Long id);
  
 }

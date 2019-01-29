@@ -1,7 +1,7 @@
 package alex.home.angular.service;
 
 import alex.home.angular.dao.PGDao;
-import alex.home.angular.sql.search.PGField;
+import alex.home.angular.sql.search.PGMetaColumn;
 import java.sql.ResultSet;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -16,11 +16,11 @@ public class PGService implements PGDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override @Nullable
-    public List<PGField> selectPGFieldMeta(@Nullable String tableName) {
+    public List<PGMetaColumn> selectPGFieldMeta(@Nullable String tableName) {
         if (tableName != null) {
             try {
                 String sql = "SELECT attname, atttypid FROM pg_attribute WHERE attrelid = '"+ tableName  + "'::regclass;";
-                return jdbcTemplate.query(sql, (ResultSet rs, int i) ->  new PGField(rs.getString("attname"), rs.getInt("atttypid")));
+                return jdbcTemplate.query(sql, (ResultSet rs, int i) ->  new PGMetaColumn(rs.getString("attname"), rs.getInt("atttypid")));
             } catch (DataAccessException ex) {
                 ex.printStackTrace();
             }

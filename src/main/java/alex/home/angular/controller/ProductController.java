@@ -1,17 +1,20 @@
 package alex.home.angular.controller;
 
+import alex.home.angular.dao.CategoryDao;
 import alex.home.angular.dao.PGDao;
 import alex.home.angular.dao.ProductDao;
+import alex.home.angular.domain.Category;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
+import alex.home.angular.dto.ProductCategories;
 import alex.home.angular.dto.ResponseRsWrapper;
 import alex.home.angular.dto.SearchQuery;
 import alex.home.angular.exception.AdminException;
+import alex.home.angular.sql.PGMeta;
+import alex.home.angular.sql.cache.CategoryCache;
 import alex.home.angular.sql.query.QueryFactory;
 import alex.home.angular.sql.query.SqlQuery;
-import alex.home.angular.sql.search.SearchTableRow;
-import alex.home.angular.sql.search.SearchTableRow.SearchElement;
-import alex.home.angular.sql.search.TableRow;
+import alex.home.angular.sql.search.SearchProductCondition;
 import alex.home.angular.utils.img.write.ImageWriter;
 import alex.home.angular.utils.properties.PropCache;
 import alex.home.angular.utils.properties.PropFsLoader;
@@ -34,47 +37,65 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import alex.home.angular.sql.search.SearchCondition;
+import alex.home.angular.sql.search.SearchElement;
 
+//причесать все возвраты aдмин исключения. использовать get();
 @Controller
 public class ProductController {
     
     private final  PropCache propCache = new PropCache();
+    private final CategoryCache categoryCache = new CategoryCache();
     
     private volatile int productCacheVal = -1;
        
     private ProductDao productDao;
+    private CategoryDao categoryDao;
     private PGDao pGDao;
-    private HttpServletResponse httpServletResponse;
+    private HttpServletResponse hsr;
     private ImageWriter fsImageWriter;
     private TaskExecutor taskExecutor;
 
         
     @GetMapping("/admin/product/{id}")
     @ResponseBody public ResponseRsWrapper getProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
-        Product product = productDao.selectProductCategoriesComments(id);
-        if (product != null) {
-            return rrw.addResponse(product).addResponseMessage("OK");
+        if (id == null) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalAttributeException").addMessage("@PathVariable Long id == null"))
+                    .addHttpErrorStatus(hsr, 400);
         }
-        return rrw.addResponseMessage("BAD REQUEST").addHttpErrorStatus(httpServletResponse, 404);
-    }
-    
-    @GetMapping("/products/{category}/{offset}")
-    @ResponseBody public ResponseRsWrapper getProductsByCategoryPag(@PathVariable Long category, @PathVariable Integer offset) {
-        ResponseRsWrapper rrw = new ResponseRsWrapper();
-        int limit = 5;
-        List<Product> products = productDao.selectProductsWhereCtegoryId(category, limit, offset);
-        if (products != null) {
-            return rrw.addResponse(products).addResponseMessage("OK");
+        
+        try {
+            Product product = productDao.selectProductCategoriesComments(id);
+            List<Category> categories = null;
+            
+            if (product != null) {
+                if (categoryCache.isValid()) {
+                  categories = categoryCache.getCategiries();
+                  
+                } else {
+                  categories = categoryDao.selectAllCategories();
+                  categoryCache.init(categories);
+                }
+                
+                return rrw.addResponse(new ProductCategories(product, categories));
+            } else {
+                return rrw.addResponse("Ни один товар не соответствует заданному условию .");
+            }
+            
+        } catch (AdminException ex) { 
+            if (ex.getClass().equals(AdminException.class)) {
+                return rrw.addResponse(ex);
+            }
+            
+            return rrw.addResponse(new AdminException(ex)).addHttpErrorStatus(hsr, 500);
         }
-        return rrw.addResponseMessage("BAD REQUEST").addHttpErrorStatus(httpServletResponse, 404);
     }
     
     @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody public ResponseRsWrapper addProduct(@ModelAttribute InsertProdDto dto, ResponseRsWrapper rrw) {
         if (dto == null) {
-            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException")
-                    .addMessage("@ModelAttribute InsertProdDto dto == NULL. Связывание на уровне контроллера не сработало."))
-                    .addHttpErrorStatus(httpServletResponse, 500);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("@ModelAttribute InsertProdDto dto == NULL."))
+                    .addHttpErrorStatus(hsr, 400);
         }
 
         try {
@@ -87,10 +108,10 @@ public class ProductController {
         } catch (IOException | AdminException ex) {
             ex.printStackTrace();
             if (ex.getClass().equals(AdminException.class)) {
-                return rrw.addResponse(ex).addHttpErrorStatus(httpServletResponse, 500);
+                return rrw.addResponse(ex).addHttpErrorStatus(hsr, 500);
             }
 
-            return rrw.addResponse(new AdminException(ex)).addHttpErrorStatus(httpServletResponse, 500);
+            return rrw.addResponse(new AdminException(ex)).addHttpErrorStatus(hsr, 500);
         }
     }
     
@@ -99,7 +120,7 @@ public class ProductController {
         Properties props = null;
         List<SearchElement> rows = null;
         FutureTask futureTask = null;
-        TableRow tr = new SearchTableRow();
+        SearchCondition tr = new SearchProductCondition();
         
         props = propCache.getProductProps(productCacheVal);
         
@@ -111,7 +132,7 @@ public class ProductController {
 
                 taskExecutor.execute(futureTask);
                 
-                rows = tr.getRows(pGDao.selectPGFieldMeta("product"));
+                rows = tr.getCondition(pGDao.selectPGFieldMeta("product"));
                 props = (Properties) futureTask.get();
                 
                 if (props != null) {
@@ -121,7 +142,12 @@ public class ProductController {
                 }
                 
             } else {
-              rows = tr.getRows(pGDao.selectPGFieldMeta("product"));
+              rows = tr.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
+          }
+          
+          if (rows == null) {
+              return rrw.addHttpErrorStatus(hsr, 500).addResponse(new AdminException().addMessage("UnexpectedResult")
+                      .addCause("rows = tr.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE)); == null"));
           }
 
             if (props != null) {
@@ -142,12 +168,11 @@ public class ProductController {
             
             return rrw.addResponse(rows);
         } catch (InterruptedException | ExecutionException | AdminException ex) {
-            ex.printStackTrace();
             if (ex.getClass().equals(AdminException.class)) {
-                rrw.addResponse( ((AdminException) ex).callBack()).addHttpErrorStatus(httpServletResponse, 500);
+                rrw.addResponse( ((AdminException) ex).get()).addHttpErrorStatus(hsr, 500);
             }
             return rrw.addResponse(new AdminException(ex))
-                    .addHttpErrorStatus(httpServletResponse, 500);
+                    .addHttpErrorStatus(hsr, 500);
         }
     }
     
@@ -155,11 +180,12 @@ public class ProductController {
     @ResponseBody public ResponseRsWrapper getSearchQuery(@RequestBody SearchQuery query, ResponseRsWrapper rrw) {
         if (query == null) {
             return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException")
-                    .addMessage("@RequestBody SearchQuery query == NULL. Связывание на уровне контроллера не сработало."))
-                    .addHttpErrorStatus(httpServletResponse, 500);
+                    .addMessage("@RequestBody SearchQuery query == NULL. Связывание на уровне контроллера не сработало.").get())
+                    .addHttpErrorStatus(hsr, 500);
         }
         
         Properties props = null;
+        List<Category> categories = null;
         
         try {
             props = propCache.getProductProps(productCacheVal);
@@ -170,7 +196,7 @@ public class ProductController {
                 
                 if (props == null) {
                     return rrw.addResponse("Propertie File Not Found: /home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties")
-                            .addHttpErrorStatus(httpServletResponse, 500);
+                            .addHttpErrorStatus(hsr, 500);
                 }
                 
                 productCacheVal = props.hashCode();
@@ -195,10 +221,25 @@ public class ProductController {
                 return rrw.addResponse(productDao.searchFormsSelection(sqlRow));
             }
 
-            return rrw.addResponse("sqlQuery.getQueryRow(). Парсинг запроса не возможен.").addHttpErrorStatus(httpServletResponse, 400);
+            return rrw.addResponse("sqlQuery.getQueryRow(). Парсинг запроса не возможен.").addHttpErrorStatus(hsr, 400);
         } catch (AdminException ex) {
-            return rrw.addResponse(ex.callBack()).addHttpErrorStatus(httpServletResponse, 500);
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
         }
+    }
+    
+    @PostMapping("/admin/deleteProduct/{id}")
+    public ResponseRsWrapper deleteProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
+        if (id == null) {
+            return rrw.addResponse("@PathVariable Long id == null").addHttpErrorStatus(hsr, 500);
+        }
+        
+        try {
+            productDao.deleteProduct(id);
+        } catch (AdminException ex) {
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+        }
+        
+        return null;
     }
     
     @Autowired
@@ -207,8 +248,13 @@ public class ProductController {
     }
 
     @Autowired
-    public void setHttpServletResponse(HttpServletResponse httpServletResponse) {
-        this.httpServletResponse = httpServletResponse;
+    public void setCategoryDao(CategoryDao categoryDao) {
+        this.categoryDao = categoryDao;
+    }
+
+    @Autowired
+    public void setHttpServletResponse(HttpServletResponse hsr) {
+        this.hsr = hsr;
     }
 
     @Autowired

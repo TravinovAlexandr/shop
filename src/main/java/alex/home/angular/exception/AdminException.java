@@ -75,11 +75,11 @@ public class AdminException extends RuntimeException {
         collectSTrace(sb, throwable.getCause());
     }
     
-   public AdminCallback callBack() {
+   public AdminCallback get() {
         return adminCallBack;
     } 
     
-    private static class AdminCallback implements Serializable {
+    public static class AdminCallback implements Serializable {
     
         private String exceptionName;
         private String message;

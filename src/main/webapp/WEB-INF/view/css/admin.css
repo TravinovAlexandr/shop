@@ -1,14 +1,14 @@
 /*EXCEPTION*/
 .adminExWrapper { width: 40%;  z-index: 999; position: absolute; margin: 20px 0; margin-left: 30%; }
-.adminExInfo { width: 100%; float: left; background-color: red; padding: 1vh 1vh 0vh 1vh; }
-.exceptionModalStrace { width: 100%; float: left; background-color: yellow; max-height: 500px; overflow: auto; margin: 0;}
+.adminExInfo { width: 100%; float: left; background-color: #A60400; padding: 1vh 1vh 0vh 1vh; }
+.exceptionModalStrace { width: 100%; float: left; background-color: #FBFE72; max-height: 500px; overflow: auto; margin: 0;}
 .adminExName { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
 .adminExName p { margin: 2vh 0vh; }
 .adminExMessage { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
 .adminExMessage p {  margin: 2vh 0vh; }
 .adminExCause { background-color: white; padding: 2px 20px; margin-bottom: 2px; height: fit-content; }
 .adminExCause p {  margin: 2vh 0vh; }
-.adminExSTrace { width: 100%; float: left; background-color: red; padding: 0vh 1vh 1vh 1vh; }
+.adminExSTrace { width: 100%; float: left; background-color: #A60400; padding: 0vh 1vh 1vh 1vh; }
 .quitWrapper { float: right; height: available; width: 3vw; min-width: 30px; text-align: center; transition: 0.7s;  }
 .quitWrapper:hover { cursor: pointer; transition: 0.7s; 
 	-o-transform: rotate(-90deg);

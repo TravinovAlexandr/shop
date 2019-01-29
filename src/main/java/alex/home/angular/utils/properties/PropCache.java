@@ -43,8 +43,8 @@ public final class PropCache {
 
     private static class Cache {
 
-        public volatile int cacheVal;
-        public volatile Properties props;
+        private int cacheVal;
+        private Properties props;
 
     }
     
