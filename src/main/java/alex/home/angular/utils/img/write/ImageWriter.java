@@ -4,11 +4,14 @@ import alex.home.angular.utils.img.size.SizeConverter;
 
 public abstract class ImageWriter {
     
-    protected static String defaultExctension = ".png";
-    protected static String rootImgDir;
-    protected static String cloudUrl;
-    protected static String currentChildDirrectory;
-    protected static int defaultImgSize = 200;
+    protected int filesCount = 300;
+    protected int filesQuantInSubdirrectory = 300;
+    protected volatile int defaultImgSize = 200;
+    protected String rootImgDir;
+    protected String cloudUrl;
+    protected String currentChildDirrectory;
+    protected String imgUrlDbPreffix = "/img/products";
+    protected volatile String defaultExctension = ".png";
     
     public abstract String writeImageAndGetUrl(byte[] img, Integer convertSize, String extension, SizeConverter converter);
     

@@ -29,7 +29,7 @@ public class CartService implements CartDao {
                 }
                 String prodSql = "SELECT * FROM product p INNER JOIN cart_orders cp ON p.id = cp.product_id AND cp.cart_id = ;".intern() + cart.id;
                 List<Product> prdcts = jdbcTemplate.query(prodSql, (ResultSet rs, int i)
-                        -> new Product(rs.getLong("id"), rs.getString("name"), rs.getString("sescription"), rs.getDouble("price")));
+                        -> new Product(rs.getLong("id"), rs.getString("name"), rs.getString("sescription"), rs.getFloat("price")));
                 cart.products = prdcts;
             } catch (DataAccessException ex) {
                 ex.printStackTrace();

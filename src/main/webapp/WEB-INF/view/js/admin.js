@@ -176,6 +176,7 @@ adminApp.controller('productTableController', function($scope, $http, $location,
         $http({method: 'GET', url: pathPTVariable})
                 .then(function(resp) {
                     $location.path(pathPTVariable);
+                    console.log(resp.data.response.product.category);
                     adminData.setOriginalProduct(resp.data.response);
                     adminData.setBindProduct(resp.data.response);
                 }, function(resp) {
@@ -184,92 +185,59 @@ adminApp.controller('productTableController', function($scope, $http, $location,
     };
 });
 
-adminApp.controller('adminProductController', function($scope, $http, $window, $location, adminData, exception) {
-    //пишу как массив что-бы использовать ng-repeat что-бы упростить биндинг ng-model
+adminApp.controller('adminProductController', function($scope, $window, adminData, productUpdate, exception) {
+    //пишу как массив что-бы использовать ng-repeat что-бы упростить связку ng-model
     $scope.prods = [adminData.getBindProduct()];
+    $scope.addNewComment = {};
+    
+    productUpdate.initControllerScope($scope);
+    
+    $scope.addComment = function() {
+        var prodId = $('.adminProdId').val();
+        var addNewComment = $scope.addNewComment;
+        var successesPromice = productUpdate.addComment(addNewComment.nick, addNewComment.body, prodId);  
+        successesPromice.then(function(result) {
+            if (result === 1) {
+                productUpdate.updateProductComments(prodId);    
+            }
+        });
+    };
     
     $scope.jampToProductTable = function() {
-        adminData.deleteProductData();
-        $location.path('/productTable');
+        productUpdate.jampToProductTable();
     };
 
     $scope.getOriginSingleVal = function() {
-        var label = $(event.currentTarget).parent().find('label').text();
-        
-        switch (label.trim()) {
-            case 'Название:': $scope.prods[0].product.name = adminData.getOriginalProduct().name; break;
-            case 'Описание:': $scope.prods[0].product.description = adminData.getOriginalProduct().description; break;
-            case 'Цена:': $scope.prods[0].product.price = adminData.getOriginalProduct().price; break;
-            case 'Оценка:': $scope.prods[0].product.mark = adminData.getOriginalProduct().mark; break;
-            case 'Кол-во:': $scope.prods[0].product.quantity = adminData.getOriginalProduct().quantity; break;
-        }
+        productUpdate.getOriginSingleVal();
     };
     
     $scope.getOriginComment = function(event) {
-        var commentId = $(event.currentTarget).parent().find('.adminProdCommentId').val();
-        var isCycleEnd = false;
-        for (var i = 0; i < $scope.prods[0].product.comments.length; i++) {
-            for (var j = 0; j < adminData.getOriginalProduct().comments.length; j++) {
-                if (Number(adminData.getOriginalProduct().comments[j].id) === Number(commentId)) {
-                    $scope.prods[0].product.comments[i] = adminData.getOriginalComment(j);
-                    console.log($scope.prods[0].product.comments[i]);
-                    isCycleEnd = true;
-                    break;
-                }         
-                if (isCycleEnd) {
-                    break;
-                }
-            }
-        }
+        productUpdate.getOriginComment(event);
     };
     
     $scope.getOriginCategories = function() {
-        $scope.prods[0].product.category = adminData.getOriginalCategories();
+        productUpdate.getOriginCategories();
     };
     
     $scope.deleteCategory = function(event) {
-        var catId = Number($(event.currentTarget).parent().find('input').val());
-        for (var i = 0; i < $scope.prods[0].product.category.length; i++) {
-            if (Number($scope.prods[0].product.category[i].id) === catId) {
-                $scope.prods[0].product.category.splice(i, 1);
-            }
-        }
+        productUpdate.deleteCategory(event);
     };
     
     $scope.deleteProduct = function() {
         if ($window.confirm('Подтвердите удаление товара.')) {
-            $http({url: '/admin/deleteProduct/' + $('.adminProdId').val(), method: 'POST'})
-                    .then(function() {
-                    adminData.deleteProductData();    
-                    $location.path('/searchProduct');
-            }, function(resp) {
-                exception.show(resp);
-            });
+            productUpdate.deleteProduct();
         }
     };
     
     $scope.deleteComment = function(event) {
-        var commentId = $(event.currentTarget).parent().find('.adminProdCommentId').val();
-        
-        if ($window.confirm('Подтвердите удаление комментария.')) {
-            $http({url: 'admin/deleteComment/' + commentId , method: 'POST'})
-                    .then(function() {
-                        for (var i = 0; i < $scope.prods[0].comments.length; i++) {
-                            if ($scope.prods[0].product.comments[i].id === commentId) {
-                                $scope.prods[0].product.comments.splice(i, 1);
-                            }
-                        }
-            }, function(resp) {
-                exception.show(resp);
-            });
-        }
+        productUpdate.deleteComment(event);
     };
     
     $scope.getOriginImg = function() {
-        $('#adminProdImage').attr('src',  adminData.getOriginalProduct().imgUrl);
+        productUpdate.getOriginImg();
     };    
     
-    $scope.addCategories = function() {
+    $scope.showCategories = function() {
         var addCatLink = $('.adminProdUpAllCategoriesWrapper');
         if (addCatLink.is(':visible')) {
             addCatLink.hide();
@@ -279,21 +247,58 @@ adminApp.controller('adminProductController', function($scope, $http, $window, $
     };
     
     $scope.addCategory = function(event) {
-        var newCatId = $(event.currentTarget).parent().find('input').val();
-        var isExist = false;
-        for (var i = 0; i < $scope.prods[0].product.category.length; i++) {
-            if (Number($scope.prods[0].product.category[i].id) === Number(newCatId)) {
-                isExist = true;
-            }
-        }
-        if (!isExist) {
-            $scope.prods[0].product.category.push(adminData.getCategory(newCatId));
+        productUpdate.addCategory(event);
+    };
+    
+    $scope.showComments = function() {
+        var hidenCat = $('.adminProdUpCommentBlock');
+        if (hidenCat.is(':visible')) {
+            hidenCat.hide();
+        } else {
+            hidenCat.show();
         }
     };
     
+    $scope.updateComment = function(event) {
+        productUpdate.updateComment(event);
+    };
+    
+    $scope.updateProductTableField = function(event) {
+        productUpdate.updateProductTableField(event);
+    };
+    
+    $scope.updateCategories = function() {
+       if ($window.confirm("Применить изменения к категориям?")) {
+            var newCategories =  $scope.prods[0].product.category;
+            var oldCategories =  adminData.getOriginalCategories();
+            var newCategoriesIds = [];
+            var oldCategoriesIds = [];
+            
+            newCategories.forEach(function(el) {
+                newCategoriesIds.push(el.id);
+            });
+            
+            oldCategories.forEach(function(el) {
+                oldCategoriesIds.push(el.id);
+            });
+            
+           productUpdate.updateCategories($('.adminProdId').val(), oldCategoriesIds, newCategoriesIds)
+                   .then(
+                   function(val) {
+                       window.alert(val);
+                   }, 
+                   function(val) {
+                        if (typeof(val) === 'string') {
+                            window.alert(val);
+                        } else {
+                            exception.show(val);
+                        }
+                    });
+       }
+    };
 });
 
-///FACTORIES
+///SERVICES
 adminApp.factory('exception', function($log) {
     var exceptionModal = $('.adminExWrapper');
     var exName = exceptionModal.find('.exceptionModalName');
@@ -316,10 +321,228 @@ adminApp.factory('exception', function($log) {
                 exMess.text(dataResponse.message || '');
                 exCause.text(dataResponse.cause || '');
                 exStrace.html(dataResponse.strace || '');
-                exceptionModal.show();
             } catch (ex) {
-                $log.warn('Exception: fields are not init.');
+                $log.error('Exception: fields are not init.');
+                return;
             }
+            exceptionModal.show();
+        }
+    };
+});
+
+adminApp.factory('productUpdate', function($window, $http, $location, $timeout, $log, $q, adminData, exception) {
+    var controllerScope;
+    
+    return {
+        
+        initControllerScope: function(scope) {
+           controllerScope = scope; 
+        },
+        
+        updateCategories: function(productId, oldCategoryId, newCategoryId) {
+            var defer = $q.defer();
+            
+            if (oldCategoryId === null || newCategoryId === null) {
+                defer.reject("Категории не инициализированны.");
+                return defer.promise;
+            }
+            
+            $http({url: '/admin/updateCategories', method: 'POST', data: { 
+                    productId: productId,
+                    oldCategoriesId: oldCategoryId,
+                    newCategoriesId: newCategoryId}})
+                    .then(
+                    function() {
+                        defer.resolve('Категории изменены.');
+                    },
+                    function(resp) {
+                        defer.reject(resp.data.response);
+                    });
+                    
+            return defer.promise;        
+        },
+        
+        updateProductComments: function (prodId) {
+            $http({url: '/admin/getAllProductComments/' + prodId, method: 'POST'})
+                    .then(function(resp) {
+                        controllerScope.prods[0].product.comments = resp.data.response;
+                        adminData.setOriginalComments(resp.data.response);
+            }, function(resp) {
+                exception.show(resp.data.response);
+            });
+        },
+        
+        updateProductTableField: function(event) {
+            var prodId = $('.adminProdId').val();
+            var controll = $(event.currentTarget).parent().find('.updateClickTarget');
+            var htmlElName = controll.attr('name');
+            var htmlElVal = (htmlElName === 'description') ? controll.text() : controll.val();
+            
+            if (prodId !== null || htmlElName !== null || htmlElVal !== null) {
+                if ($window.confirm("Подтвердите изменение поля " + htmlElName + ".")) {
+                    $http({url: '/admin/updateProductField', method: 'POST', 
+                        data: { productId: prodId, columnName: htmlElName, value: htmlElVal }
+                    }).then(function() {}, 
+                    function(resp) {
+                        exception.show(resp.data.response);
+                    });
+                } else {
+                    return;
+                }
+            }
+        },
+        
+        updateComment: function(event) {
+            var commentId = $(event.currentTarget).parent().find('.adminProdCommentId').val();
+            var comment = null;
+            var originComments = null;
+            var tmpComs = controllerScope.prods[0].product.comments;
+            
+            for (var i = 0; i < tmpComs.length; i++) {
+                if (Number(tmpComs[i].id) === Number(commentId)) {
+                    comment = tmpComs[i];
+                    break;
+                }
+            }
+            
+            if (comment !== null && comment.body.trim() !== '' && comment.body.trim() !== '') {
+                originComments = adminData.getOriginalComments();
+                for (var i = 0; i < tmpComs.length; i++) {
+                    if (Number(originComments[i].id) === Number(commentId)) {
+                        if (originComments[i].nick === comment.nick && originComments[i].body === comment.body) {
+                            $window.alert("Данные в коментарии не изменились. Коментарий не будет изменен.");
+                            break;
+                        } else {
+                            $http({url: '/admin/updateComment', method: 'POST', 
+                                data: { id: commentId, nick: comment.nick, body: comment.body }
+                            }).then(function() {
+                                adminData.setOriginalComments(tmpComs);
+                            }, function(resp) {
+                                exception.show(resp.data.response);
+                            });
+                            break;            
+                        }
+                    }
+                }
+            } else {
+                $window.alert('Коментарий пуст и не будет изменен.');
+            }
+        },
+        
+        addComment(comNick, comBody, prodId) {
+            var defer = $q.defer();
+            if (comNick !== null && comBody !== null && comNick.trim() !== '' && comBody.trim() !== '') {
+                if ($window.confirm("Добавить комментарий?")) {
+                    $http({url: '/admin/addComment', method: 'POST', 
+                        data: { productId: prodId, nick: controllerScope.addNewComment.nick, body: controllerScope.addNewComment.body }
+                    }).then(function() {
+                        defer.resolve(1);
+                    }, function(resp) {
+                        exception.show(resp.data.response);
+                        defer.resolve(0);
+                    });
+                }
+            } else {
+                $window.alert('Коментарий пуст и не будет добавлен.');    
+            }
+            return defer.promise;
+        },
+        
+        addCategory: function(event) {
+            var newCatId = $(event.currentTarget).parent().find('input').val();
+            var isExist = false;
+          
+            for (var i = 0; i < controllerScope.prods[0].product.category.length; i++) {
+                if (Number(controllerScope.prods[0].product.category[i].id) === Number(newCatId)) {
+                    isExist = true;
+                }
+            }
+            
+            if (!isExist) {
+                controllerScope.prods[0].product.category.push(adminData.getCategory(newCatId));
+            }  
+        },
+        
+        getOriginImg: function() {
+            $('#adminProdImage').attr('src',  adminData.getOriginalProduct().imgUrl);
+        },
+        
+        deleteComment: function(event) {
+            var commentId = $(event.currentTarget).parent().find('.adminProdCommentId').val();
+
+            if ($window.confirm('Подтвердите удаление комментария.')) {
+                $http({url: '/admin/deleteComment/' + commentId , method: 'POST'})
+                        .then(function() {
+                            var comList = controllerScope.prods[0].product.comments;
+                    
+                            for (var i = 0; i < comList.length; i++) {
+                                if (Number(comList[i].id) === Number(commentId)) {
+                                    comList.splice(i, 1);
+                                }
+                            }
+                }, function(resp) {
+                    exception.show(resp.data.response);
+                });
+            }
+        },
+        
+        deleteProduct: function() {
+                $http({url: '/admin/deleteProduct/' + $('.adminProdId').val(), method: 'POST'})
+                        .then(function() {
+                        adminData.deleteProductData();
+                        $location.path('/searchProduct');
+                }, function(resp) {
+                    exception.show(resp);
+                });
+        },
+        
+        deleteCategory: function(event) {
+            var catId = Number($(event.currentTarget).parent().find('input').val());
+            var catList = controllerScope.prods[0].product.category;
+            
+            for (var i = 0; i < catList.length; i++) {
+                if (Number(catList[i].id) === catId) {
+                    catList.splice(i, 1);
+                }
+            }
+        },
+        
+        jampToProductTable: function() {
+            adminData.deleteProductData();
+            $location.path('/productTable');
+        },
+
+        getOriginSingleVal: function() {
+            var label = $(event.currentTarget).parent().find('label').text();
+            var tmpProd= controllerScope.prods[0].product;
+            
+            switch (label.trim()) {
+                case 'Название:': tmpProd.name = adminData.getOriginalProduct().name; break;
+                case 'Описание:': tmpProd.description = adminData.getOriginalProduct().description; break;
+                case 'Цена:': tmpProd.price = adminData.getOriginalProduct().price; break;
+                case 'Оценка:': tmpProd.mark = adminData.getOriginalProduct().mark; break;
+                case 'Кол-во:': tmpProd.quantity = adminData.getOriginalProduct().quantity; break;
+            }
+        },
+        
+        getOriginComment: function(event) {
+            var commentId = $(event.currentTarget).parent().find('.adminProdCommentId').val();
+            var comlist = controllerScope.prods[0].product.comments;
+            
+             for (var i = 0; i < comlist.length; i++) {
+                 if (Number(comlist[i].id) === Number(commentId)) {   
+                     for (var j = 0; j < adminData.getOriginalProduct().comments.length; j++) {
+                         if (Number(adminData.getOriginalProduct().comments[j].id) === Number(commentId)) {
+                            comlist[i] = adminData.getOriginalComment(j);
+                            return;
+                         }
+                     }
+                 }
+             }
+        },
+    
+        getOriginCategories: function() {
+            controllerScope.prods[0].product.category = adminData.getOriginalCategories();
         }
     };
 });
@@ -362,6 +585,7 @@ adminApp.factory('adminData', function($log) {
            bindProduct = null;
            originalProduct = null;
         },
+        
         getCategory: function(catId) {
             for (var i =0; i < bindProduct.allCategories.length; i++) {
                 if (Number(bindProduct.allCategories[i].id) === Number(catId)) {
@@ -369,61 +593,91 @@ adminApp.factory('adminData', function($log) {
                 }
             }
         },
+        
         getOriginalCategories: function() {
            var cats = originalProduct.categories;
-           var tmpCatList = new Array();
+           var tmpComList = new Array();
            for (var i = 0; i < cats.length; i++) {
-               tmpCatList.push(new Category(cats[i].id, cats[i].name));
+               tmpComList.push(new Category(cats[i].id, cats[i].name));
            }
-            return tmpCatList;
+           return tmpComList;    
         },
+        
         getOriginalComment: function(index) {
            var com = originalProduct.comments[index];
            return new Comment(com.id, com.nick, com.body);
         },
+        
+        getOriginalComments: function() {
+           var comments = originalProduct.comments;
+           var tmpComList = new Array();
+           for (var i = 0; i < comments.length; i++) {
+               tmpComList.push(new Comment(comments[i].id, comments[i].nick,  comments[i].body));
+           }
+           return tmpComList;    
+        },
+        
+        setOriginalComments: function(data) {
+            originalProduct.comments = new Array();
+            
+            for (var i = 0; i < data.length; i++) {
+                var comment = new Comment(data[i].id, data[i].nick, data[i].body);
+                originalProduct.comments.push(comment);
+            }
+        },
+        
         setOriginalProduct: function(prod) {
            if (prod === undefined) {
                $log.warn('Illegal argument: undefined.');
            }
            originalProduct = new Product();
            originalProduct.init(prod);
-       },
+        },
+       
        getOriginalProduct: function() {
            if (originalProduct === null) {
                $log.warn('originalProduct === null');
            }
+           
            return originalProduct;
        },
+       
         setBindProduct: function(prod) {
            if (prod === undefined) {
                $log.warn('Illegal argument: undefined.');
            }
+           
            bindProduct = prod;
        },
+       
        getBindProduct: function() {
            if (bindProduct === null) {
                $log.warn('product === null');
            }
            return bindProduct;
        },
+       
        setSearchConditions: function(conditions) {
            if (conditions === undefined) {
                $log.warn('Illegal argument: undefined.');
            }
            searchConditions = conditions;
        },
+       
        getSearchConditions: function() {
            if (searchConditions === null) {
                $log.warn('searchConditions === null');
            }
            return searchConditions;
        },
+       
        setProductTable: function(prodTab) {
            if (prodTab === undefined) {
                $log.warn('Illegal argument: undefined.');
            }
            productTable = prodTab;
        },
+       
        getProductTable: function() {
            if (productTable === null) {
                $log.warn('productTable === null');
@@ -450,18 +704,15 @@ adminApp.directive('ngImg', function() {
     };
 });
 
-adminApp.directive('ngFileUpp', function() {
+adminApp.directive('ngImg', function() {
     return {
         restrict : 'A',
-        require : 'ngModel',
-        link : function(scope, element, attrs, ngModel) {
+        link : function(scope, element, attrs) {
             element.bind('change', function(el) {
                 var ImgReader = new FileReader();
                 var addElm = $(el.target).prop('files')[0];
-//                ngModel.$setViewValue(addElm);
                 ImgReader.onload = function() {
-                        $('#prodBigImage').attr('src', ImgReader.result);
-                        $('#prodBigImage').attr('ng-src', ImgReader.result);
+                        $('#adminProdImage').attr('src', ImgReader.result);
                 };
                 ImgReader.readAsDataURL(addElm);
             });  

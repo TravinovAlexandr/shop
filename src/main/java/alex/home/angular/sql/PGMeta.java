@@ -13,7 +13,7 @@ public class PGMeta {
     public static final int PG_UUID = 2950;
     
     public static final String PRODUCT_TABLE = "product";
-    public static final String COMMENT_TABLE = "comment";
+    public static final String COMMENT_TABLE = "coments";
     public static final String CATEGORY_TABLE = "category";
     public static final String IMG_TABLE = "img";
     public static final String CART_TABLE = "cart";

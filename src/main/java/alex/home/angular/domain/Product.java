@@ -17,7 +17,7 @@ public class Product implements Serializable {
     public Integer buyStat;
     public Integer quantity;
     public Integer mark;
-    public Double price;
+    public Float price;
     //O-O
     public String imgUrl;
     public String name;
@@ -33,7 +33,7 @@ public class Product implements Serializable {
     public Product() {}
     
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Double price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate) {
+            Float price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -49,7 +49,7 @@ public class Product implements Serializable {
     
     //With image
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Double price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate, String imgUrl) {
+            Float price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate, String imgUrl) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -64,7 +64,7 @@ public class Product implements Serializable {
         this.imgUrl = imgUrl;
     }    
     
-    public  Product(Long id, String name, String description , Double price) {
+    public  Product(Long id, String name, String description , Float price) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -111,11 +111,11 @@ public class Product implements Serializable {
         this.mark = mark;
     }
 
-    public Double getPrice() {
+    public Float getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 

@@ -28,17 +28,17 @@ public interface ProductDao {
     
     boolean doSoldActions(Long id, Integer quant, Integer buyStat, Date lastBuy);
     
-    boolean updateProductName(Long id, String newName);
+    void updateProductName(Long id, String newName);
     
-    boolean updateProductDesc(Long id, String desc);
+    void updateProductDesc(Long id, String desc);
     
     boolean updateProductCategory(Long id, Long oldCategoryId, Long newCategoryId);
     
-    boolean updateProductPrice(Long id, Double price);
+    void updateProductPrice(Long id, Float price);
     
-    boolean updateProductQuant(Long id, Integer quant);
+    void updateProductQuant(Long id, Integer quant);
     
-    boolean updateProductMark(Long id, Integer mark);
+    void updateProductMark(Long id, Integer mark);
     
     void insertProduct(InsertProdDto dto);
     

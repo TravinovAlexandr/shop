@@ -2,18 +2,73 @@ package alex.home.angular.service;
 
 import alex.home.angular.dao.CategoryDao;
 import alex.home.angular.domain.Category;
+import alex.home.angular.dto.ProductCategoriesUpdate;
+import alex.home.angular.exception.AdminException;
+import alex.home.angular.utils.ConnectionUtil;
+import alex.home.angular.utils.PGUtil;
+import java.sql.Array;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryService implements CategoryDao {
     
     private JdbcTemplate jdbcTemplate;
+    SimpleJdbcInsert simpleJdbcInsert;    
+    /*
+    CREATE OR REPLACE FUNCTION UPDATE_PRODUCT_CATEGORIES(prodid BIGINT, catsToDelete BIGINT[], catsToInsert BIGINT[])
+    RETURNS VOID AS $$
+    DECLARE
+        dltid BIGINT;
+        insrtid BIGINT;
+    BEGIN
+        IF prodid IS NOT NULL AND catsToDelete IS NOT NULL AND catsToInsert IS NOT NULL THEN
+            FOREACH dltid IN ARRAY catsToDelete  LOOP
+                DELETE FROM category_products WHERE product_id = prodid AND category_id = dltid;
+              END LOOP;
+            FOREACH insrtid IN ARRAY catsToInsert LOOP
+                INSERT INTO category_products (product_id, category_id) VALUES(prodid, insrtid);
+              END LOOP;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql VOLATILE;
+    */
+    
+    @Override
+    public void updateProductCategories(ProductCategoriesUpdate pcu) {
+        if (pcu == null || pcu.productId == null || pcu.oldCategoriesId == null || pcu.newCategoriesId == null 
+                || (pcu.oldCategoriesId.isEmpty() && pcu.newCategoriesId.isEmpty())) {
+            
+            throw new AdminException().addMessage("Некорректное значение аргумента(ов). Ошибка валидации на контроллере.")
+                    .addExceptionName("IllegalArgumentException");
+        }
+        
+        try {            
+            StringBuilder query = new StringBuilder();
+            
+            query.append("SELECT UPDATE_PRODUCT_CATEGORIES(").append(pcu.productId).append(",")
+                        .append(PGUtil.getBigintArray(pcu.oldCategoriesId)).append(",")
+                        .append(PGUtil.getBigintArray(pcu.newCategoriesId))
+                        .append(")");
+            
+            jdbcTemplate.execute(query.toString());
+            
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
+    }
 
     /*
     CREATE OR REPLACE FUNCTION INSERT_CATEGORY(cname VARCHAR, cdesc VARCHAR)
@@ -129,5 +184,7 @@ public class CategoryService implements CategoryDao {
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    
     
 }

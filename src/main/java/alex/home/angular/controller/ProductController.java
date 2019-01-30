@@ -7,6 +7,7 @@ import alex.home.angular.domain.Category;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ProductCategories;
+import alex.home.angular.dto.ProductField;
 import alex.home.angular.dto.ResponseRsWrapper;
 import alex.home.angular.dto.SearchQuery;
 import alex.home.angular.exception.AdminException;
@@ -40,11 +41,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import alex.home.angular.sql.search.SearchCondition;
 import alex.home.angular.sql.search.SearchElement;
 
-//причесать все возвраты aдмин исключения. использовать get();
 @Controller
 public class ProductController {
     
-    private final  PropCache propCache = new PropCache();
+    private final PropCache propCache = new PropCache();
     private final CategoryCache categoryCache = new CategoryCache();
     
     private volatile int productCacheVal = -1;
@@ -56,12 +56,39 @@ public class ProductController {
     private ImageWriter fsImageWriter;
     private TaskExecutor taskExecutor;
 
+    @PostMapping("/admin/updateProductField")
+    @ResponseBody public ResponseRsWrapper updateProductField(@RequestBody ProductField productField, ResponseRsWrapper rrw) {
+        if (productField == null || productField.productId == null || productField.columnName == null || productField.value == null ) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalAttributeException")
+                    .addMessage("@RequestBody ProductField productField == null || productField.productId == null "
+                            + "|| productField.columnName == null || productField.value == null").get()).addHttpErrorStatus(hsr, 500);
+        }
+        
+        try {
+            switch (productField.columnName) {
+                case "name": productDao.updateProductName(productField.productId, productField.value); break;
+                case "description": productDao.updateProductDesc(productField.productId, productField.value); break;
+                case "price": productDao.updateProductPrice(productField.productId, Float.parseFloat(productField.value)); break;
+                case "mark": productDao.updateProductMark(productField.productId, Integer.parseInt(productField.value)); break;
+                case "quantity": productDao.updateProductQuant(productField.productId, Integer.parseInt(productField.value)); break;
+            }
+            
+            return null;
+        } catch (ClassCastException | AdminException ex) {
+            ex.printStackTrace();
+            if (ex.getClass().equals(AdminException.class)) {
+                return rrw.addResponse( ((AdminException) ex).get()).addHttpErrorStatus(hsr, 500);
+            }
+            
+            return rrw.addResponse(new AdminException(ex).get()).addHttpErrorStatus(hsr, 400);
+        }  
+    }
         
     @GetMapping("/admin/product/{id}")
     @ResponseBody public ResponseRsWrapper getProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
         if (id == null) {
-            return rrw.addResponse(new AdminException().addExceptionName("IllegalAttributeException").addMessage("@PathVariable Long id == null"))
-                    .addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalAttributeException").addMessage("@PathVariable Long id == null").get())
+                    .addHttpErrorStatus(hsr, 500);
         }
         
         try {
@@ -79,7 +106,7 @@ public class ProductController {
                 
                 return rrw.addResponse(new ProductCategories(product, categories));
             } else {
-                return rrw.addResponse("Ни один товар не соответствует заданному условию .");
+                return rrw.addResponse("Ни один товар не соответствует заданному условию.");
             }
             
         } catch (AdminException ex) { 
@@ -94,7 +121,7 @@ public class ProductController {
     @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody public ResponseRsWrapper addProduct(@ModelAttribute InsertProdDto dto, ResponseRsWrapper rrw) {
         if (dto == null) {
-            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("@ModelAttribute InsertProdDto dto == NULL."))
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("@ModelAttribute InsertProdDto dto == NULL.").get())
                     .addHttpErrorStatus(hsr, 400);
         }
 
@@ -122,9 +149,9 @@ public class ProductController {
         FutureTask futureTask = null;
         SearchCondition tr = new SearchProductCondition();
         
-        props = propCache.getProductProps(productCacheVal);
-        
         try {
+          props = propCache.getProductProps(productCacheVal);
+          
           if (props == null) {
                 PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(),
                         "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
@@ -146,8 +173,8 @@ public class ProductController {
           }
           
           if (rows == null) {
-              return rrw.addHttpErrorStatus(hsr, 500).addResponse(new AdminException().addMessage("UnexpectedResult")
-                      .addCause("rows = tr.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE)); == null"));
+              return rrw.addHttpErrorStatus(hsr, 500).addResponse(new AdminException().addMessage("~UnexpectedResult")
+                      .addMessage("rows = tr.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE)); == null").get());
           }
 
             if (props != null) {
@@ -195,8 +222,9 @@ public class ProductController {
                 props = propLoader.load("/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
                 
                 if (props == null) {
-                    return rrw.addResponse("Propertie File Not Found: /home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties")
-                            .addHttpErrorStatus(hsr, 500);
+                    return rrw.addHttpErrorStatus(hsr, 500).addResponse(new AdminException().addMessage("/home/alexandr/NetBeansProjects/angular/src/main"
+                            + "/webapp/WEB-INF/view/prop/db_prod_col.properties").addExceptionName("FileNotFoundException"));
+                            
                 }
                 
                 productCacheVal = props.hashCode();
@@ -221,7 +249,8 @@ public class ProductController {
                 return rrw.addResponse(productDao.searchFormsSelection(sqlRow));
             }
 
-            return rrw.addResponse("sqlQuery.getQueryRow(). Парсинг запроса не возможен.").addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("~ParseException").addMessage("sqlQuery.getQueryRow(). Парсинг запроса не возможен.")
+                    .get()).addHttpErrorStatus(hsr, 400);
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
         }
@@ -230,7 +259,8 @@ public class ProductController {
     @PostMapping("/admin/deleteProduct/{id}")
     public ResponseRsWrapper deleteProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
         if (id == null) {
-            return rrw.addResponse("@PathVariable Long id == null").addHttpErrorStatus(hsr, 500);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentEaxeption").addMessage("@PathVariable Long id == null").get())
+                    .addHttpErrorStatus(hsr, 500);
         }
         
         try {

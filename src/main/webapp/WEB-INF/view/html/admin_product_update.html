@@ -11,40 +11,49 @@
             <div class="adminProdUpSingleParent">
                 <label>Название:</label>
                 <div class="adminProdUpInputWrapper">
-                    <input type="text" value="{{adminProd.product.name}}" ng-model="adminProd.product.name" placeholder="{{adminProd.product.name}}"/>
+                    <input name="name" class="updateClickTarget" type="text" value="{{adminProd.product.name}}" 
+                           placeholder="{{adminProd.product.name}}" ng-model="adminProd.product.name" />
                 </div>
+                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
             </div>
             
             <div class="adminProdUpSingleParent">
                 <label>Описание:</label>
                 <div class="adminProdUpInputWrapper">
-                    <textarea ng-model="adminProd.product.description">{{adminProd.product.description}}</textarea>
+                    <textarea name="description"  class="updateClickTarget" ng-model="adminProd.product.description">{{adminProd.product.description}}</textarea>
                 </div>
+                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
             </div>
             
             <div class="adminProdUpSingleParent">
                 <label>Цена:</label>
                 <div class="adminProdUpInputWrapper">
-                    <input type="number" value="{{adminProd.product.price}}" placeholder="{{adminProd.product.price}}"  ng-model="adminProd.product.price"/>
+                    <input name="price"  class="updateClickTarget" type="number" value="{{adminProd.product.price}}" 
+                           placeholder="{{adminProd.product.price}}"  ng-model="adminProd.product.price"/>
                 </div>
+                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
             </div>
             
             <div class="adminProdUpSingleParent">
                 <label>Оценка:</label>
                 <div class="adminProdUpInputWrapper">
-                    <input type="number" value="{{adminProd.product.mark}}" placeholder="{{adminProd.product.mark}}" ng-model="adminProd.product.mark"/>
+                    <input name="mark"  class="updateClickTarget" type="number" value="{{adminProd.product.mark}}" 
+                           placeholder="{{adminProd.product.mark}}" ng-model="adminProd.product.mark"/>
                 </div>
+                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
             </div>
             
             <div class="adminProdUpSingleParent">
                 <label>Кол-во:</label>
                 <div class="adminProdUpInputWrapper">
-                    <input type="number" value="{{adminProd.product.quantity}}" placeholder="{{adminProd.product.quantity}}" ng-model="adminProd.product.quantity"/>
+                    <input name="quantity" class="updateClickTarget" type="number" value="{{adminProd.product.quantity}}" 
+                           placeholder="{{adminProd.product.quantity}}" ng-model="adminProd.product.quantity"/>
                 </div>
+                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
             </div>
             
@@ -57,12 +66,15 @@
                     </div>
                 </div>
                 <div class="categoryLinkWrapper">
+                    <p class="adminProdUpLink" ng-click="updateCategories()">Применить изменения</p>
                     <p class="adminProdUpLink" ng-click="getOriginCategories()">Востановить категории</p>
                 </div>
                 <div class="categoryLinkWrapper">
-                    <p class="adminProdUpLink" ng-click="addCategories()">Добавить категории</p>
+                    <p class="adminProdUpLink" ng-click="showCategories()">Добавить категории</p>
                 </div>
-                <div class="adminProdUpAllCategoriesWrapper">
+            </div>
+            
+                            <div class="adminProdUpAllCategoriesWrapper">
                     <div class="adminProdUpAllCategories" ng-repeat="allCat in adminProd.allCategories">
                         <div class="adminProdUpNewCategories">
                             <input type="hidden" value="{{allCat.id}}"/>
@@ -70,8 +82,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            
         
+            <p class="adminProdUpLink" ng-click="showComments()">Показать коментарии</p>
+            
         <div class="adminProdUpCommentBlock">
             <div class="adminProdUpComment" ng-repeat="com in adminProd.product.comments">
                 <input class="adminProdCommentId" type="hidden" value="{{com.id}}" ng-model="com.id"/>
@@ -90,10 +104,26 @@
                     </div>
                 </div>
                 
+                <p class="adminProdUpLink" ng-click="updateComment($event)">Применить изменения</p>
                 <p class="adminProdUpLink" ng-click="getOriginComment($event)">Востановить</p>
                 <p class="adminProdRemoveLink" ng-click="deleteComment($event)">Удалить комментарий</p>
             </div>
         </div>
+            
+        <div class="dminProdUpCommentParrent">
+            <p>Добавить комментарий:</p>
+                    <div class="adminProdUpAddCommentWrapper">
+                        <label>Ник:</label>
+                        <div class="adminProdUpInputWrapper"> 
+                            <input type="text"  ng-model="addNewComment.nick"/>
+                        </div>
+                        <label>Коментарий:</label>
+                        <div class="adminProdUpInputWrapper">
+                            <textarea ng-model="addNewComment.body"></textarea>
+                        </div>
+                        <p class="addnewComment" ng-click="addComment()">Добавить коментарий</p>
+                    </div>
+                </div>
             
         </div>
         

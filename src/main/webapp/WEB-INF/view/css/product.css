@@ -33,3 +33,6 @@
 .adminProdUpAllCategoriesWrapper p:before { content: "- "; }
 .adminProdUpAllCategoriesWrapper p:hover{ cursor: pointer; text-decoration: underline; }
 .jampToProductTableLink { text-decoration: underline; cursor: pointer; margin-top: 0; }
+.adminProdUpCommentBlock { display: none; }
+.addnewComment { cursor: pointer; font-size: 1wh;}
+.addnewComment:hover { text-decoration: underline; }

@@ -2,8 +2,6 @@ package alex.home.angular.exception;
 
 import java.io.Serializable;
 
-//Предназначение - проброс сообщения с дао на UI доступный администратору.
-//Клиент логируется или же оповещается с js
 public class AdminException extends RuntimeException {
     
     private final AdminCallback adminCallBack;
@@ -63,14 +61,16 @@ public class AdminException extends RuntimeException {
         return this;
     }
     
-    private final void collectSTrace(StringBuilder sb, Throwable throwable) {
+    private void collectSTrace(StringBuilder sb, Throwable throwable) {
         if (throwable == null) {
             return;
         }
         
-        for (StackTraceElement e : throwable.getStackTrace()) {
-             sb.append(e.toString()).append("<br>");
-         }
+        sb.append("<hr>").append(throwable.getMessage()).append("<hr>");
+        
+        for (StackTraceElement ste : throwable.getStackTrace()) {    
+            sb.append(ste).append("<br>");
+        }
         
         collectSTrace(sb, throwable.getCause());
     }

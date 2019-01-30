@@ -6,16 +6,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-public class ImageFSWriter extends ImageWriter{
+public class ImageFSWriter extends ImageWriter {
     
-    private final static Lock LOCK = new ReentrantLock();
-    protected static int filesCount = 300;
-
     public ImageFSWriter() {}
     
     @Override @Nullable
@@ -26,9 +21,11 @@ public class ImageFSWriter extends ImageWriter{
             convertSize = (convertSize != null) ? convertSize : defaultImgSize;
             
             byte[] resizeImage = converter.convert(img, convertSize , extension);
+            
             if (resizeImage == null) {
                 return null;
             }
+            
             try {
                 String fileName = defineName(extension);
                 return writeFileAndGetUrl(resizeImage, fileName);
@@ -40,35 +37,36 @@ public class ImageFSWriter extends ImageWriter{
         return null;
     }
     
-    private static String defineName(@Nullable String extension) {
+    private String defineName(@Nullable String extension) {
         return "/" + UUID.randomUUID() + ((extension != null) ? extension : defaultExctension);
     }
     
     @Nullable
-    private String writeFileAndGetUrl(@NotNull byte[] img, @NotNull String fileName) {
+    private synchronized String writeFileAndGetUrl(byte[] img, String fileName) {
         try {
-            LOCK.lock();
-            if (filesCount >= 300) {
+            if (filesCount >= filesQuantInSubdirrectory) {
                 currentChildDirrectory = "/" + UUID.randomUUID().toString();
-                filesCount = 0;
             }
+            
             File parent = new File(rootImgDir + currentChildDirrectory);
             File file = new File(rootImgDir + currentChildDirrectory + fileName);
+            
             if (!parent.exists()) {
                 parent.mkdir();
             }
+            
             file.createNewFile();
+            
             try (FileOutputStream fos = new FileOutputStream(file)) {
+                filesCount++;
                 fos.write(img);
                 fos.flush();
-                filesCount++;
             }
-            return "/img/products" + currentChildDirrectory + fileName;
+                    
+            return imgUrlDbPreffix + currentChildDirrectory + fileName;
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
-        } finally {
-            LOCK.unlock();
         }
     }
 }
