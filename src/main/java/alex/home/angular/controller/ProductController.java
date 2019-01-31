@@ -212,7 +212,6 @@ public class ProductController {
         }
         
         Properties props = null;
-        List<Category> categories = null;
         
         try {
             props = propCache.getProductProps(productCacheVal);

@@ -282,19 +282,32 @@ adminApp.controller('adminProductController', function($scope, $window, adminDat
                 oldCategoriesIds.push(el.id);
             });
             
-           productUpdate.updateCategories($('.adminProdId').val(), oldCategoriesIds, newCategoriesIds)
-                   .then(
-                   function(val) {
+            var promise = productUpdate.updateCategories($('.adminProdId').val(), oldCategoriesIds, newCategoriesIds);
+            
+            promise.then(function(val) {
                        window.alert(val);
-                   }, 
-                   function(val) {
-                        if (typeof(val) === 'string') {
-                            window.alert(val);
-                        } else {
-                            exception.show(val);
-                        }
-                    });
+                   }, function(val) {
+                       if (typeof(val) === 'string') {
+                           window.alert(val);
+                       } else {
+                           exception.show(val);
+                       }
+                   });
        }
+    };
+    
+    $scope.updateImg =  function() {
+        var productId = $('.adminProdId').val();
+        var updateImgfile = $('#adminImgMultipart').prop('files')[0];
+        console.log(updateImgfile);
+        
+        var promise = productUpdate.updateImage(productId, updateImgfile);
+        
+        promise.then(function(res) {
+            window.alert(res);
+        }, function(res) {
+            window.alert(res);
+        });
     };
 });
 
@@ -337,6 +350,28 @@ adminApp.factory('productUpdate', function($window, $http, $location, $timeout, 
         
         initControllerScope: function(scope) {
            controllerScope = scope; 
+        },
+        
+        updateImage: function(productId, updateImgfile) {
+            var defer = $q;
+            
+            if (productId && updateImgfile) {
+                var form = new FormData();
+                form.append('productId', productId);
+                form.append('img', updateImgfile);
+                
+                $http({url: '/admin/updateImg', method: 'POST', data: form, headers : {'Content-Type': undefined}})
+                        .then(function() {
+                            defer.resolve("Картинка изменена.");
+                }, function(resp) {
+                    defer.reject(resp.data.response);
+                });
+                
+            } else {
+                defer.reject("Переданные аргументы не корректны.");    
+            }
+            
+            return defer.promise;
         },
         
         updateCategories: function(productId, oldCategoryId, newCategoryId) {

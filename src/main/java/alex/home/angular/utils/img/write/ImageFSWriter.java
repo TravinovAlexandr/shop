@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 
 public class ImageFSWriter extends ImageWriter {
     
@@ -68,5 +67,54 @@ public class ImageFSWriter extends ImageWriter {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public void deleteImage(String url) {
+        if (url == null) {
+            System.out.println("url == null.");
+            return;
+        }
+        
+        File file = new File(url);
+        
+        if (!file.exists()) {
+            System.out.println("FileNotFoundException.");
+            return;
+        } else if (!file.canWrite()) {
+            System.out.println("Permission denied.");
+            return;
+        } else if (!file.isFile()) {
+            System.out.println("Dirrectory.");
+            return;
+        }
+        
+        if (!file.delete()) {
+            System.out.println("File have not deleted.");
+        }
+        
+    }
+
+    @Override
+    public Object usyncCall() {
+        TLSImageWriterArgs tlsi = (TLSImageWriterArgs) argsStorage.get();
+        
+        if (tlsi.bytes != null && tlsi.path == null) {
+            return writeImageAndGetUrl(tlsi.bytes, tlsi.convertSize, tlsi.extension, tlsi.converter);
+        } else if (tlsi.bytes == null && tlsi.path != null) {
+            deleteImage(rootImgDir + tlsi.path);
+            return "VOID";
+        } else {
+            throw new IllegalStateException("Arguments based algorithm is incorrect.");
+        }
+    }
+
+    @Override
+    public void initMethodArguments(Object args) {
+        if (args == null || args.getClass() != TLSImageWriterArgs.class) {
+            throw new IllegalArgumentException("Argument != TLSImageWriterArgs.class");
+        }
+        
+        argsStorage.set(args);
     }
 }
