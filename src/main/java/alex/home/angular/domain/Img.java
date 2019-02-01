@@ -7,4 +7,9 @@ public class Img implements Serializable {
     
     public Long id;
     public String url;
+    
+    public Img(Long id, String url) {
+        this.id = id;
+        this.url = url;
+    }
 }

@@ -130,7 +130,8 @@
         <div class="adminProdUpRightWrapper">
             <div class="adminProdUpImgBlock">
                 <div class="adminProdUpImg">
-                    <img id="adminProdImage" ng-src="{{adminProd.product.imgUrl}}" alt="Картинка не найдена"/>
+                    <input class="adminProdImageId" type="hidden" value="{{adminProd.product.imgId}}"/>
+                    <img id="adminProdImage" ng-src="/img/products{{adminProd.product.imgUrl}}" alt="Картинка не найдена"/>
                 </div>
             </div>
             <div class="adminImgLinkWrapper">

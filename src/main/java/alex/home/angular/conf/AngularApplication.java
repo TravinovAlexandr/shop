@@ -20,9 +20,9 @@ public class AngularApplication {
     @Bean
     public ImageWriter fsImageWriter() {
         ImageWriter ifsw = new ImageFSWriter();
-        ifsw.confRootImgDir("/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/img/products");
-        ifsw.confExctention("png");
-        ifsw.confSize(300);
+        ifsw.setRootImgDir("/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/img/products");
+        ifsw.setDefExctension(".png");
+        ifsw.setDefFilesInSubDir(300);
         return ifsw;
     }
     

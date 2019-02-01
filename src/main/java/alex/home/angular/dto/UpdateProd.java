@@ -9,11 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdateProd implements Serializable {
     
     public Long productId;
+    public Long imageId;
     public List<Long> oldCategoriesId;
     public List<Long> newCategoriesId;
     public List<Category> allCategories;
     public Product product;
-    public MultipartFile img;
+    public MultipartFile image;
     
     public UpdateProd() {}
 
@@ -23,6 +24,14 @@ public class UpdateProd implements Serializable {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
     }
 
     public List<Long> getOldCategoriesId() {
@@ -57,12 +66,12 @@ public class UpdateProd implements Serializable {
         this.product = product;
     }
 
-    public MultipartFile getProductImg() {
-        return img;
+    public MultipartFile getImage() {
+        return image;
     }
 
-    public void setProductImg(MultipartFile img) {
-        this.img = img;
+    public void setImage(MultipartFile image) {
+        this.image = image;
     }
 
 }

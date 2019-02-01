@@ -41,7 +41,7 @@ adminApp.controller('addProductController', function($scope, $http, exception) {
         addProdMultyForm.append('price', $scope.addPrice);
         addProdMultyForm.append('quantity', $scope.addQuant);
         addProdMultyForm.append('image', $scope.addImage);
-
+            console.log($scope.addImage);
         var categoryIds = [];
         
         $('input:checkbox:checked').each(function() {
@@ -50,7 +50,7 @@ adminApp.controller('addProductController', function($scope, $http, exception) {
         
         addProdMultyForm.append('categoryIds', categoryIds);
         
-        $http({method : 'POST', url : '/addProduct', data : addProdMultyForm, headers : {'Content-Type': undefined}})
+        $http({method : 'POST', url : '/admin/addProduct', data : addProdMultyForm, headers : {'Content-Type': undefined}})
                 .then(function(){}, 
         function(resp) {
             exception.show(resp.data.response);
@@ -60,7 +60,7 @@ adminApp.controller('addProductController', function($scope, $http, exception) {
 
 adminApp.controller('searchFormleController', function($scope, $http, $timeout, $location, adminData, exception) {
     
-    $http({method : 'POST', url : '/searchForm'}).then(
+    $http({method : 'POST', url : '/admin/searchForm'}).then(
         function(resp) {
             $scope.searchForm = angular.fromJson(resp.data.response);
             $timeout(function() {
@@ -116,7 +116,7 @@ adminApp.controller('searchFormleController', function($scope, $http, $timeout, 
                 
         $http({
             method : 'POST', 
-            url : '/searchQuery', 
+            url : '/admin/searchQuery', 
             data: {
                 searchQuery: searchReqList,
                 limit : 5,
@@ -173,10 +173,10 @@ adminApp.controller('productTableController', function($scope, $http, $location,
    
     $scope.selectProduct = function() {
         pathPTVariable = '/admin/product/' + this.element.id;
-        $http({method: 'GET', url: pathPTVariable})
+        $http({method: 'POST', url: pathPTVariable})
                 .then(function(resp) {
                     $location.path(pathPTVariable);
-                    console.log(resp.data.response.product.category);
+                    console.log(resp.data.response);
                     adminData.setOriginalProduct(resp.data.response);
                     adminData.setBindProduct(resp.data.response);
                 }, function(resp) {
@@ -298,15 +298,15 @@ adminApp.controller('adminProductController', function($scope, $window, adminDat
     
     $scope.updateImg =  function() {
         var productId = $('.adminProdId').val();
+        var imgId = $('.adminProdImageId').val();
         var updateImgfile = $('#adminImgMultipart').prop('files')[0];
-        console.log(updateImgfile);
-        
-        var promise = productUpdate.updateImage(productId, updateImgfile);
+        console.log(productId);
+        var promise = productUpdate.updateImage(productId, imgId, updateImgfile);
         
         promise.then(function(res) {
             window.alert(res);
         }, function(res) {
-            window.alert(res);
+            exception.show(res);
         });
     };
 });
@@ -352,25 +352,29 @@ adminApp.factory('productUpdate', function($window, $http, $location, $timeout, 
            controllerScope = scope; 
         },
         
-        updateImage: function(productId, updateImgfile) {
-            var defer = $q;
+        updateImage: function(productId, imageId, updateImgfile) {
+            var defer = $q.defer();
             
-            if (productId && updateImgfile) {
+            if (productId && imageId && updateImgfile) {
+                console.log(imageId);
                 var form = new FormData();
                 form.append('productId', productId);
-                form.append('img', updateImgfile);
-                
-                $http({url: '/admin/updateImg', method: 'POST', data: form, headers : {'Content-Type': undefined}})
-                        .then(function() {
-                            defer.resolve("Картинка изменена.");
-                }, function(resp) {
-                    defer.reject(resp.data.response);
-                });
-                
+                form.append('imageId', imageId);
+                form.append('image', updateImgfile);
+                try {
+                    $http({url: '/admin/updateImg', method: 'POST', data: form, headers : {'Content-Type': undefined}})
+                            .then(function() {
+                                defer.resolve("Картинка изменена.");
+                    }, function(resp) {
+                        defer.reject(resp.data.response);
+                    });
+                } catch (ex) {
+                    defer.reject(ex);
+                }
             } else {
                 defer.reject("Переданные аргументы не корректны.");    
             }
-            
+        
             return defer.promise;
         },
         
@@ -739,17 +743,23 @@ adminApp.directive('ngImg', function() {
     };
 });
 
-adminApp.directive('ngImg', function() {
+adminApp.directive('ngFileUp', function() {
     return {
         restrict : 'A',
-        link : function(scope, element, attrs) {
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+            if (!ngModel) {
+                console.log('Dirrective ng-file-up requires ng-model.');
+                return;
+            }
             element.bind('change', function(el) {
-                var ImgReader = new FileReader();
                 var addElm = $(el.target).prop('files')[0];
-                ImgReader.onload = function() {
-                        $('#adminProdImage').attr('src', ImgReader.result);
+                ngModel.$setViewValue(addElm);
+                var addImgReader = new FileReader();
+                addImgReader.onload = function() {
+                        $('#prodBigImage').attr('src', addImgReader.result);
                 };
-                ImgReader.readAsDataURL(addElm);
+                addImgReader.readAsDataURL(addElm);
             });  
         }
     };
