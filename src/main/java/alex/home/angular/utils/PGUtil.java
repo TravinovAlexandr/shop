@@ -16,11 +16,13 @@ public class PGUtil {
         int size = lst.size();
         
         while (size-- > 0) {
+            sb.append(lst.get(size));
+            
             if (size != 0) {
                 sb.append(isNum ? "," : "',");
             }
         }
-        
+
         return sb.append(isNum ? "" : "'").append(castType).toString();
     }
     

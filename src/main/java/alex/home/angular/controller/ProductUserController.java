@@ -42,7 +42,7 @@ import alex.home.angular.sql.search.SearchCondition;
 import alex.home.angular.sql.search.SearchElement;
 
 @Controller
-public class ProductController {
+public class ProductUserController {
     
     private final PropCache propCache = new PropCache();
     private final CategoryCache categoryCache = new CategoryCache();

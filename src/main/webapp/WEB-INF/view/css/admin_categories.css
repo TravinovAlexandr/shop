@@ -1,0 +1,17 @@
+.updateCategoryModal {     transition: opacity 0.4s;
+display: none; position: fixed;  max-height: fit-content ; width: 25vw; background-color: #CEFF81; margin-top: 20vh; padding: 2%; 
+                       border: 1px solid green;  /*background:linear-gradient(-45deg, transparent 10px, #58a 0);*/ }
+.categoryPage { margin-left: 5%; }
+.updateCategoryTitle { text-decoration: underline; }
+.updateCategoryModalInnerWrapper { margin-left: 5%;}
+.updateCategoryModalInnerWrapper input { margin-left: 5%; margin: 2% 0; min-width: 93%; max-width: 93%; }
+.updateCategoryModalInnerWrapper textarea { margin-left: 5%; margin: 2% 0; min-width: 93%; max-width: 93%;  height: 20vh; min-height: 30px; overflow: scroll; } 
+.updateCategoryModalInnerWrapper button { margin-top: 1%; }
+.upperCategoryWrapper { width: 100%; float: left; }
+.bottomCategoryWrapper{ width: 100%; float: left; }
+.updateCategoryModal label:hover { text-decoration: underline; cursor: pointer; }
+/*.prgrtCategoryLine p { float: left; }*/
+.updateCategoryTitle { float: left; margin-top: 0; }
+.updateCategoryExit { float: right; margin-top: 0; transition: 0.5s; cursor: pointer; }
+.updateCategoryExit:hover { font-size: 30px; transition: 0.5s; }
+.updateCategoryModalInnerWrapper { clear:both; }

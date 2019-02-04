@@ -4,7 +4,6 @@ package alex.home.angular.domain;
 
 import java.util.Objects;
 
-
 public class Category {
     
     public Long id;

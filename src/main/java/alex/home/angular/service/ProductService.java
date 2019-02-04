@@ -199,7 +199,7 @@ public class ProductService implements ProductDao {
     @Override @NotNull
     public List<ProductRow> searchFormsSelection(@NotNull String query) {
         if (query == null) {
-            throw new AdminException().addMessage("NULL значение строки запроса не предусмотренно. Ошибка валидации на уровне контроллера.")
+            throw new AdminException().addMessage("@NotNull String query == null.")
             .addExceptionName("IllegalArgumentException");
         }
         
@@ -247,12 +247,12 @@ public class ProductService implements ProductDao {
     }
     
     private <T, E> void updateSingleField(T cond, E val, String query, String exName, String exMessage) {
-        if (cond == null || val == null) {
+        if (cond == null || val == null || query == null) {
             throw new AdminException().addExceptionName(exName == null ? "" : exName).addMessage(exMessage == null ? "" : exMessage);
         }
         
         try {
-            jdbcTemplate.update(query + cond, val);
+            jdbcTemplate.update(query, val, cond);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -261,31 +261,31 @@ public class ProductService implements ProductDao {
     
     @Override
     public void updateProductName(Long id, String name) {
-        updateSingleField(id, name, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET name = ? WHERE id =", 
+        updateSingleField(id, name, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET name = ? WHERE id = ?", 
                 "IllegalArgumentException", "@NotNull Long id, @NotNull String name");
     }
     
     @Override
     public void updateProductDesc(Long id, String desc) {
-        updateSingleField(id, desc, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET description =? WHERE id =", 
+        updateSingleField(id, desc, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET description = ? WHERE id = ?", 
                 "IllegalArgumentException", "@NotNull Long id, @NotNull String desc");
     }
     
     @Override
     public void updateProductPrice(Long id, Float price) {
-        updateSingleField(id, price, "UPDATE "  + PGMeta.PRODUCT_TABLE +  " SET price =" + price + " WHERE id =" , 
+        updateSingleField(id, price, "UPDATE "  + PGMeta.PRODUCT_TABLE +  " SET price = ? WHERE id = ?" , 
                 "IllegalArgumentException", "@NotNull Long id, @NotNull Float price");
     }
     
     @Override
     public void updateProductQuant(@NotNull Long id, @NotNull Integer quant) {
-        updateSingleField(id, quant, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET quant =" + quant + " WHERE id =" , 
+        updateSingleField(id, quant, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET quant = ? WHERE id = ?" , 
                 "IllegalArgumentException", "@NotNull Long id, @NotNull Integer quant");
     }
     
     @Override
     public void updateProductMark(@NotNull Long id, @NotNull Integer mark) {
-        updateSingleField(id, mark, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET mark =" + mark + " WHERE id ="  , 
+        updateSingleField(id, mark, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET mark = ? WHERE id = ?"  , 
                 "IllegalArgumentException", "@NotNull Long id, @NotNull Integer mark");
     }
     

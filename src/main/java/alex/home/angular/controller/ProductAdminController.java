@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
   
 @RestController
-public class ProductUpdateController {
+public class ProductAdminController {
     
     private ProductDao productDao;
     private CategoryDao categoryDao;

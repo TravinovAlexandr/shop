@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="css/search_form.css" />
         <link rel="stylesheet" href="css/admin_nav_bar.css" />
         <link rel="stylesheet" href="css/product_table.css" />
+        <link rel="stylesheet" href="css/admin_categories.css" />
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
@@ -19,28 +20,30 @@
     </head>
 
     <body ng-app="adminPage">
-        <!--    <header>
-                    <ng-include src="'html/nav_bar.html'"></ng-include>
-            </header>-->
-        <main>
+        <div ng-controller='initController'>
+            <!--    <header>
+                        <ng-include src="'html/nav_bar.html'"></ng-include>
+                </header>-->
+            <main>
 
-            <div class="mainWrapper">
-                <ng-include src="'html/admin_exception.html'"></ng-include>
+                <div class="mainWrapper">
+                    <ng-include src="'html/admin_exception.html'"></ng-include>
+                    <ng-include src="'html/notification.html'"></ng-include>
 
-                <div class="leftMainWrapper">
-                    <ng-include src="'html/admin_nav_bar.html'"></ng-include>
+                    <div class="leftMainWrapper">
+                        <ng-include src="'html/admin_nav_bar.html'"></ng-include>
+                    </div>
+                    <div class="rightMainWrapper">
+
+                        <div class="adminNgView" ng-view></div>
+                    </div>
                 </div>
-                <div class="rightMainWrapper">
 
-                    <div class="adminNgView" ng-view></div>
-                </div>
-            </div>
-
-        </main>
-        <footer>
-            <ng-include src="'html/footer.html'"></ng-include>
-        </footer>
-
+            </main>
+            <footer>
+                <ng-include src="'html/footer.html'"></ng-include>
+            </footer>
+        </div>
     </body>
 
 </html>

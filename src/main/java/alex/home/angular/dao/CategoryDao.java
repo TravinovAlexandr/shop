@@ -10,13 +10,15 @@ public interface CategoryDao {
     
     void updateProductCategories(ProductCategoriesUpdate pcu);
     
-    boolean insertCategory(String name, String description);
+    void insertCategory(String name, String description);
     
-    boolean deleteCategory(Long id);
+    void deleteCategory(Long id);
 
-    boolean upadateCategoryName(Long id , String newName);
+    void upadateCategoryName(Long id , String newName);
     
-    boolean updateCategoryDesc(Long id ,String desc);
+    void updateCategoryDesc(Long id ,String desc);
+    
+    void updateCategory(Category category);
     
     Category selectCategory(Long id);
     

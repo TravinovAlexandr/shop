@@ -1,31 +1,24 @@
 package alex.home.angular.service;
 
+import alex.home.angular.annotation.NotNullArgs;
 import alex.home.angular.dao.CategoryDao;
 import alex.home.angular.domain.Category;
 import alex.home.angular.dto.ProductCategoriesUpdate;
 import alex.home.angular.exception.AdminException;
-import alex.home.angular.utils.ConnectionUtil;
+import alex.home.angular.sql.PGMeta;
 import alex.home.angular.utils.PGUtil;
-import java.sql.Array;
-import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryService implements CategoryDao {
     
     private JdbcTemplate jdbcTemplate;
-    SimpleJdbcInsert simpleJdbcInsert;    
+    
     /*
     CREATE OR REPLACE FUNCTION UPDATE_PRODUCT_CATEGORIES(prodid BIGINT, catsToDelete BIGINT[], catsToInsert BIGINT[])
     RETURNS VOID AS $$
@@ -45,13 +38,11 @@ public class CategoryService implements CategoryDao {
     $$ LANGUAGE plpgsql VOLATILE;
     */
     
-    @Override
+    @Override @NotNullArgs
     public void updateProductCategories(ProductCategoriesUpdate pcu) {
         if (pcu == null || pcu.productId == null || pcu.oldCategoriesId == null || pcu.newCategoriesId == null 
                 || (pcu.oldCategoriesId.isEmpty() && pcu.newCategoriesId.isEmpty())) {
-            
-            throw new AdminException().addMessage("Некорректное значение аргумента(ов). Ошибка валидации на контроллере.")
-                    .addExceptionName("IllegalArgumentException");
+            throw new AdminException().addMessage("Некорректное значение аргумента(ов).").addExceptionName("IllegalArgumentException");
         }
         
         try {            
@@ -83,33 +74,33 @@ public class CategoryService implements CategoryDao {
     $$ LANGUAGE plpgsql;
     */
     
-    @Override 
-    public boolean insertCategory(@Nullable String name, @Nullable String description) {
-        if (name != null && description != null) {
-            try {
-                final String sql = "SELECT INSERT_CATEGORY(?,?);".intern();
-                return jdbcTemplate.query(sql, new Object[] {name, description}, (ResultSet rs, int i) -> rs.getInt(1)).get(1) == 1;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return false;
-            }
+    @Override @NotNullArgs
+    public void insertCategory(String name, String description) {
+        if (name == null || description == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage(name == null ? "String name == null" : ""
+                    + description == null ? "String description == null" : "");
         }
-        return false;
+
+        try {
+            jdbcTemplate.queryForObject("SELECT INSERT_CATEGORY(?,?);", new Object[]{name, description}, (ResultSet rs, int i) -> {return null;});
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
     }
 
+
     @Override
-    public boolean deleteCategory(@Nullable Long id) {
-        if (id != null) {
+    public void deleteCategory(Long id) {
+        if (id == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
+        }
             try {
-                final String sql = "DELETE FROM category WHERE id = ?".intern() + id; 
-                return jdbcTemplate.update(sql) != 0;
+                jdbcTemplate.update("DELETE FROM " + PGMeta.CATEGORY_TABLE + " WHERE id = " + id);
             } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return false;
+                throw new AdminException(ex);
             }
-        } 
-        return false;
-    }
+        }
     
     /*
     CREATE OR REPLACE FUNCTION UPDATE_CATEGORY_NAME(cid BIGINT, cname VARCHAR)
@@ -124,59 +115,73 @@ public class CategoryService implements CategoryDao {
     $$ LANGUAGE plpgsql;
     */
     
-    @Override
-    public boolean upadateCategoryName(@Nullable Long id, @Nullable String name) {
-        if (id != null && name != null) {
-            try {
-                final String sql = "SELECT UPDATE_CATEGORY_NAME(?,?);".intern();
-                return jdbcTemplate.update(sql, name) != 0;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return false;
-            }
+    @Override @NotNullArgs
+    public void upadateCategoryName(Long id, String name) {
+        if (id == null || name == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage(name == null ? "String name  == null" : "" + id == null ? "Long id == null" : "");
         }
-        return false;
-    }
 
-    @Override
-    public boolean updateCategoryDesc(@Nullable Long id, @Nullable String desc) {
-        if (id != null && desc != null) {
-                try {
-                    final String sql = "UPDATE category SET description = ? WHERE id =".intern() + id; 
-                    return jdbcTemplate.update(sql, desc) == 1;
-                } catch (DataAccessException ex) {
-                    ex.printStackTrace();
-                    return false;
-                }
-            }
-            return false;
-    }
-
-    @Override
-    public Category selectCategory(@Nullable Long id) {
-        if (id != null) {
-            try {
-                final String sql = "SELECT * FROM category WHERE id = ".intern() + id; 
-                final Category category = jdbcTemplate.query(sql, (ResultSet rs) 
-                        -> new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")));
-                return category;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
+        try {
+            jdbcTemplate.update("SELECT UPDATE_CATEGORY_NAME(?,?);", id, name);
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
         }
-        return null;
     }
+    
+    @Override @NotNullArgs
+    public void updateCategoryDesc(Long id, String description) {
+        if (id == null || description == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("@NotNullArgs: " +description == null ? "String description == null  " : ""
+                    + id == null ? "Long id == null" : "");
+        }
+
+        try {
+            jdbcTemplate.update("UPDATE " + PGMeta.CATEGORY_TABLE + " SET description = ? WHERE id = " +  id, description);
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
+    }
+    
+    
+    @Override
+    public void updateCategory(Category category) {
+        if (category == null || category.id == null || category.name == null || category.description == null) {
+                throw new AdminException().addMessage("@NotNull rguments: " + category == null ? "category == null  " : "" + category != null 
+                        ? category.id == null ? "category.id == null  " : "" + category.name == null ? "category.name == null  " : "" + category.description == null
+                                ? "category.description == null" : "" : "").addExceptionName("IllegalAtributeException");
+        }
+        System.out.println(category.description);
+        try {
+            jdbcTemplate.update("UPDATE " + PGMeta.CATEGORY_TABLE + " SET name = ?, description = ? WHERE id = " + category.id, category.name, category.description);
+        } catch (DataAccessException ex) {
+            throw new AdminException(ex);
+        }
+    }
+    
+    @Override
+    public Category selectCategory(Long id) {
+        if (id == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
+        }
+        
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM category WHERE id = " + id, (ResultSet rs, int i)
+                    -> { return new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")); });
+        } catch (DataAccessException ex) {
+            throw new AdminException(ex);
+        }
+    }
+    
 
     @Override
     public List<Category> selectAllCategories() {
         try {
-          final String sql = "SELECT * FROM category;".intern();
-          final List<Category> categories = jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")));
-          return categories;
+          return jdbcTemplate.query("SELECT * FROM category;", (ResultSet rs, int i) -> new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")));
         } catch (DataAccessException ex) {
             ex.printStackTrace();
-            return null;
+            throw new AdminException(ex);
         }
     }
 
@@ -185,6 +190,4 @@ public class CategoryService implements CategoryDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    
-    
 }

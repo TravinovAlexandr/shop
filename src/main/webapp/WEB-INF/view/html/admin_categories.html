@@ -1,0 +1,59 @@
+<div class="categoryPage">
+    
+    
+    <div class="updateCategoryModal" >
+        <div class="updateCategoryWrapper">
+            <form ng-submit="updateCategory()">
+                    <p class="deleteCategoryLink" ng-click="deleteCategory()">Удалить категорию</p>
+                    <p class="updateCategoryTitle">Изменить категорию</p>
+                    <p class="updateCategoryExit updateCategoryExitWrapper" ng-click="hideUpdateCategoryModal()">X</p>
+                    <div class="updateCategoryModalInnerWrapper">
+                    <label for="updateCategName">Название категории:</label>
+                    <input id="updateCategoryId" class="updateCategoryId" type="hidden"/>
+                    <div class="categoriesPageInputWrapper">
+                        <input id="updateCategName" class="updateCategoryName" type="text" placeholder="Название категории"/>
+                    </div>
+                    <label for="updateCategoryDesc">Описание категории:</label>
+                    <div class="categoriesPageInputWrapper">
+                        <textarea id="updateCategoryDesc" class="updateCategoryDescription" placeholder="Описание категории" /></textarea>
+                    </div>
+                    <button>Подтвердить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="upperCategoryWrapper">
+        <div class="addNewCategoryWrapper">
+            <form ng-submit="addNewCategory()">
+                <p>Создать новую категорию</p>
+                <label>Название категории:</label>
+                <div class="categoriesPageInputWrapper">
+                    <input class="categoryName" type="text" placeholder="Название категории" ng-model="newCategory.name"/>
+                </div>
+                <label>Описание категории:</label>
+                <div class="categoriesPageInputWrapper">
+                    <textarea class="categoryDescription"  placeholder="Описание категории"  ng-model="newCategory.description"></textarea>
+                </div>
+                <button>Подтвердить</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="bottomCategoryWrapper">
+        <div class="categoryTableWrapper">
+            <table>
+                <tr>
+                    <td ng-click="filterCategories('name')">Название категории</td>
+                    <td ng-click="filterCategories('description')">Описание категории</td>
+                </tr>
+
+                <tr class="categoryTableRow" ng-repeat="row in categoryTable |  orderBy:orderedCategories" ng-click="showUpdateCategoryModal($event)">
+                    <input class="categoryRowId" type="hidden" value="{{row.id}}" />
+                    <td class="categoryRowElement categoryRowName">{{row.name}}</td>
+                    <td class="categoryRowElement categoryRowDescription">{{row.description}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

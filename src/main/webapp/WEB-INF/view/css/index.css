@@ -16,12 +16,17 @@ body textarea { font-size: 17px; }
 .logo { width: 100%; }
 .navButtonsRow { height: 50px; background-color: #252525; color: white; overflow:hidden;  }
 .navMenuRow { overflow:hidden; }
+
 /*FOOTER*/
 .footerWrapper { min-height: 200px; width: 100%; margin: 0 auto; background-color: #252525; clear: both; min-height: 150px;  }
 
 /*PAGINATION*/
-.pagElement { float: left; border: 1px solid green; width: fit-content; height: 30px; padding: 10px 10px; margin-top: 40px;}
-.pagElement:hover { transition: 0.4s; background-color: #CEFF81; cursor: pointer; }
+.pagElement { float: left; border: 1px solid green; width: fit-content; height: 30px; padding: 10px 10px; margin-top: 40px; cursor: pointer; }
+.pagElement:hover { transition: 0.4s; background-color: #CEFF81;  }
 .pagElement p { height: 0px; margin: 0; }
 .paginationBar { float: left; }
-.curPagEl { background-color: #CEFF81; }
+
+/*NOTIFICATION*/
+.notificationWindow { display: none; position: fixed; opacity: 0.7; min-width: 20vw; max-width: 20vw; background-color: black; padding: 5px; left: 78%; border-radius: 15px;}
+.notificationMessage { width: 80%; float: left; height: fit-content; border-radius: 15px; padding-left: 1vw; padding-right: 1vw; }
+.notificationMessage p { color: white; font-size: 16px; }
