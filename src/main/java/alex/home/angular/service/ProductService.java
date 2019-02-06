@@ -25,6 +25,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import alex.home.angular.annotation.*;
 
 @Service
 public class ProductService implements ProductDao {
@@ -145,23 +146,23 @@ public class ProductService implements ProductDao {
         }
     }
 
-    @Override @Nullable
-    public List<Product> selectProductsWhereCtegoryId(@Nullable Long categoryId, @Nullable Integer limit, @Nullable Integer offset) {
-        if (categoryId != null && limit != null && offset != null) {
-            try {
-                String sql = "SELECT p.*, i.url FROM product p INNER JOIN category_products cp ON cp.product_id = p.id AND cp.category_id = " + categoryId 
-                        + " INNER JOIN img i ON p.img_id = i.id " + " LIMIT " + limit + " OFFSET " + offset * limit;
-                
-                return jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
-                                rs.getInt("mark"), rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getDate("start"), 
-                        rs.getDate("last"), rs.getString("url")));
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
+    @Override @Nullable @NotNullArgs
+    public List<Product> selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset) {
+        if (categoryId == null || limit == null || offset == null) {
+            return null;
         }
+
+        try {
+        String query = "SELECT p.*, i.url FROM  product p JOIN img i ON p.img_id =  i.id JOIN category_products cp ON cp.product_id = p.id WHERE cp.category_id = " 
+                + categoryId +" LIMIT " + limit+" OFFSET " + offset;
         
-        return null;
+        return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
+                rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getDate("start"), 
+                rs.getDate("last"), rs.getString("url")));
+        } catch (DataAccessException ex) {
+                ex.printStackTrace();
+                throw ex;
+            }
     }
     
     @Override @NotNull
@@ -208,6 +209,20 @@ public class ProductService implements ProductDao {
                     rs.getDouble("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),DateUtil.getDate(rs.getDate("start")), 
                     DateUtil.getDate(rs.getDate("last")), rs.getInt("count")));
         } catch (DataAccessException | IllegalArgumentException ex) {
+            ex.printStackTrace();
+            throw new AdminException(ex);
+        }
+    }
+    
+    @Override @Nullable
+    public Integer getProductCount(String query) {
+        if (query == null) {
+            return null;
+        }
+//        "SELECT COUNT(price) FROM " + PGMeta.PRODUCT_TABLE, (ResultSet rs, int i) -> rs.getInt("count")
+        try {
+            return jdbcTemplate.query(query, (ResultSet rs, int i) -> rs.getInt("count")).stream().findFirst().orElse(0);
+        } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
         }

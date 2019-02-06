@@ -8,9 +8,11 @@ import alex.home.angular.domain.Category;
 import alex.home.angular.domain.Img;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
+import alex.home.angular.dto.LimitOffset;
 import alex.home.angular.dto.ProductCategories;
 import alex.home.angular.dto.ProductCategoriesUpdate;
 import alex.home.angular.dto.ProductField;
+import alex.home.angular.dto.ProductsCount;
 import alex.home.angular.dto.ResponseRsWrapper;
 import alex.home.angular.dto.SearchQuery;
 import alex.home.angular.dto.UpdateProd;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import alex.home.angular.task.AsyncService;
+import alex.home.angular.utils.CookiesUtil;
 import alex.home.angular.utils.properties.PropCache;
 import alex.home.angular.utils.properties.PropFsLoader;
 import alex.home.angular.utils.properties.PropLoader;
@@ -61,10 +64,29 @@ public class ProductAdminController {
     private HttpServletResponse hsr;
     private ImageWriter fsImageWriter;
     private TaskExecutor taskExecutor;
-    private volatile int productCacheVal = -1;
     private final AsyncService asyncService = new AsyncService();
     private final PropCache propCache = new PropCache();
     private final CategoryCache categoryCache = new CategoryCache();
+    private volatile int productCacheVal = -1;
+    
+    @PostMapping("/getCookiesKey")
+    public ResponseRsWrapper getCokiesKey(ResponseRsWrapper rrw) {
+        return rrw.addResponse(CookiesUtil.getCookiesKey());
+    }
+    
+    @PostMapping("/getProductsPage")
+    public ResponseRsWrapper getProductsPage(@RequestBody LimitOffset dto, ResponseRsWrapper rrw) {
+        if (dto == null || dto.id == null || dto.limit == null | dto.offset == null) {
+            return rrw.addHttpErrorStatus(hsr, 400);
+        }
+        
+        try {
+            return rrw.addResponse(new ProductsCount(productDao.selectProductsWhereCtegoryId(dto.id, dto.limit, dto.offset), 
+                    productDao.getProductCount("SELECT COUNT(price) FROM product p JOIN category_products cp ON p.id = cp.product_id WHERE cp.category_id = " + dto.id)));
+         } catch (AdminException ex) {
+             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+         }
+    }
     
     @PostMapping("/admin/deleteProduct/{id}")
     public ResponseRsWrapper deleteProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
@@ -192,7 +214,7 @@ public class ProductAdminController {
         
         try {
             Product product = productDao.selectProductCategoriesComments(id);
-            List<Category> categories = null;
+            List<Category> categories;
             
             if (product != null) {
                 if (categoryCache.isValid()) {
@@ -340,8 +362,7 @@ public class ProductAdminController {
                 return rrw.addResponse(productDao.searchFormsSelection(sqlRow));
             }
 
-            return rrw.addResponse(new AdminException().addExceptionName("~ParseException").addMessage("Парсинг запроса не возможен.")
-                    .get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("~ParseException").addMessage("Парсинг запроса не возможен.").get()).addHttpErrorStatus(hsr, 400);
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
         }

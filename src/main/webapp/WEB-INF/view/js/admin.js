@@ -1,29 +1,27 @@
-"use strict"
-
 var adminApp = angular.module('adminPage', ['ngRoute']);
 var authApp = angular.module('authPage', []);
 
-adminApp.config(function($routeProvider, $locationProvider) {
-    $routeProvider.when('/admin/addNewProduct', {
+adminApp.config(function($routeProvider, $locationProvider) {    
+    $routeProvider.when('/addNewProduct', {
         templateUrl : '/html/add_product.html',
         controller: 'addProductController'
-    }).when('/admin/searchProduct', {
+    }).when('/searchProduct', {
         templateUrl : '/html/search_form.html',
         controller: 'searchFormController'
     }).when('/productTable', {
         templateUrl : '/html/product_table.html',
         controller: 'productTableController'
-    }).when('/admin/product/:prId', {
+    }).when('/product/:prId', {
         templateUrl : '/html/admin_product_update.html',
         controller: 'updateProductController'
-    }).when('/admin/categories', {
+    }).when('/categories', {
         templateUrl : '/html/admin_categories.html',
         controller: 'categoryController'
     });
     
     $routeProvider.otherwise({redirectTo: '/admin'});
-
-    $locationProvider.html5Mode({enabled: true, requireBase: false});
+//    $locationProvider.html5Mode({enabled: true, requireBase: false});
+//    $locationProvider.html5Mode({enabled: true});
 });
 
 //INIT CONTROLLER
@@ -132,10 +130,10 @@ adminApp.controller('categoryController', function ($scope, categoryService, exc
 //CATEGORY SERVICE
 adminApp.factory('categoryService', function($http, $q, $log) {
     
-    var URL_GET_ALL_CATEGORIES = '/admin/getAllCategories';
+    var URL_GET_ALL_CATEGORIES = '/getAllCategories';
     var URL_ADD_CATEGORY = '/admin/addCategory';
-    var URL_UPDATE_CATEGORY = '/admin/updateCategory';
-    var URL_DELETE_CATEGORY = '/admin/deleteCategory';
+    var URL_UPDATE_CATEGORY = '/admin/updateCategory/';
+    var URL_DELETE_CATEGORY = '/admin/deleteCategory/';
     var categories = [];
     
     return {
@@ -457,19 +455,7 @@ adminApp.controller('productTableController', function($scope, $location, $compi
    
     $scope.selectProduct = function() {
         var pathVariable = this.element.id;
-        
-        productTableService.selectProduct(pathVariable)
-                .then(function(res) {
-                    adminData.setOriginalProduct(res);
-                    adminData.setBindProduct(res);
-                    $location.path('/admin/product/' + pathVariable);
-                }, function(res) {
-                    if (typeof(res) === 'string') {
-                        notification.showNotification(res);
-                    } else {
-                        exception.show(res);  
-                    }
-        });
+        $location.path('/product/' + pathVariable);
     };
 });
 
@@ -498,7 +484,7 @@ adminApp.factory('productTableService', function ($http, $q) {
             }
         },
         selectProduct: function (pathVariable) {
-            if (typeof(pathVariable) === 'number') {
+            if (pathVariable) {
                 return $http({method: 'POST', url: URL_SEARCH_PRODUCT + pathVariable})
                         .then(function (res) {
                             return res.data.response;
@@ -513,11 +499,30 @@ adminApp.factory('productTableService', function ($http, $q) {
 });
 
 //UPDATE PRODUCT CONTROLLER
-adminApp.controller('updateProductController', function($scope, $window, $location, adminData, updateProductService, exception, notification) {
-    //пишу как массив что-бы использовать ng-repeat что-бы упростить связку ng-model
-    $scope.prods = [adminData.getBindProduct()];
-    $scope.addNewComment = {};
+adminApp.controller('updateProductController', function($scope, $window, $location, $routeParams ,adminData, updateProductService, exception, notification, productTableService) {    
+            
+    productTableService.selectProduct($routeParams.prId)
+            .then(function (res) {
+                if (res.product.id === null) {
+                    notification.showNotification('Товар не найден');  
+                    $location.path('/searchProduct');
+                    return;
+                }
         
+                adminData.setOriginalProduct(res);
+                adminData.setBindProduct(res);
+                //пишу как массив что-бы использовать ng-repeat что-бы упростить связку ng-model
+                $scope.prods = [res];
+            }, function (res) {
+                if (typeof (res) === 'string') {
+                    notification.showNotification(res);
+                } else {
+                    exception.show(res);
+                }
+            });
+    
+    $scope.addNewComment = {};
+    
     $scope.addComment = function () {
         var prodId = $('.adminProdId').val();
         var addNewComment = $scope.addNewComment;
@@ -896,7 +901,6 @@ adminApp.factory('updateProductService', function($http, $q, adminData) {
     };
 });
 
-
 //ADMIN NAV CONTROLLER
 adminApp.controller('adminNavController', function($scope, adminNavService) {
     $scope.nickVisible = function() {
@@ -977,7 +981,7 @@ adminApp.factory('paginator', function() {
         getLimit () {
             return limit;
         },
-        setOffset : function () {
+        setOffset : function (num) {
             offset = num;
         },
         getOffset () {

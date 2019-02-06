@@ -17,7 +17,7 @@ public class CategoryController {
     private CategoryDao categoryDao;
     private HttpServletResponse hsr;
     
-    @PostMapping("/admin/getAllCategories")
+    @PostMapping("/getAllCategories")
     public ResponseRsWrapper getAllCtegories(ResponseRsWrapper rrw) {
         try {
             return rrw.addResponse(categoryDao.selectAllCategories());

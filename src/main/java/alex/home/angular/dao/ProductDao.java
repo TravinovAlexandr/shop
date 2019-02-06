@@ -26,6 +26,8 @@ public interface ProductDao {
     
     List<ProductRow> searchFormsSelection(String query);
     
+    Integer getProductCount(String query);
+    
     boolean doSoldActions(Long id, Integer quant, Integer buyStat, Date lastBuy);
     
     void updateProductName(Long id, String newName);

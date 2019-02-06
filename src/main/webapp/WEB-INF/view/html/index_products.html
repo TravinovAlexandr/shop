@@ -1,0 +1,29 @@
+<div class="indexProductsWrapper">
+    <h1>Products</h1>
+    <div class="miniProduct" ng-repeat="product in products" ng-click="showBigProduct( product.id )">
+        <img ng-src="/img/no_photo.png" alt="no image" style="width: 200px;"/>
+        <div class="minProdNameWrapper">
+            <p>Название:</p>
+            <p>{{product.name}}</p>
+        </div>
+        <div class="minProdNamePrice">
+            <p>Цена:</p>
+            <p>{{product.price}}</p>
+        </div>
+        <div class="minProdNameExist">
+            <p>{{product.isExist}}</p>
+        </div>
+        <div class="minProdNameExist">
+            <p>Оценка:</p>
+            <p>{{product.mark}}</p>
+        </div>
+                    <p ng-click="minProductLike( product.id )">Оценить</p>
+        <p class="minProdAddToCart" ng-click="addMinProdToCart( product.id, product.name, product.price, product.imgUrl, product.isExist )">Добавить в корзину<p>
+        <hr>
+    </div>
+</div>
+
+<div class="prodTabMessage"></div>
+
+<div class="paginationBar">
+</div>

@@ -6,9 +6,13 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class CookieUtil {
+public class CookiesUtil {
     
     private final static String COOKIE_KEY = "AL_SH_KEY_2019";
+    
+    public static String getCookiesKey() {
+        return COOKIE_KEY;
+    }
     
     public static  boolean  hasClientCookie(@Nullable HttpServletRequest request) {
         if (request != null) {

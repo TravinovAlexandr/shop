@@ -1,0 +1,15 @@
+<div class="minCartWrapper">
+    <div class="minCartImg" ng-model="cart">
+        <img ng-src="/img/no_photo.png" alt="no img" style="width: 100px;">
+    </div>
+    <div class="minCartQuant">
+        <p>Общее количество:<p>
+        <p>{{cart.quant | defaultVal:'Пусто'}}<p>
+    </div>
+    <div class="minCartPrice" >
+            <p>Общая цена покупки:<p>
+            <p>{{cart.price | defaultVal:'0'}}<p>
+    </div>
+    
+    <a ng-href="/cart">К покупкам</a>
+</div>
