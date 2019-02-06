@@ -1,1 +1,44 @@
-
+<div class="minCartWrapper">
+    <div class="minCartImg">
+        <img ng-src="/img/no_photo.png" alt="no img" style="width: 100px;">
+    </div>
+    <div class="minCartQuant">
+        <p>Всего:<p>
+        <p>{{cartQuant | defaultVal:'Пусто'}}<p>
+    </div>
+    <div class="minCartPrice" >
+            <p>Цена:<p>
+            <p>{{cartPrice | defaultVal:'0'}}<p>
+    </div>
+    <div>
+        <p ng-click="cartProdUp()">Вверх</p>
+    </div>
+    <div class="cartMinProductWrapper" ng-repeat="cartProd in cartProds | cartProdFilter">
+        <img class="minProdImgEl"  ng-src="/img/no_photo.png" alt="no image" style="width: 100px;"/>
+        <div class="minProdNameEl">
+            <p>Название:</p>
+            <p>{{cartProd.name}}</p>
+        </div>
+        <div class="minProdPriceEl">
+            <p>Цена:</p>
+            <p>{{cartProd.price}}</p>
+        </div>
+        <div class="minProdExistEl">
+            <p>{{cartProd.isExist}}</p>
+        </div>
+        <div class="minProdQuantEl">
+            <p>Количество:</p>
+            <p>{{cartProd.quantInCart}}</p>
+        </div>
+        <div class="minProdMarkExistEl">
+            <p>Оценка:</p>
+            <p>{{cartProd.mark}}</p>
+        </div>
+        <hr>
+        <p ng-click="deleteProductMinCart(cartProd.id)">Удалить</p>
+    </div>
+    <div>
+        <p ng-click="cartProdDown()">Вниз</p>
+    </div>
+    <a ng-href="#!/cart">К покупкам</a>
+</div>

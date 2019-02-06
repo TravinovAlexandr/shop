@@ -69,6 +69,19 @@ public class ProductAdminController {
     private final CategoryCache categoryCache = new CategoryCache();
     private volatile int productCacheVal = -1;
     
+    @PostMapping("/incrementMark/{prodId}")
+    public ResponseRsWrapper incrementMark(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+        try {
+            if (!productDao.incrementProductMark(prodId)) {
+                return rrw.addHttpErrorStatus(hsr, 500);
+            }
+            
+            return null;
+        } catch (AdminException ex) {
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+        }
+    }
+    
     @PostMapping("/getCookiesKey")
     public ResponseRsWrapper getCokiesKey(ResponseRsWrapper rrw) {
         return rrw.addResponse(CookiesUtil.getCookiesKey());

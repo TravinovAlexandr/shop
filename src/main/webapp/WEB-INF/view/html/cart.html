@@ -1,15 +1,34 @@
-<div class="minCartWrapper">
-    <div class="minCartImg" ng-model="cart">
-        <img ng-src="/img/no_photo.png" alt="no img" style="width: 100px;">
+<div class="CartWrapper">
+    <div class="CartProductsWrapper">
+    <div ng-repeat="cartProd in cartProds">
+        <img class="minProdImgEl"  ng-src="/img/no_photo.png" alt="no image" style="width: 100px;"/>
+        <div class="minProdNameEl">
+            <p>Название:</p>
+            <p>{{cartProd.name}}</p>
+        </div>
+        <div class="minProdDescEl">
+            <p>Описание:</p>
+            <p>{{cartProd.description}}</p>
+        </div>
+        <div class="minProdPriceEl">
+            <p>Цена:</p>
+            <p>{{cartProd.price}}</p>
+        </div>
+        <div class="minProdExistEl">
+            <p>{{cartProd.isExist}}</p>
+        </div>
+        <div class="minProdQuantEl">
+            <p>Количество:</p>
+            <p>{{cartProd.quantInCart}}</p>
+            <p ng-click="incProductQuant( cartProd.id )">+</p>
+            <p ng-click="decProductQuant( cartProd.id )">-</p>
+        </div> 
+        <div class="minProdMarkExistEl">
+            <p>Оценка:</p>
+            <p>{{cartProd.mark}}</p>
+        </div>
+        <p ng-click="deleteProductBigCart(cartProd.id)">Удалить</p>
     </div>
-    <div class="minCartQuant">
-        <p>Общее количество:<p>
-        <p>{{cart.quant | defaultVal:'Пусто'}}<p>
-    </div>
-    <div class="minCartPrice" >
-            <p>Общая цена покупки:<p>
-            <p>{{cart.price | defaultVal:'0'}}<p>
-    </div>
-    
-    <a ng-href="/cart">К покупкам</a>
+        <hr>
+    </div> 
 </div>

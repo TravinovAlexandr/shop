@@ -5,7 +5,7 @@
 //ng-model: создает двустороннюю привязку
 //ng-non-bindable: определяет участок html-кода, в котором привязка не будет использоваться
 
-let indexApp = angular.module('indexPage', ['ngRoute', 'ngSanitize', 'ngCookies']);
+var indexApp = angular.module('indexPage', ['ngRoute', 'ngSanitize', 'ngCookies']);
 
 indexApp.config(function ($routeProvider, $locationProvider) {
     $routeProvider.when('/', {
@@ -13,18 +13,24 @@ indexApp.config(function ($routeProvider, $locationProvider) {
     }).when('/products/:catId/:pageId', {
         templateUrl: '/html/index_products.html',
         controller: 'ProductController'
+    }).when('/cart', {
+        templateUrl: '/html/cart.html',
+        controller: 'CartController'
     });
-    
     $routeProvider.otherwise({redirectTo: '/'});
 });
 
 //INDEX INIT CONTROLLER
-indexApp.controller('IndexInitController', function ($scope, $log ,$location, CategoryService, SharedDataService, CartCookiesService) {
+indexApp.controller('IndexInitController', function ($scope, $log, $location, CategoryService, CartService) {
     
-    CartCookiesService.initCookiesKey()
-            .then(null, function (ex) {
-                $log.warn(ex);
-            });
+    if (CartService.checkCookies()) {
+        _refreshView();
+    }
+    
+    $scope.$on('changeCartData', function () {
+        _refreshView();
+        $scope.cartProds = CartService.getCart().products;
+    });
 
     CategoryService.getAllCategories()
             .then(function (res) {
@@ -33,101 +39,93 @@ indexApp.controller('IndexInitController', function ($scope, $log ,$location, Ca
                 $log.error(ex);
             });
 
-
-    $scope.getProductsByCategory = function (catName, catId) {
-        if (!catId && !catName) {
+    $scope.getProductsByCategory = function (catId) {
+        if (!catId) {
             $log.warn('indexInitController getProductsByCategory: argument catId === '.concat(catId));
             return;
        }
-       
-       SharedDataService.setCurrentCtegoryId(catId);
-       SharedDataService.setCurrentCtegoryName(catName);
-       $location.path('/products/' + catName + '/' + 1);        
+       $location.path('/products/' + catId + '/' + 1);        
     };
+    
+    $scope.cartProdUp = function () {
+        //декремент  установлен правильно
+        CartService.decCartPageIndex();
+    };
+    
+    $scope.cartProdDown = function () {
+        //инкремент установлен правильно
+        CartService.incCartPageIndex();
+    };
+    
+    $scope.deleteProductMinCart = function (num) {
+        CartService.deleteProduct(num);
+        CartService.setCookies();
+        _refreshView();
+    };
+    
+    $scope.cartProds = CartService.getCart().products;
+    CartService.computeCartSizePrice();
+    
+    function _refreshView () {
+        CartService.computeCartSizePrice();
+        $scope.cartQuant = CartService.getCartSize();
+        $scope.cartPrice = CartService.getCartPrice();
+    };
+    
 });
 
-//CART COOKIES SERVICE
-indexApp.factory('CartCookiesService', function ($log, $cookieStore, $http, $q) {
+//CART CONTROLLER
+indexApp.controller('CartController', function ($scope, CartService) {
     
-    var CART = new Cart();
-    var COOKIES_KEY;
-    
-    function _Product(id, name, price, url, exist) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.url = url;
-        this.exist = exist;
-        this.quantInCart = 1;
-    };
-
-    function Cart() {
-        this.uuid;
-        this.products = [];
-        return {
-            products: this.products,
-            uuid: this.uuid
-        };
+    $scope.incProductQuant = function (prodId) {
+        CartService.getCart().products.forEach(function (el) {
+            if (el.id === prodId) {
+                el.quantInCart++;
+                CartService.setCookies();
+                $scope.$emit('changeCartData');
+                return;
+            }
+        });
     };
     
-    return {
-        initCookiesKey() {
-            return $http({url : '/getCookiesKey', method : 'POST'})
-                    .then(function(res) {
-                        COOKIES_KEY = res.data.response;
-                    }, function (ex) {
-                        return $q.reject(ex.data.exception);
-                    });
-        },
-        deleteCart() {
-            $cookieStore.remove(COOKIES_KEY);
-        },
-        initCart : function () {
-            $http({url: '/createCart', method: 'POST'})
-                    .then(function (res) {
-                        CART.uuid = res.data.response;
-                    }, function (ex) {
-                        $log.warn(ex.data.exception);
-                    }); 
-            },
-        setProduct: function (id, name, price, url, exist) {
-            $log.info('Проверка аргументов');
-            $log.info(id && name && price !== undefined && url && exist !== undefined);
-            if (id && name && price !== undefined && url && exist !== undefined) {
-            for (var i = 0; i < CART.products.length; i++) {
-                if (CART.products[i].id == id) {
-                    CART.products[i].quantInCart++;
-                    return;
+    $scope.decProductQuant = function (prodId) {
+        var products = CartService.getCart().products;
+        for (var i = 0; i < products.length; i++) {
+            if (products[i].id === prodId) {
+                if (products[i].quantInCart === 1) {
+                    products.splice(i, 1);
+                    CartService.setCookies();
+                } else {
+                    products[i].quantInCart--;
+                    CartService.setCookies();
                 }
+                
+                $scope.$emit('changeCartData');
+                break;
             }
-            
-            CART.products.push(new _Product(id, name, price, url, exist));
-            }
-        },
-        getCart : function (){
-           return CART; 
-        },
-        setCookies : function() {
-            $cookieStore.put(COOKIES_KEY, CART);
-        },
-        checkCookies() {
-            var tmp = $cookieStore.get(COOKIES_KEY);
-            if (tmp) {
-                CART = tmp;
-                return true;
-            }
-            return false;
-        },
+        }
     };
+    
+    $scope.deleteProductBigCart = function (prodId) {
+        console.log(CartService.getCart().products);
+        var products = CartService.getCart().products;
+        for (var i = 0; i < products.length; i++) {
+            if (products[i].id === prodId) {
+                products.splice(i, 1);
+                CartService.setCookies();
+                $scope.$emit('changeCartData');
+                break;
+            }
+        }
+    };
+    
 });
 
 //PRODUCT CONTROLLER
-indexApp.controller('ProductController', function ($log, $scope, $timeout, $location, $compile, $routeParams, ProductService, Paginator, SharedDataService, CartCookiesService) {
+indexApp.controller('ProductController', function ($log, $scope, $timeout, $location, $compile, $routeParams, ProductService, Paginator, CartService) {
     
     ProductService.getProductsByCategory($routeParams.catId, Paginator.getLimit(), Paginator.getOffset())
             .then(function (res) {
-                SharedDataService.setProducts(res.products);
-                SharedDataService.setProductsCount(res.count);
                 $scope.products = res.products;
                 $('.paginationBar').html($compile(Paginator.getPaginRow(res.count))($scope));
                 Paginator.setOffset(0);
@@ -143,7 +141,6 @@ indexApp.controller('ProductController', function ($log, $scope, $timeout, $loca
         if ($routeParams.pageId == num) {
             return Paginator.getStyle();
         }
-
     };
     
     $scope.getAnotherPage = function(num) {
@@ -152,46 +149,50 @@ indexApp.controller('ProductController', function ($log, $scope, $timeout, $loca
             return;
         }
         Paginator.setOffset( (num  - 1) * Paginator.getLimit());
-        $location.path('/products/' + SharedDataService.getCurrentCtegoryName() + '/' + num);
+        $location.path('/products/' + $routeParams.catId + '/' + num);
     };
-    
-    $scope.like = function (prodId) {
-        SharedDataService.like(prodId)
+
+    $scope.minProductLike = function (prodid) {
+        ProductService.like(prodid)
                 .then(function () {
-                    SharedDataService.incrementLike(prodId);
+                    CartService.getCart().products.forEach(function (el) {
+                        if (el.id === prodid) {
+                            el.mark++;
+                            CartService.setCookies();
+                            $scope.products.forEach(function (el) {
+                                if (el.id === prodid) {
+                                    el.mark++;
+                                }
+                            });
+                            return;
+                        }
+                        
+                    });
                 }, function (ex) {
-                    $log.warn(ex);
+                    $log.error(ex);
                 });
     };
     
+    
     $scope.addMinProdToCart = function(prodId, prodName, prodPrice, productUrl, productExist) {
-        if (!CartCookiesService.checkCookies()) {
-            CartCookiesService.initCart();
+        if (!CartService.checkCookies()) {
+            CartService.initCart();
         }
         
         $timeout(function () {
-            CartCookiesService.setProduct(prodId, prodName, prodPrice, productUrl, productExist);
-            CartCookiesService.setCookies();
-            console.log(CartCookiesService.getCart());
-            if (CartCookiesService.getCart().uuid == undefined) {
-                CartCookiesService.deleteCart();
+            CartService.setProduct(prodId, prodName, prodPrice, productUrl, productExist);
+            CartService.setCookies();
+            
+            if (CartService.getCart().uuid === undefined) {
+                CartService.deleteCart();
                 $log.error('TimeException: 500 млс не достаточно для полной инициализации UUID');
+                return;
             }
+            
+            CartService.computeCartSizePrice();
+            $scope.$emit('changeCartData');
+            
         }, 500);
-    };
-
-});
-
-//CHECK VALUE FILTER
-indexApp.filter('defaultVal', function () {
-    return function (val, arg) {
-        if (val == undefined) {
-            if (arg != undefined) {
-                return arg;
-            }
-            return '-';
-        }
-        return val;
     };
 });
 
@@ -213,15 +214,16 @@ indexApp.factory('ProductService', function ($q, $http) {
                return $q.reject('ProductService.getProductsByCategory args: '.concat((catId) ? '' : ' catId == ' + catId)
                        .concat((limit) ? ' ' : ' limit ===' + limit).concat((offset) ? ' ' : ' offset === ' + offset));
            }
-       }, 
+       },
+       
        like : function (prodId) {
            if (prodId) {
-               return $http({url : '/incrementMark', method : 'POST'})
+               return $http({url : '/incrementMark/' + prodId, method : 'POST'})
                        .then(null, function (ex) {
                            return $q.reject(ex.data.response);
                         });
            } else {
-             return $q.reject('ProductService.like: arg ==='.concat(prodId));  
+             return $q.reject('ProductService.like: arg === '.concat(prodId));  
            }
        }
     };
@@ -244,87 +246,103 @@ indexApp.factory('CategoryService', function ($http, $q) {
     };
 });
 
-// SHARED DATA SERVICE
-indexApp.factory('SharedDataService', function ($log) {
+//CART SERVICE
+indexApp.factory('CartService', function ($cookieStore, $http) {
     
-    var currentCategoryId;
-    var currentCategoryName;
-    var products;
-    var productsCount;
+    var COOKIES_KEY = 'AL_SH_KEY_2019';
+    var now = new Date();
+    var CART = new Cart();
+    var cartPagIndex = 0;
+    var cartSize = 0;
+    var cartPrice = 0;
+
+    function _Product(id, name, price, url, exist) { this.id = id; this.name = name; this.price = price; this.url = url; this.exist = exist; this.quantInCart = 1; };
+
+    function Cart() { this.uuid; this.products = []; };
     
     return {
-        incrementLike : function (prodId) {
-            products.forEach(function (el) {
-                if (el.id == prodId) {
-                    el.mark =  Number(el.mark) + 1;
-                }
+        getCartSize : function () {
+            return cartSize;
+        },
+        computeCartSizePrice : function () {
+            cartSize = cartPrice = 0;
+            CART.products.forEach(function (el) {
+                cartSize += el.quantInCart;
+                cartPrice += el.quantInCart * el.price;
             });
         },
-        setCurrentCtegoryId: function (curCatId) {
-            if (curCatId === undefined || Number(curCatId) < 0) {
-                $log.warn('SharedDataService: argument curCat === undefined ||  curCatId < 0');
+        getCartPrice : function () {
+            return cartPrice;
+        },
+        incCartPageIndex : function () {
+            if (cartPagIndex >= CART.products.length - 3) {
+                return;
             }
-            currentCategoryId = curCatId;
+            cartPagIndex += 3;
         },
-        getCurrentCtegoryId: function () {
-            return currentCategoryId;
+        decCartPageIndex : function () {
+            if (cartPagIndex === 0) {
+                return;
+            } 
+            cartPagIndex -= 3;
         },
-        setCurrentCtegoryName: function (curCatName) {
-            if (curCatName === undefined) {
-                $log.warn('SharedDataService: argument curCatName === undefined');
+        getMinCartPagIndex() {
+            return cartPagIndex;
+        },
+        deleteCookie() {
+            $cookieStore.remove(COOKIES_KEY);
+        },
+        setCookies : function() {
+            $cookieStore.put(COOKIES_KEY, CART, new Date(now.getFullYear(), now.getMonth() + 6, now.getDate()));
+        },
+        checkCookies() {
+            var tmp = $cookieStore.get(COOKIES_KEY);
+
+            if (tmp) {
+                CART = tmp;
+                return true;
             }
-            currentCategoryName = curCatName;
+            return false;
         },
-        getCurrentCtegoryName: function () {
-            return currentCategoryName;
+        initCart: function () {
+            return $http({url: '/createCart', method: 'POST'})
+                    .then(function (res) {
+                        CART.uuid = res.data.response;
+                    }, function (ex) {
+                        return ex.data.response;
+                    }); 
         },
-        setProducts: function (prods) {
-            if (prods === undefined) {
-                $log.warn('SharedDataService: argument prods === undefined');
+        getCart : function (){
+           return CART; 
+        },
+        setProduct: function (id, name, price, url, exist) {
+            if (id && name && price !== undefined && url && exist !== undefined) {
+            for (var i = 0; i < CART.products.length; i++) {
+                if (CART.products[i].id === id) {
+                    CART.products[i].quantInCart++;
+                    return;
+                }
             }
-            products = prods;
-        },
-        getProducts: function () {
-            return products;
-        },
-        setProductsCount: function (count) {
-            if (count === undefined || Number(count) < 0) {
-                $log.warn('SharedDataService: argument num === undefined || < 0');
+            
+            CART.products.push(new _Product(id, name, price, url, exist));
             }
-            productsCount = count;
         },
-        getProductsCount: function () {
-            return productsCount;
+        deleteProduct: function (id) {
+            if (id) {
+                for (var i = 0; i < CART.products.length; i++) {
+                    if (CART.products[i].id === id) {
+                        if (CART.products[i].quantInCart === 1) {
+                            CART.products.splice(i, 1);
+                            return;
+                        }
+                        
+                        CART.products[i].quantInCart--;
+                    }
+                }
+            }
         }
     };
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //PAGINATOR
 indexApp.factory('Paginator', function() {
@@ -335,14 +353,6 @@ indexApp.factory('Paginator', function() {
     var clickedElemtIndex = -1;
 
     return {
-        getPaginArray : function(elementNum) {
-            var pagElement = [];
-            var mod = elementNum % limit;
-            for (var i = 1; i <= elementNum % limit + ((mod === 0) ? 0 : 1); i++) {
-                pagElement.push('<div class="pagElement"  ng-style="pagClickedStyle(' + i + ')"  ng-click="getAnotherPage('+ i +')"> <p style="width:20px;" class="pagP">' + i + '</p> </div>');
-            }   
-            return pagElement;
-        },
         getPaginRow : function(elementNum) {
             var pagElement = '';
             var mod = elementNum % limit;
@@ -378,3 +388,26 @@ indexApp.factory('Paginator', function() {
     };
 });
 
+//CHECK VALUE FILTER
+indexApp.filter('defaultVal', function () {
+    return function (val, arg) {
+        if (val == undefined) {
+            if (arg != undefined) {
+                return arg;
+            }
+            return '-';
+        }
+        return val;
+    };
+});
+
+//CART SLICE FILTER
+indexApp.filter('cartProdFilter', function (CartService) {
+    return function (val) {
+        if (!val) {
+            return val;
+        }
+        
+        return val.slice(CartService.getMinCartPagIndex(), CartService.getMinCartPagIndex() +3);
+    };
+});

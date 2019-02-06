@@ -24,13 +24,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import alex.home.angular.annotation.*;
 
 @Service
 public class ProductService implements ProductDao {
    
     private JdbcTemplate jdbcTemplate;
+    
+    @Override
+    public boolean incrementProductMark(@NotNull Long id) {
+        if (id == null) {
+            return false;
+        }
+        
+        try {
+            return jdbcTemplate.update("UPDATE "+ PGMeta.PRODUCT_TABLE +" SET mark = mark + 1 WHERE id = " + id) != 0; 
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
     
     @Override @Nullable
     public Product selectProduct(@Nullable Long id) {
@@ -41,44 +54,6 @@ public class ProductService implements ProductDao {
                         -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
                                 rs.getInt("mark"), rs.getFloat("price"), rs.getString("name"), rs.getString("description"), 
                                 rs.getBoolean("exist"), rs.getDate("start"), rs.getDate("last")));
-                return product;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
-        }
-        return null;
-    }
-    
-    @Override @Nullable
-    public Product selectProductWithImage(@Nullable Long id) {
-        if (id != null) {
-            try {
-                String sql = "SELECT p.*, i.url  FROM product AS p JOIN img AS i ON p.img_id = i.id  WHERE p.id = "+ id;
-                Product product = jdbcTemplate.queryForObject(sql, (ResultSet rs, int i)
-                        -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"),
-                                rs.getInt("mark"), rs.getFloat("price"), rs.getString("name"), rs.getString("description"), 
-                                rs.getBoolean("exist"), rs.getDate("start"), rs.getDate("last"), rs.getString("url")));
-                return product;
-            } catch (DataAccessException ex) {
-                ex.printStackTrace();
-                return null;
-            }
-        }
-        return null;
-    }
-
-    @Override @Nullable @Transactional
-    public Product selectProductCategories(@Nullable Long id) {
-        if (id != null) {
-            try {
-                String sql = "SELECT c.* FROM category c INNER JOIN category_products cp ON cp.category_id = c.id AND cp.product_id =" + id;
-                Product product = selectProductWithImage(id);
-                List<Category> cats = jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Category(rs.getLong(1), rs.getString(2), rs.getString(3)));
-                if (product == null || cats == null) {
-                    return null;
-                }
-                product.category = cats;
                 return product;
             } catch (DataAccessException ex) {
                 ex.printStackTrace();
@@ -166,38 +141,6 @@ public class ProductService implements ProductDao {
     }
     
     @Override @NotNull
-    public List<Product> selectProductsWhereCategoryNotExist(@Nullable Integer limit, @Nullable Integer offset) {
-        if (limit == null && offset == null) {
-            throw new AdminException().addExceptionName("IllegalArgumentException.")
-                    .addMessage("Переданные аргументы == NULL. Ошибка валидации на уровне контроллера.");
-        }
-        
-        try {
-            String sql = String.format("SELECT * FROM product WHERE id NOT IN (SELECT id FROM category_products) LIMIT $n OFFSET $n;", limit, limit * offset);
-
-            return jdbcTemplate.query(sql, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), rs.getFloat("price"), 
-                    rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getDate("start"), rs.getDate("last")));
-        } catch (DataAccessException ex) {
-            ex.printStackTrace();
-            throw new AdminException(ex);
-        }
-    }
-    
-    @Override @Nullable
-    public List<Product> selectProductsInSomeTimePeriod(@NotNull Long mils, @NotNull Integer limit, @NotNull Integer offset) {
-            try {
-                String sql = "SELLECT * FROM product WHERE start > ? LIMIT ? OFFSET ?;".intern();
-                List<Product> prdcts = jdbcTemplate.query(sql, new Object[] {DateUtil.getTimeStamp(mils), limit , limit * offset}, (ResultSet rs, int i) -> 
-                        new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), rs.getFloat("price"), 
-                                rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),rs.getDate("start"), rs.getDate("last")));
-                return prdcts;
-            } catch (NullPointerException | DataAccessException ex) {
-                ex.printStackTrace();
-            }
-        return null;
-    }
-    
-    @Override @NotNull
     public List<ProductRow> searchFormsSelection(@NotNull String query) {
         if (query == null) {
             throw new AdminException().addMessage("@NotNull String query == null.")
@@ -227,11 +170,6 @@ public class ProductService implements ProductDao {
             throw new AdminException(ex);
         }
     }
-    
-    @Override
-    public boolean doSoldActions(@Nullable Long id, @Nullable Integer quant, @Nullable Integer buyStat, @Nullable Date lastBuy) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     /* 
     CREATE OR REPLACE FUNCTION UPDATE_PRODUCT_CATEGORY(productid BIGINT, newcategoryId BIGINT, oldcategoryid BIGINT)
@@ -248,7 +186,7 @@ public class ProductService implements ProductDao {
 //    CREATE OR REPLACE FUNCTION UPDATE_PRODUCT_CATEGORY(productid BIGINT, newcategoryId BIGINT, oldcategoryid BIGINT) RETURNS VOID AS $$ BEGIN SELECT id FROM category WHERE id = newcategoryId; IF FOUND THEN UPDATE category_products SET category_id = newcategoryid, product_id = productid WHERE category_id = oldcategoryid; END IF; END; $$ LANGUAGE plpgsql;
     
     @Override
-    public boolean updateProductCategory(@Nullable Long id ,@Nullable Long oldCategoryId, @Nullable Long newCategoryId) {
+    public boolean updateProductCategories(@Nullable Long id ,@Nullable Long oldCategoryId, @Nullable Long newCategoryId) {
         if (id != null && oldCategoryId != null && newCategoryId != null) {
            try {
                String sql = String.format("UPDATE_PRODUCT_CATEGORY(%n, %n, %n)", id, newCategoryId, oldCategoryId);

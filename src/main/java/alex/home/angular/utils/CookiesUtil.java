@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CookiesUtil {
     
-    private final static String COOKIE_KEY = "AL_SH_KEY_2019";
+    private static final String COOKIE_KEY = "AL_SH_KEY_2019";
     
     public static String getCookiesKey() {
         return COOKIE_KEY;

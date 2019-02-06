@@ -1,6 +1,5 @@
 package alex.home.angular.conf;
 
-import alex.home.angular.service.UserAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,7 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 @Configuration
 public class SecurityConf extends WebSecurityConfigurerAdapter {
 
-    private UserAuthService userAuthService;
+    
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,14 +52,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .antMatchers("/543").authenticated();
     }
 
-    public void configureGlobal(@Autowired AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userAuthService).passwordEncoder(passwordEncoder());
-//            auth.userDetailsService(userAuthService);
-    }
+//    public void configureGlobal(@Autowired AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(userAuthService).passwordEncoder(passwordEncoder());
+////            auth.userDetailsService(userAuthService);
+//    }
 
-    @Autowired
-    public void setUserAuthService(UserAuthService userAuthService) {
-        this.userAuthService = userAuthService;
-    }
 
 }

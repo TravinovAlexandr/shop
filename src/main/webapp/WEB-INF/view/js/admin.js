@@ -274,7 +274,7 @@ adminApp.controller('addProductController', function($scope, addProductService, 
 //ADD PRODUCT SERVICE
 adminApp.factory('addProductService', function ($q, $http) {
     
-    var URL_GET_ALL_CATEGORIES = '/admin/getAllCategories';
+    var URL_GET_ALL_CATEGORIES = '/getAllCategories';
     var URL_ADD_PRODUCT = '/admin/addProduct';
     
     return {
