@@ -13,5 +13,5 @@ public interface CommentDao {
     
     List<Comment> selectAllComments(Long prodId);
     
-    void updateCommentByAdmin(Comment comment);
+    void updateComment(Comment comment);
 }

@@ -10,13 +10,8 @@
 .adminExCause p {  margin: 2vh 0vh; }
 .adminExSTrace { width: 100%; float: left; background-color: #A60400; padding: 0vh 1vh 1vh 1vh; }
 .quitWrapper { float: right; height: available; width: 3vw; min-width: 30px; text-align: center; transition: 0.7s;  }
-.quitWrapper:hover { cursor: pointer; transition: 0.7s; 
-	-o-transform: rotate(-90deg);
-	-ms-transform: rotate(-90deg);
-	-moz-transform: rotate(-90deg);
-	-webkit-transform: rotate(-90deg);
-	transform: rotate(-90deg);
-}
+.quitWrapper:hover { cursor: pointer; transition: 0.7s; transform: rotate(-90deg);}
+/*-o-transform: rotate(-90deg);-ms-transform: rotate(-90deg);-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);*/
 .quitWrapper p { margin: 2vh 0vh; }
 .exceptionModalStrace { font-size: 16px;  }
 

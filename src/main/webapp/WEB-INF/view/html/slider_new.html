@@ -1,0 +1,22 @@
+<div  class="sliderBox">    
+    <p>Новинки:</p>
+    <div  class="slider">
+
+<!--        <div class="sliderLeftWrapper" ng-show="showLeftAllSlider()">
+            <p ng-click="sliderLeftAllClick()"><</p>
+        </div>-->
+        <div class="sliderMidleWrapper">
+            <div class="sliderElement width15prc" ng-repeat="el in sliderAllElements| sliderFilter:'all'" ng-click="sliderSelectProd(el.id)">
+                <div class="sliderElImg">
+                    <img ng-src="/img/no_photo.png" alt="" />
+                </div>
+                <div class="sliderElName">
+                    <p>{{el.name}}</p>
+                </div>
+            </div>
+        </div>
+<!--        <div class="sliderRightWrapper" ng-show="showRightAllSlider()">
+            <p ng-click="sliderRightAllClick()">></p>
+        </div>-->
+    </div>
+</div>

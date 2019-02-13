@@ -21,8 +21,7 @@ public class CommentService implements CommentDao {
     @Override
     public void deleteComment(@NotNull Long id) {
         if (id == null) {
-            throw new AdminException().addMessage("@NotNull Long id == NULL. Ошибка валидации на уровне контроллера.")
-                    .addExceptionName("IllegalArgumentException");
+            throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
@@ -36,8 +35,7 @@ public class CommentService implements CommentDao {
     @Override
     public void addComment(@NotNull Comment comment) {
         if (comment == null || comment.productId == null ||  comment.nick == null || comment.body == null) {
-            throw new AdminException().addMessage("Аргумент или его поля == null. Ошибка валидации на уровне контроллера.")
-                    .addExceptionName("IllegalArgumentException");
+            throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
@@ -52,8 +50,7 @@ public class CommentService implements CommentDao {
     @Override @NotNull
     public List<Comment> selectAllComments(@NotNull Long prodId) {
         if (prodId == null) {
-            throw new AdminException().addMessage("@NotNull Long prodId. Ошибка валидации на уровне контроллера.")
-                    .addExceptionName("IllegalArgumentException");
+            throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
@@ -66,10 +63,9 @@ public class CommentService implements CommentDao {
     }
     
     @Override
-    public void updateCommentByAdmin(@NotNull Comment comment) {
+    public void updateComment(@NotNull Comment comment) {
         if (comment == null || comment.id == null || comment.nick == null || comment.body == null) {
-            throw new AdminException().addMessage("comment == null || comment.id == null || comment.nick == null || comment.body == null. "
-                    + "Ошибка валидации на уровне контроллера.").addExceptionName("IllegalArgumentException");
+            throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
@@ -80,7 +76,6 @@ public class CommentService implements CommentDao {
         }
     }
     
-
     @Autowired
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

@@ -1,0 +1,24 @@
+        <div class="mainProductCommentsWrapper" ng-if="mainProd.comments[0] &&  mainProd.comments[0].id !== 0">
+            <div class="mainProdCommentTitle">
+                <p ng-if="mainProd.comments.length === 1">Всего {{mainProd.comments.length}} комментарий:</p>
+                <p ng-if="mainProd.comments.length === 2 || mainProd.comments.length === 3 || mainProd.comments.length === 4">
+                    Всего {{mainProd.comments.length}} комментария:</p>
+                <p ng-if="mainProd.comments.length > 4">Всего {{mainProd.comments.length}} комментариев:</p>
+            </div>
+            <div class="mainProdComment" ng-repeat="comment in mainProd.comments">
+                 <div class="mainProdCommentEl">
+                     <p class="greenFont px22">{{comment.nick}}</p>
+                 </div>
+                <div class="mainProdCommentEl">
+                    <p class="px18">{{comment.date | date}}</p> 
+                </div>
+                <div class="mainProdCommentEl">
+                    <p class="commentBody grayFont px18">{{comment.body}}
+                    В наших секретных лабораториях в рамках проекта &laquo;Пандора&raquo; разрабатывалось
+     психотропное оружие. В результате неудачного эксперимента большинство ученых, работавших 
+     над прибором, подверглись воздействию психотропного излучения, и они, находясь в состоянии 
+     аффекта, растащили прототип по деталям. Возможно, наши ученые до сих пор находятся в 
+     состоянии аффекта.</p>
+                </div>
+            </div>
+        </div>

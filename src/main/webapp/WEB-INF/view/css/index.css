@@ -30,3 +30,117 @@ body textarea { font-size: 17px; }
 .notificationWindow { display: none; position: fixed; opacity: 0.7; min-width: 20vw; max-width: 20vw; background-color: black; padding: 5px; left: 78%; border-radius: 15px;}
 .notificationMessage { width: 80%; float: left; height: fit-content; border-radius: 15px; padding-left: 1vw; padding-right: 1vw; }
 .notificationMessage p { color: white; font-size: 16px; }
+
+/*CATEGORY BAR*/
+.categoriesWrapper { float: left; width: 100%; border-top: 1px solid gray; border-bottom: 1px solid gray; padding: 10px 0; margin-bottom: 10px; }
+.categoryButton { float: left; width: auto; padding: 0 1% 0 1%; border-right: 1px solid #157700; font-size: 1.3vw;}
+.categoryButton:hover { cursor: pointer; color: white; background-color: #157700; }
+.categoryButton:hover a { text-decoration: underline; }
+
+/*MIN CART*/
+.minCartWrapper { float: right; max-width: 30vw; background-color: white; padding: 1%; border: 1px solid grey; }
+.cartMinProductWrapper { width:100%; max-height: 5.5vw; overflow: hidden; float: left;   margin-top: 5px; font-size: 0.8vw; background-color: white; border-bottom: 1px solid grey;}
+.cartMinProductWrapper:hover { box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: 0.3s; cursor:pointer;}  
+.minCartInfo { float: left; width: 100%; max-width: 29vw; }
+.minCartInfo p { float: left; padding-right: 0.5vw; margin: auto; }
+.minCartPagLink { float: left; width: 100%; color: white; background-color: #157700; text-align: center; margin-top: 5px; cursor: pointer; } 
+.minCartPagLink:hover { color: #D8FA3F; text-decoration: underline; transition: 0.2s; }
+.minCartPagLink p { margin: 5px 0; }
+.minProdEl { float: left; width: 100%;}
+.minProdEl p { float: left; background-color: white; margin: 0;}
+.minCartImg { float: left; }
+.minCartImg img { width: 5vw; }
+.minCartContent { float: left; width: 10vw; min-width: 0vw; margin-left: 4%; }
+  
+/*PRODUCTS*/
+.minProduct { float: left; width: 10vw; max-width: 9vw; min-width: 0vw; font-size: 1vw; border-bottom: 1px solid gray; transition: 0.7s; margin-right: 2%; padding: 1%;}
+.minProductImg { width: 80%; margin-bottom: 20px;}
+.minProductImg img { width: 9vw; }
+.minProduct:hover { transition: 0.7s; box-shadow: 0 0 10px rgba(0,0,0,0.5);  cursor: pointer;}
+.minProdEl { margin: 0; width: 100%;}
+.minProdEl p { min-width: 0vw; max-width: 10vw;}
+
+/*PAGINATION WRAPPER*/
+.productPagWrapper { float: left;  width: 100%;  }
+
+
+/*MAIN PRODUCT*/
+.mainProductWrapper { margin-top: 50px; }
+.leftMainProdWrapper { float: left; width: 45%;}
+.mainProdImg img { width: 60%; min-width: 1vw; }
+.mainProdEl { float: left; width: 100%; margin-bottom: 10px; }
+.mainProdEl p { float: left; margin: 0; padding-right: 2%; } 
+.mainProdEl img { float: left; margin: 0; width: 30px;  }
+.mainProdEl img:hover  { cursor: pointer; }
+.mainProdContent {margin-top: 30px;}
+.chest p { text-decoration: underline; cursor: pointer; }
+.chest img { width: 40px; }
+
+/*INDEX WRAPPERS*/
+.indexPageWrapper { display:block; width:100%; max-width: 1500px; margin-left: auto; margin-right: auto; }
+.midleWrapper { float: left; width: 63%; margin: 30px 0 0 0;  }
+.rightWrapper{ float: right; width: 30%; margin-top: 30px; overflow: auto; }
+
+
+/*FONT SIZE*/
+.vw1 { font-size: 1vw; }
+.vw1-5 { font-size: 1.5vw; }
+.vw1-2 { font-size: 1.2vw; }
+.vw2 { font-size: 2vw; }
+.px14 { font-size: 14px; }
+.px16 { font-size: 16px; }
+.px18 { font-size: 18px; }
+.px20 { font-size: 20px; }
+.px22 { font-size: 22px; }
+.px24 { font-size: 24px; }
+.px26 { font-size: 26px; }
+
+.breakWord { word-wrap: break-word; }
+
+/*FONT COLOR*/
+.greenFont { color: #004E00; }
+.blueFont { color: #200772; }
+.grayFont { color: #131313; }
+.redLink { color: #960400; text-decoration: underline; cursor: pointer; }
+
+.money:after { content: " руб."}
+
+
+
+
+/*COMMENTS*/
+.mainProductCommentsWrapper { float: left; width: 100%; margin: 50px 0 0 0; }
+.mainProdComment { padding: 1%; margin-bottom: 10px; border: 1px solid gray; }
+.commentBody { }
+.mainProdCommentEl p { margin: 0 0 10px 0; }
+
+/*BIG CART*/
+.bigProduct { float: left; border: 1px solid gray; padding: 1%; margin-bottom: 1%; }
+.cartProductsWrapper { float: left; width: 100%; }
+.cartLinkRedirect { margin-bottom: 30px; }
+.bigProdEl { float: left; width: 100%; }
+.bigProdEl p { float: left; margin: 0; padding-right: 1%;}
+.bigProdElImg { float: left; min-width: 20%; max-width: 20%; margin-right: 6%; }
+.bigProdElImg img { width: 200px; }
+.bigProdContent { float: left; max-width: 44%;  }
+.bigProdOperations { float: right; width: 29%;  }
+.bigProdOperations p {margin: 0 0 10px 0;}
+.plusMinusWrapper p { float: left; margin-right: 4%;}
+operationEl { width: 100%; float: left;}
+.operationEl img { width: 30px; float: left; margin: 0; padding: 0; cursor: pointer;}
+.plusMinus { background-color: yellow; width: fit-content; min-width: 20px;border-radius: 40%; text-align: center; cursor: pointer;}
+
+
+/*SLIDER*/
+.sliderBox { float: left; }
+.slider { float: left; border: 1px solid gray; width: fit-content; padding: 0; margin: 0;}
+.sliderLeftWrapper { float: left; width: 5%;  border: 1px solid gray; height: inherit; text-align: center; line-height: 130px; }
+.sliderRightWrapper { float: right; width: 5%;  border: 1px solid gray; height: inherit; text-align: center; line-height: 130px;}
+/*.sliderLeftWrapper:hover {  }
+.sliderRightWrapper:hover {  }*/
+.sliderMidleWrapper { float: left; }
+.sliderElement { float: left; padding: 0.5%; margin: 0 0 0 0; border: 1px solid gray; overflow: hidden; }
+.sliderElImg img { width: 100px; }
+
+.width15prc { width: 9.1vw; max-width: 15.3%;}
+.width22prc { width: 12vw; max-width: 23.6%; }

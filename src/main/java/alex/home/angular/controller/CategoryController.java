@@ -61,8 +61,7 @@ public class CategoryController {
     @PostMapping("/admin/deleteCategory/{catId}")
     public ResponseRsWrapper deleteCategory(@PathVariable Long catId, ResponseRsWrapper rrw) {
         if (catId == null) {
-            return rrw.addResponse(new AdminException().addMessage("@PathVariable Long catId == null.")
-                    .addExceptionName("IllegalAtributeException").get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addMessage("Check atrb Names").addExceptionName("IllegalAtributeException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {

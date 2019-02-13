@@ -1,34 +1,58 @@
-<div class="CartWrapper">
-    <div class="CartProductsWrapper">
-    <div ng-repeat="cartProd in cartProds">
-        <img class="minProdImgEl"  ng-src="/img/no_photo.png" alt="no image" style="width: 100px;"/>
-        <div class="minProdNameEl">
-            <p>Название:</p>
-            <p>{{cartProd.name}}</p>
-        </div>
-        <div class="minProdDescEl">
-            <p>Описание:</p>
-            <p>{{cartProd.description}}</p>
-        </div>
-        <div class="minProdPriceEl">
-            <p>Цена:</p>
-            <p>{{cartProd.price}}</p>
-        </div>
-        <div class="minProdExistEl">
-            <p>{{cartProd.isExist}}</p>
-        </div>
-        <div class="minProdQuantEl">
-            <p>Количество:</p>
-            <p>{{cartProd.quantInCart}}</p>
-            <p ng-click="incProductQuant( cartProd.id )">+</p>
-            <p ng-click="decProductQuant( cartProd.id )">-</p>
-        </div> 
-        <div class="minProdMarkExistEl">
-            <p>Оценка:</p>
-            <p>{{cartProd.mark}}</p>
-        </div>
-        <p ng-click="deleteProductBigCart(cartProd.id)">Удалить</p>
+<div class="cartWrapper">
+
+    <div class='cartLinkRedirect' ng-if="prevLocation && prevLocation !== '/cart'">
+        <a ng-href="#!{{prevLocation}}">Вернуться</a>
     </div>
-        <hr>
-    </div> 
+
+    <div class="cartProductsWrapper">        
+
+        <div class='bigProduct' ng-repeat="cartProd in cartProds">
+
+            <span class="anchor{{cartProd.id}}"></span>
+            <div class='bigProdElImg'>
+                <img ng-src="/img/no_photo.png" alt=""/>
+            </div>
+            <div class="bigProdContent px20">
+                <div class="bigProdEl">
+                    <div >
+                    <p class="greenFont">Название:</p>
+                    </div>
+                    <p class="px18">{{cartProd.name}}  Скачать стоковое фото плюс минус популярный фотобанк доступные цены миллионы роялти-фри фотографий, изображений и картинок в высоком</p>
+                </div>
+                <div class="bigProdEl">
+                    <p class="greenFont">Цена:</p>
+                    <p class="money ">{{cartProd.price}}</p>
+                </div>
+                <div class="bigProdEl">
+                    <p class="blueFont" ng-if="cartProd.exist">В наличии</p>
+                    <p class="blueFont" ng-if="!cartProd.exist">Нет в наличии</p>
+                </div>
+                <div class="bigProdEl">
+                    <p class="greenFont">Количество:</p>
+                    <p class="">{{cartProd.quantInCart}}</p>
+
+                </div> 
+                <div class="bigProdEl">
+                    <p class="greenFont">Like</p>
+                    <p class="px18">{{cartProd.mark | defaultVal:'0'}}</p>
+                </div>
+            </div>
+            <div class="bigProdOperations px20" >
+                <div class="operationEl">
+                    <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="likeBigProd( mainProd.id )"/>
+                    <p ng-click="deleteProductBigCart(cartProd.id)">Like</p>
+                </div>
+                <div class="operationEl">
+                    <p ng-click="deleteProductBigCart(cartProd.id)">Удалить</p>
+                </div>
+                <div class="operationEl" >
+                    <div class="plusMinusWrapper">
+                        <p>Добавить </p>
+                        <p class="plusMinus" ng-click="incProductQuant(cartProd.id)">+</p>
+                        <p class="plusMinus" ng-click="decProductQuant(cartProd.id)">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

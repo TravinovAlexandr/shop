@@ -3,7 +3,6 @@ package alex.home.angular.dao;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ProductRow;
-import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -11,28 +10,26 @@ import org.springframework.stereotype.Repository;
 public interface ProductDao {
 
     Product selectProduct(Long id);
-    
+
     Product selectProductCategoriesComments(Long id);
     
-    List<Product> selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset);
+    List<Product> selectProductsWhereCtegoryId(String query);
     
-    List<ProductRow> searchFormsSelection(String query);
+    List<Product> selectLastAdded(String query);
+    
+    List<Product> selectRecommended(Integer limit);
+    
+    List<Long> selectIds(String query);
+    
+    List<ProductRow> searchFormSelection(String query);
     
     Integer getProductCount(String query);
     
     boolean incrementProductMark(Long id);
     
-    void updateProductName(Long id, String newName);
-    
-    void updateProductDesc(Long id, String desc);
-    
     boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId);
     
-    void updateProductPrice(Long id, Float price);
-    
-    void updateProductQuant(Long id, Integer quant);
-    
-    void updateProductMark(Long id, Integer mark);
+    <T, E> void updateSingleField(T cond, E val, String query, String exName, String exMessage);
     
     void insertProduct(InsertProdDto dto);
     

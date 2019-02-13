@@ -17,13 +17,31 @@ public class PGUtil {
         
         while (size-- > 0) {
             sb.append(lst.get(size));
-            
             if (size != 0) {
                 sb.append(isNum ? "," : "',");
             }
         }
 
         return sb.append(isNum ? "" : "'").append(castType).toString();
+    }
+    
+    public static final String getINNumSequence(List<Long> arg) {
+        if (arg == null || arg.isEmpty()) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        int size = arg.size();
+        
+        for (int i = 0; i < size; i++) {
+            if (i == size -1) {
+                sb.append(arg.get(i));
+            } else {
+                sb.append(arg.get(i)).append(",");
+            }
+        }
+        
+        return sb.toString();
     }
     
     @Nullable
@@ -35,6 +53,5 @@ public class PGUtil {
     public static final String getBigintArray(List<Long> arg) {
           return getArray(arg, "]::BIGINT[]", true);
     }
-    
     
 }

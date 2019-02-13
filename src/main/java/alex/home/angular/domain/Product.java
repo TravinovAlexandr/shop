@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-//CREATE TABLE product(id BIGSERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, quant INT, description VARCHAR(200), 
+//CREATE TABLE product(id BIGSERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, quant INT, description VARCHAR(200), reccomend BOOL DEFAULT 'f', 
 //price REAL, mark SMALLINT, buystat INT, start TIMESTAMP NOT NULL, last TIMESTAMP, 
 //exist BOOLEAN, img_id BIGINT REFERENCES img (id) ON DELETE RESTRICT ON UPDATE CASCADE);
 
@@ -23,6 +23,7 @@ public class Product implements Serializable {
     public String name;
     public String description;
     public Boolean isExist;
+    public Boolean isReccomend;
     public Date startDate;
     public Date lastBuyDate;
     //M-M
@@ -33,7 +34,7 @@ public class Product implements Serializable {
     public Product() {}
     
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Float price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate) {
+            Float price, String name, String description, Boolean isExist, Boolean isReccomend, Date startDate, Date lastBuyDate) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -43,13 +44,14 @@ public class Product implements Serializable {
         this.name = name;
         this.description = description;
         this.isExist = isExist;
+        this.isReccomend = isReccomend;
         this.startDate = startDate;
         this.lastBuyDate = lastBuyDate;
     }
     
     //With image
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Float price, String name, String description, Boolean isExist, Date startDate, Date lastBuyDate, String imgUrl) {
+            Float price, String name, String description, Boolean isExist, Boolean isReccomend, Date startDate, Date lastBuyDate, String imgUrl) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -59,6 +61,7 @@ public class Product implements Serializable {
         this.name = name;
         this.description = description;
         this.isExist = isExist;
+        this.isReccomend = isReccomend;
         this.startDate = startDate;
         this.lastBuyDate = lastBuyDate;
         this.imgUrl = imgUrl;
@@ -151,6 +154,14 @@ public class Product implements Serializable {
         this.isExist = isExist;
     }
 
+    public Boolean getIsReccomend() {
+        return isReccomend;
+    }
+
+    public void setIsReccomend(Boolean isReccomend) {
+        this.isReccomend = isReccomend;
+    }
+
     public Date getStartDate() {
         return startDate;
     }
@@ -182,6 +193,10 @@ public class Product implements Serializable {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Product{" + "id=" + id + ", imgId=" + imgId + ", buyStat=" + buyStat + ", quantity=" + quantity + ", mark=" + mark + ", price=" + price + ", imgUrl=" + imgUrl + ", name=" + name + ", description=" + description + ", isExist=" + isExist + ", startDate=" + startDate + ", lastBuyDate=" + lastBuyDate + ", category=" + category + ", comments=" + comments + '}';
+    }
     
 }

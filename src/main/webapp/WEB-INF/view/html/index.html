@@ -26,17 +26,20 @@
         <div class="indexPageWrapper" >
             
             <ng-include src="'html/notification.html'"></ng-include>
-            
-            <div class="leftWrapper"></div>
+                            <ng-include src="'html/index_category_bar.html'"></ng-include>
+            <!--<div class="leftWrapper"></div>-->
             <div class="midleWrapper">
-                <ng-include src="'html/index_category_bar.html'"></ng-include>
-                
+
                 <div ng-view></div>
-            
             </div>
-            <div class="RightWrapper" style="float:right; width: 100%;"></div>
+            <div class="rightWrapper" >
                 <ng-include src="'html/cart_min_bar.html'"></ng-include>
+            </div>
+            
+<!--            <ng-include src="'html/comments.html'"></ng-include>-->
         </div>
+
+
     </main>
     
     <!--<footer></footer>-->

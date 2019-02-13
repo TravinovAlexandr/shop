@@ -9,10 +9,14 @@ import alex.home.angular.sql.PGMeta;
 import alex.home.angular.utils.PGUtil;
 import java.sql.ResultSet;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoryService implements CategoryDao {
@@ -39,10 +43,10 @@ public class CategoryService implements CategoryDao {
     */
     
     @Override @NotNullArgs
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void updateProductCategories(ProductCategoriesUpdate pcu) {
-        if (pcu == null || pcu.productId == null || pcu.oldCategoriesId == null || pcu.newCategoriesId == null 
-                || (pcu.oldCategoriesId.isEmpty() && pcu.newCategoriesId.isEmpty())) {
-            throw new AdminException().addMessage("Некорректное значение аргумента(ов).").addExceptionName("IllegalArgumentException");
+        if (pcu == null || pcu.productId == null || pcu.oldCategoriesId == null || pcu.newCategoriesId == null || pcu.oldCategoriesId.isEmpty() && pcu.newCategoriesId.isEmpty()) {
+            throw new AdminException().addMessage("Controller validation args error").addExceptionName("IllegalArgumentException");
         }
         
         try {            
@@ -66,15 +70,16 @@ public class CategoryService implements CategoryDao {
     RETURNS VOID AS $$
     BEGIN
         PERFORM id FROM category  WHERE name = cname;
-        IF NOT FOUND THEN 
+        IF NOT FOUND THEN
             INSERT INTO category(name, description) VALUES (cname,cdesc);
             RETURN;
         END IF;
     END;
-    $$ LANGUAGE plpgsql;
+    $$ LANGUAGE plpgsql  VOLATILE;
     */
     
     @Override @NotNullArgs
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void insertCategory(String name, String description) {
         if (name == null || description == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage(name == null ? "String name == null" : ""
@@ -89,9 +94,9 @@ public class CategoryService implements CategoryDao {
         }
     }
 
-
     @Override
-    public void deleteCategory(Long id) {
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
+    public void deleteCategory(@NotNull Long id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
         }
@@ -105,24 +110,29 @@ public class CategoryService implements CategoryDao {
     /*
     CREATE OR REPLACE FUNCTION UPDATE_CATEGORY_NAME(cid BIGINT, cname VARCHAR)
     RETURNS VOID AS $$
+    DECLARE
+        isExist VARCHAR;
     BEGIN
-        PERFORM id FROM category  WHERE name = cname;
-        IF NOT FOUND THEN 
-            UPDATE category SET name = cname WHERE id = cid;
-            RETURN;
+        PERFORM id FROM category  WHERE id = cid;
+        IF FOUND THEN
+            SELECT INTO isExist name FROM category WHERE name = cname FOR UPDATE;
+            IF  isExist IS NULL THEN
+                UPDATE category SET name = cname WHERE id = cid;
+            END IF;
         END IF;
     END;
-    $$ LANGUAGE plpgsql;
+    $$ LANGUAGE plpgsql VOLATILE;
     */
     
     @Override @NotNullArgs
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void upadateCategoryName(Long id, String name) {
         if (id == null || name == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage(name == null ? "String name  == null" : "" + id == null ? "Long id == null" : "");
         }
 
         try {
-            jdbcTemplate.update("SELECT UPDATE_CATEGORY_NAME(?,?);", id, name);
+            jdbcTemplate.update("SELECT SUPDATE_CATEGORY_NAME(?,?);", id, name);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -130,6 +140,7 @@ public class CategoryService implements CategoryDao {
     }
     
     @Override @NotNullArgs
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
     public void updateCategoryDesc(Long id, String description) {
         if (id == null || description == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("@NotNullArgs: " +description == null ? "String description == null  " : ""
@@ -146,6 +157,7 @@ public class CategoryService implements CategoryDao {
     
     
     @Override
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
     public void updateCategory(Category category) {
         if (category == null || category.id == null || category.name == null || category.description == null) {
                 throw new AdminException().addMessage("@NotNull rguments: " + category == null ? "category == null  " : "" + category != null 
@@ -161,6 +173,7 @@ public class CategoryService implements CategoryDao {
     }
     
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, readOnly = true)
     public Category selectCategory(Long id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
@@ -176,6 +189,7 @@ public class CategoryService implements CategoryDao {
     
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, readOnly = true)
     public List<Category> selectAllCategories() {
         try {
           return jdbcTemplate.query("SELECT * FROM category;", (ResultSet rs, int i) -> new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")));

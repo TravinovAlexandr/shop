@@ -424,6 +424,9 @@ adminApp.controller('productTableController', function($scope, $location, $compi
         $('.prodTabMessage').html('<p>Ни один товар не соответствует заданному условию поиска.</p>');
         adminData.setSearchConditions(null);
     } else {
+        var a = adminData.getProductTable()[0].productsCount;
+        console.log(a);
+        
         var paginationRow = $compile(paginator.getPaginRow(adminData.getProductTable()[0].productsCount))($scope);
         $('.paginationBar').html(paginationRow);
     }
@@ -970,7 +973,7 @@ adminApp.factory('paginator', function() {
         getPaginRow : function(elementNum) {
             var pagElement = '';
             var mod = elementNum % limit;
-            for (var i = 1; i <= elementNum % limit + ((mod === 0) ? 0 : 1); i++) {
+            for (var i = 1; i <= elementNum / limit + ((mod === 0) ? 0 : 1); i++) {
                 pagElement += '<div class="pagElement"  ng-style="pagClickedStyle(' + i + ')"  ng-click="getAnotherPage('+ i +')"> <p style="width:20px;" class="pagP">' + i + '</p> </div>';
             }   
             return pagElement;

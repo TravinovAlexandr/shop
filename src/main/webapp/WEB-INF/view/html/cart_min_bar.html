@@ -1,44 +1,41 @@
-<div class="minCartWrapper">
-    <div class="minCartImg">
-        <img ng-src="/img/no_photo.png" alt="no img" style="width: 100px;">
-    </div>
-    <div class="minCartQuant">
+<div class="minCartWrapper vw1">
+    <div class="minCartInfo">
         <p>Всего:<p>
-        <p>{{cartQuant | defaultVal:'Пусто'}}<p>
+        <p>{{cartQuant | defaultVal:'0'}}<p>
     </div>
-    <div class="minCartPrice" >
+    <div class="minCartInfo" >
             <p>Цена:<p>
-            <p>{{cartPrice | defaultVal:'0'}}<p>
+            <p class="money">{{cartPrice | defaultVal:'0'}}<p>
     </div>
-    <div>
-        <p ng-click="cartProdUp()">Вверх</p>
+    <div class="minCartInfo" >
+        <a ng-href="#!/cart">К покупкам</a>
     </div>
-    <div class="cartMinProductWrapper" ng-repeat="cartProd in cartProds | cartProdFilter">
-        <img class="minProdImgEl"  ng-src="/img/no_photo.png" alt="no image" style="width: 100px;"/>
-        <div class="minProdNameEl">
-            <p>Название:</p>
-            <p>{{cartProd.name}}</p>
+    
+    <div class="minCartPagLink">
+        <p  ng-click="cartProdUp()" ng-if="cartProdLength > 3">Вверх</p>
+    </div>
+    
+    <div class="cartMinProductWrapper" title="{{cartProd.name}}" ng-repeat="cartProd in cartProds | sliderFilter:'cart'" >
+        <div class="minCartImg">
+            <img  ng-src="/img/no_photo.png" alt="" ng-click="showMainProduct(cartProd.id)"/>
         </div>
-        <div class="minProdPriceEl">
-            <p>Цена:</p>
-            <p>{{cartProd.price}}</p>
+        <div class="minCartContent">
+        <div class="minProdEl">
+            <p class="greenFont">Цена:</p>
+            <p class="money">{{cartProd.price}}</p>
         </div>
-        <div class="minProdExistEl">
-            <p>{{cartProd.isExist}}</p>
+        <div class="minProdEl" >
+            <p class="blueFont" ng-if="cartProd.exist">В наличии</p>
+            <p class="blueFont" ng-if="!cartProd.exist">Нет в ниличии</p>
         </div>
-        <div class="minProdQuantEl">
-            <p>Количество:</p>
+        <div class="minProdEl">
+            <p class="greenFont">Количество:</p>
             <p>{{cartProd.quantInCart}}</p>
         </div>
-        <div class="minProdMarkExistEl">
-            <p>Оценка:</p>
-            <p>{{cartProd.mark}}</p>
-        </div>
-        <hr>
-        <p ng-click="deleteProductMinCart(cartProd.id)">Удалить</p>
+            <p class="redLink" ng-click="deleteProductMinCart(cartProd.id)">Удалить</p>
     </div>
-    <div>
-        <p ng-click="cartProdDown()">Вниз</p>
     </div>
-    <a ng-href="#!/cart">К покупкам</a>
+    <div class="minCartPagLink">
+        <p ng-click="cartProdDown()" ng-if="cartProdLength > 3">Вниз</p>
+    </div>
 </div>

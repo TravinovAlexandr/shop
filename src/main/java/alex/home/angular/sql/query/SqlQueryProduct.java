@@ -49,7 +49,7 @@ public class SqlQueryProduct implements SqlQuery {
         sb.append(" p.*, COUNT(pp.id) FROM ").append(PGMeta.PRODUCT_TABLE).append(" p ")
                 .append(" JOIN product pp ON pp.id = ANY(#) ").append(" WHERE ");
 
-        SearchField fht = null;
+        SearchField fht;
         boolean isDataExist;
 
         for (int i = 0; i < fieldsSize; i++) {

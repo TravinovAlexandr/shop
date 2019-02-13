@@ -1,0 +1,73 @@
+<div class="mainPageProductWrapper">
+    
+    <div class="mainPageDif px22">
+        <a ng-href="#!/{{mainProdRet}}">Вернуться назад</a>
+    </div>
+    
+    <div class="mainProductWrapper">
+        <div class="mainProduct">
+            <div class="leftMainProdWrapper">
+
+                <div class="mainProdImg">
+                    <!--<img ng-src="{{mainProd.url}}" alt="no img" />-->
+                    <img ng-src="/img/no_photo.png" alt="" />
+                </div>
+
+                <div class="mainProdContent">
+                    <div class="mainProdEl px18 breakWord" >
+                        <p class="greenFont">Название:</p>
+                        <p>{{mainProd.name}} Понятно. А Я уж перепугался, что мои sql-бэкапы не сработают :)</p>
+                    </div>
+                    <div class="mainProdEl px18 breakWord">
+                        <p class="greenFont">Цена:</p>
+                        <p class="money">{{mainProd.price}}</p>
+                    </div>
+                    <div class="mainProdEl px18 breakWord">
+                        <p class="greenFont">Like:</p>
+                        <p>{{mainProd.mark}}</p>
+                        <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="likeBigProd( mainProd.id )"/>
+                    </div>
+                    <div class="mainProdEl px18 breakWord">
+                        <p class="blueFont" ng-if="mainProd.isExist">В наличии</p>
+                        <p class="blueFont" ng-if="!mainProd.isExist">Нет в наличии</p>
+                    </div>
+                    <div class="mainProdEl px18 chest" ng-if="mainProd.isExist" ng-click="addToCart( mainProd.id, mainProd.name, mainProd.price, mainProd.imgUrl, mainProd.isExist )">
+                        <p class="breakWord">Добавить в корзину</p>
+                        <img  ng-src="/img/treasure_chest_PNG80.png" alt="" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rightMainProdWrapper">
+                    <div class="mainProdDescWrapper">
+                        <p class="px20">Описание:</p>
+                        <p>{{mainProd.description}}</p>
+                        <p class="px18 breakWord">Существует три директории в каталоге $PGDATA при его создании, которые имеют вид «pg_*log».
+pg_log$PGDATA/pg_log является по умолчанию местом, где хранятся журналы деятельности. Они включают в себя сообщения об ошибках, записи о запросах, и сообщения во время старта\выключения СУБД. Именно здесь следует искать информацию в случае, если PostgreSQL не запускается. Многие дистрибутивы Linux грешат тем, что могут переместить этот каталог куда-нибудь в /var/log/postgresql.
+Вы можете свободно удалять, переименовывать, сжимать и перемещать файлы из pg_log без опаски, при условии что пользователь postgres имеет право на запись в каталог. Если pg_log раздувается за счет больших файлов, то вероятно, вам следует урезать список журналируемых вещей, изменив настройки в postgresql.conf.
+pg_xlog$PGDATA/pg_xlog — это место, где PostgreSQL хранит журнал транзакций. Этот набор бинарных файлов, с названиями вида '00000001000000000000008E', которые содержат образы данных последних транзакций. Эти журналы также используются при бинарной репликации.
+Если репликация, архивирование или PITR (Point-In-Time-Recovery) отказывают, этот каталог рискует стать раздутым гигабайтами логов, которые сервер пишет на случай, если архивирование возобновится. Это может стать причиной переполнения дискового пространства.
+В отличие от pg_log, вы не можете свободно удалять, перемещать или сжимать файлы в этом каталоге. Удаление файлов из pg_xlog может привести к невосстановимому повреждению базы данных.
+Если вы окажетесь в ситуации, когда у вас есть 100 ГБ файлов в pg_xlog и база данных не запускается, и вы уже отключили архивирование/репликацию, и уже попытались очистить дисковое пространство любым другим способом, то, пожалуйста, сделайте два шага:
+Переместите файлы из pg_xlog на диск для резервного копирования или общий сетевой диск, но ни в коем случае не удаляйте их.
+Скопируйте обратно в pg_xlog только несколько наиболее старых файлов. Этого достаточно, чтобы PostgreSQL стартовал в штатном режиме.
+pg_clog$PGDATA/pg_clog содержит журналы метаданных транзакций. Этот журнал говорит серверу, какие транзакции завершены, а какие нет. Этот каталог мал и нету каких-либо предпосылок для его вздувания. Скорее всего вам никогда не придется его трогать.
+Но если вы когда-нибудь удалите файлы из pg_clog, вы можете смело удалить и весь каталог базы данных. Не существует способа восстановить базу данных без этих журналов.
+Стоит отметить, что если вы предпочитаете создавать резервные копии файлов в каталоге $PGDATA, вам следует убедиться, что каталоги pg_clog и pg_xlog также архивируются. В противном случае вы можете обнаружить, что резервная копия бесполезна.
+                        </p>
+                    </div>
+            </div>
+        </div>
+        
+<ng-include src="'html/slider.html'"></ng-include>
+
+<ng-include src="'html/slider_new.html'"></ng-include>
+
+<ng-include src="'html/comments.html'"></ng-include>
+        
+        <!--<div class="addProductComment">-->
+
+        <!--</div>-->
+    </div>
+    
+</div>

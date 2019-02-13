@@ -1,29 +1,36 @@
 <div class="indexProductsWrapper">
-    <h1>Products</h1>
-    <div class="miniProduct" ng-repeat="product in products" ng-click="showBigProduct( product.id )">
-        <img ng-src="/img/no_photo.png" alt="no image" style="width: 200px;"/>
-        <div class="minProdNameWrapper">
-            <p>Название:</p>
-            <p>{{product.name}}</p>
+    <div class="minProduct" ng-repeat="product in products">
+        <div ng-click="showBigProduct( product.id )" >
+        <div class="minProductImg">
+            <img ng-src="/img/no_photo.png" alt="no image"/ >
         </div>
-        <div class="minProdNamePrice">
-            <p>Цена:</p>
-            <p>{{product.price}}</p>
+        <div class="minProductContent">
+            <div class="minProdEl">
+                <p>Название:</p>
+                <p>{{product.name}} Понятно. А Я уж перепугался, что мои sql-бэкапы не сработают :)</p>
+            </div>
+            <div class="minProdEl">
+                <p>Цена:</p>
+                <p>{{product.price}}</p>
+            </div>
+            <div class="minProdEl">
+                <p>{{product.exist}}</p>
+            </div>
+            <div class="minProdEl">
+                <p>Like:</p>
+                <p>{{product.mark}}</p>
+            </div>
         </div>
-        <div class="minProdNameExist">
-            <p>{{product.isExist}}</p>
-        </div>
-        <div class="minProdNameExist">
-            <p>Оценка:</p>
-            <p>{{product.mark}}</p>
-        </div>
+            </div>
         <p ng-click="minProductLike( product.id )">Оценить</p>
-        <p class="minProdAddToCart" ng-click="addMinProdToCart( product.id, product.name, product.price, product.imgUrl, product.isExist )">Добавить в корзину<p>
-        <hr>
+            <p class="minProdAddToCart" ng-click="addMinProdToCart( product.id, product.name, product.price, product.imgUrl, product.isExist )">В корзину<p>
+
     </div>
 </div>
 
+<div class="productPagWrapper">
 <div class="prodTabMessage"></div>
 
 <div class="paginationBar">
+</div>
 </div>

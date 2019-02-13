@@ -1,0 +1,22 @@
+<div class="sliderBox" ng-if="sliderElements"> 
+    <p>Похожие товары:</p>
+    <div  class="slider">
+
+<!--        <div class="sliderLeftWrapper" ng-if="showLeftSlider()">
+            <p ng-click="sliderLeftClick()"><</p>
+        </div>-->
+        <div class="sliderMidleWrapper">
+            <div class="sliderElement width22prc" ng-repeat="el in sliderElements | sliderFilter" ng-click="sliderSelectProd(el.id)">
+                <div class="sliderElImg">
+                    <img ng-src="/img/no_photo.png" alt="" />
+                </div>
+                <div class="sliderElName">
+                    <p>{{el.name}}</p>
+                </div>
+            </div>
+        </div>
+<!--        <div class="sliderRightWrapper" ng-if="showRightSlider()">
+            <p ng-click="sliderRightClick()">></p>
+        </div>-->
+    </div>
+</div>
