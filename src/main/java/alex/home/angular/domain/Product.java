@@ -23,7 +23,7 @@ public class Product implements Serializable {
     public String name;
     public String description;
     public Boolean isExist;
-    public Boolean isReccomend;
+    public Boolean isRecommend;
     public Date startDate;
     public Date lastBuyDate;
     //M-M
@@ -34,7 +34,7 @@ public class Product implements Serializable {
     public Product() {}
     
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Float price, String name, String description, Boolean isExist, Boolean isReccomend, Date startDate, Date lastBuyDate) {
+            Float price, String name, String description, Boolean isExist, Boolean isRecommend, Date startDate, Date lastBuyDate) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -44,14 +44,14 @@ public class Product implements Serializable {
         this.name = name;
         this.description = description;
         this.isExist = isExist;
-        this.isReccomend = isReccomend;
+        this.isRecommend = isRecommend;
         this.startDate = startDate;
         this.lastBuyDate = lastBuyDate;
     }
     
     //With image
     public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
-            Float price, String name, String description, Boolean isExist, Boolean isReccomend, Date startDate, Date lastBuyDate, String imgUrl) {
+            Float price, String name, String description, Boolean isExist, Boolean isRecommend, Date startDate, Date lastBuyDate, String imgUrl) {
    
         this.id = id;
         this.buyStat = buyStat;
@@ -61,7 +61,7 @@ public class Product implements Serializable {
         this.name = name;
         this.description = description;
         this.isExist = isExist;
-        this.isReccomend = isReccomend;
+        this.isRecommend = isRecommend;
         this.startDate = startDate;
         this.lastBuyDate = lastBuyDate;
         this.imgUrl = imgUrl;
@@ -154,12 +154,12 @@ public class Product implements Serializable {
         this.isExist = isExist;
     }
 
-    public Boolean getIsReccomend() {
-        return isReccomend;
+    public Boolean getIsRecommend() {
+        return isRecommend;
     }
 
-    public void setIsReccomend(Boolean isReccomend) {
-        this.isReccomend = isReccomend;
+    public void setIsRecommend(Boolean isRecommend) {
+        this.isRecommend = isRecommend;
     }
 
     public Date getStartDate() {

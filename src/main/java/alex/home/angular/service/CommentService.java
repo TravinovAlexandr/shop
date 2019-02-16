@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import alex.home.angular.utils.DateUtil;
 import java.sql.ResultSet;
 import java.util.List;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentService implements CommentDao {
@@ -19,6 +22,7 @@ public class CommentService implements CommentDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void deleteComment(@NotNull Long id) {
         if (id == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
@@ -33,6 +37,7 @@ public class CommentService implements CommentDao {
     }
     
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
     public void addComment(@NotNull Comment comment) {
         if (comment == null || comment.productId == null ||  comment.nick == null || comment.body == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
@@ -48,6 +53,7 @@ public class CommentService implements CommentDao {
     }
     
     @Override @NotNull
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public List<Comment> selectAllComments(@NotNull Long prodId) {
         if (prodId == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
@@ -63,6 +69,7 @@ public class CommentService implements CommentDao {
     }
     
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
     public void updateComment(@NotNull Comment comment) {
         if (comment == null || comment.id == null || comment.nick == null || comment.body == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");

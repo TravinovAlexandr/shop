@@ -10,18 +10,20 @@
 
             <span class="anchor{{cartProd.id}}"></span>
             <div class='bigProdElImg'>
-                <img ng-src="/img/no_photo.png" alt=""/>
+                <img ng-src="/img/car.jpg" alt=""/>
             </div>
-            <div class="bigProdContent px20">
-                <div class="bigProdEl">
-                    <div >
+            <div class="bigProdContent px17">
+                <div class="bigProdName">
+                    <div>
                     <p class="greenFont">Название:</p>
                     </div>
-                    <p class="px18">{{cartProd.name}}  Скачать стоковое фото плюс минус популярный фотобанк доступные цены миллионы роялти-фри фотографий, изображений и картинок в высоком</p>
                 </div>
+                <div class="blockParagraph">
+                        <p class="">{{cartProd.name}}  Скачать стоковое фото плюс минус популярный фотобанк доступные цены миллионы роялти-фри фотографий, изображений и картинок в высоком</p>
+                    </div>
                 <div class="bigProdEl">
                     <p class="greenFont">Цена:</p>
-                    <p class="money ">{{cartProd.price}}</p>
+                    <p class="money">{{cartProd.price}}</p>
                 </div>
                 <div class="bigProdEl">
                     <p class="blueFont" ng-if="cartProd.exist">В наличии</p>
@@ -34,16 +36,13 @@
                 </div> 
                 <div class="bigProdEl">
                     <p class="greenFont">Like</p>
-                    <p class="px18">{{cartProd.mark | defaultVal:'0'}}</p>
+                    <p >{{cartProd.mark | defaultVal:'0'}}</p>
                 </div>
             </div>
-            <div class="bigProdOperations px20" >
+            <div class="bigProdOperations px17" >
                 <div class="operationEl">
                     <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="likeBigProd( mainProd.id )"/>
                     <p ng-click="deleteProductBigCart(cartProd.id)">Like</p>
-                </div>
-                <div class="operationEl">
-                    <p ng-click="deleteProductBigCart(cartProd.id)">Удалить</p>
                 </div>
                 <div class="operationEl" >
                     <div class="plusMinusWrapper">
@@ -51,6 +50,9 @@
                         <p class="plusMinus" ng-click="incProductQuant(cartProd.id)">+</p>
                         <p class="plusMinus" ng-click="decProductQuant(cartProd.id)">-</p>
                     </div>
+                </div>
+                <div class="operationEl deleteFromeCart">
+                    <p ng-click="deleteProductBigCart(cartProd.id)">Удалить из корзины</p>
                 </div>
             </div>
         </div>

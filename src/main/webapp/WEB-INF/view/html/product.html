@@ -10,7 +10,7 @@
 
                 <div class="mainProdImg">
                     <!--<img ng-src="{{mainProd.url}}" alt="no img" />-->
-                    <img ng-src="/img/no_photo.png" alt="" />
+                    <img ng-src="/img/car.jpg" alt="" />
                 </div>
 
                 <div class="mainProdContent">
@@ -59,15 +59,35 @@ pg_clog$PGDATA/pg_clog содержит журналы метаданных тр
             </div>
         </div>
         
-<ng-include src="'html/slider.html'"></ng-include>
+        <ng-include src="'html/slider.html'"></ng-include>
 
-<ng-include src="'html/slider_new.html'"></ng-include>
+        <ng-include src="'html/slider_new.html'"></ng-include>
 
-<ng-include src="'html/comments.html'"></ng-include>
+        <ng-include src="'html/comments.html'"></ng-include>
+
         
-        <!--<div class="addProductComment">-->
+        <div class="addProductComment">
+            <p>Добавить комментарий:</p>
+            <form name="addCommentForm" ng-submit="submitNewComment( mainProd.id )">
+                <div class="addCommentEl">
+                    <label for="commentName">Ваше имя:</label>
+                    <input id="commentName" type="text" placeholder="Введите имя" title="Введите имя"   name="addCommentName" 
+                           ng-model="addCommentName" required maxlength="100" ng-maxlength="100">
+                    <span ng-show="addCommentForm.addCommentName.$error.required">Вы не ввели имя</span>
+                    <span ng-show="addCommentForm.addCommentName.$error.maxlength">Максимальная длина имени - 100 символов</span>
+                </div>
+                <div class="addCommentEl">
+                    <label for="commentBody">Текст комментария:</label>
+                    <textarea id="commentBody" placeholder="Введите комментарий" title="Введите комментарий" name="addCommentBody" 
+                              ng-model="addCommentBody" required  maxlength="1000" ng-maxlength="1000"></textarea>
+                    <span ng-show="addCommentForm.addCommentBody.$error.required">Ваш комментарий пуст</span>
+                    <span ng-show="addCommentForm.addCommentBody.$error.maxlength">Максимальная длина комментария -  1000 символов</span>
+                </div>
+                
+                <button>Отправить</button>
+            </form>
+        </div>
 
-        <!--</div>-->
     </div>
     
 </div>

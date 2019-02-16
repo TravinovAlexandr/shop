@@ -41,7 +41,6 @@ adminApp.factory('initService', function ($timeout) {
                    adminExWrap.hide();
                });
            }, 1000);
-           //close notification
            $timeout(function () {
                $('.notificationMessage').click(function () {
                    $('.notificationWindow').hide(300);
@@ -324,15 +323,42 @@ adminApp.controller('searchFormController', function($scope, $timeout, $location
             }, function (ex) {
                 exception.show(ex);
             });
+            
+    $scope.selectCategories = function (catId, e) {
+        var el = $(e.currentTarget);
+        if (el.css('color') === 'rgb(0, 0, 0)' || el.css('color') === 'black') {
+            el.attr('style', 'color:blue;');
+        } else {
+            el.attr('style', 'color:black;');    
+        }
+        
+        adminData.setSearchCondCategories(catId);
+    };
     
-    $scope.submitSerchForm = function() {
+    $scope.setActive = function (e) {
+       var name = $(e.currentTarget);
+       var hidden = name.parent().parent().parent().find('.searchInputWrapper').find('.searchIsActive');
+       if (hidden.val() === 'false') {
+           hidden.val('true');
+           name.attr('style','color:blue;');
+       } else {
+           hidden.val('false');
+           name.attr('style','color:black;');
+       }
+    };
+    
+    $scope.submitSerchForm = function () {
         var searchInputs = $('.searchInputWrapper');
         
         var searchConditionsList = [];
         
         for (var i = 0; i < searchInputs.length; i++) {
-            var serchElement = searchFormService.getSearchElement();
             var searchInputEl = $(searchInputs[i]);
+            if (searchInputEl.find('.searchIsActive').val() === 'false') {
+                continue;
+            }
+            
+            var serchElement = searchFormService.getSearchElement();
             var sInputType = searchInputEl.find('.mainSearchInput').attr('type');
             var sOperator = searchInputEl.find('.searchOptionHidden').val();
             var sMainValue = searchInputEl.find('.mainSearchInput').val();
@@ -344,10 +370,30 @@ adminApp.controller('searchFormController', function($scope, $timeout, $location
             if (doubleInput.is(':visible') && doubleInput.val()) {
                 serchElement.push(doubleInput.val());
             }
-            searchConditionsList.push(serchElement);
+            
+            if ((serchElement.data[0] && serchElement.data[1] && (serchElement.operator === 'Beetwen' || serchElement.operator === '>=<'))
+                    ^ (serchElement.data[0] && !serchElement.data[1] && serchElement.operator !== 'Beetwen' && serchElement.operator !== '>=<')) {
+                searchConditionsList.push(serchElement);
+            }
         }
-
-        adminData.setSearchConditions(searchConditionsList);
+        
+        if (searchConditionsList.length === 0) {
+            notification.showNotification('Поисковый запрос не корректен');
+            return;
+        }
+        
+        var categIds = adminData.getSearchCondCategories();
+        if (categIds) {
+            var categs = searchFormService.getSearchElement();
+            categs.columnName = 'categories';
+            categs.data = categIds;
+            searchConditionsList.push(categs);
+        }
+        
+        $timeout(function () {
+            console.log(searchConditionsList);
+            adminData.setSearchConditions(searchConditionsList);
+        }, 200);
         
         if (searchConditionsList !== undefined && searchConditionsList !== null) {      
             searchFormService.sendSearchQuery(searchConditionsList)
@@ -418,19 +464,15 @@ adminApp.factory('searchFormService', function ($log, $http, $q, paginator) {
 //PRODUCT TABLE CONTROLLER
 adminApp.controller('productTableController', function($scope, $location, $compile, productTableService, adminData, exception, paginator, notification) {
     
-    $scope.productTableRow = adminData.getProductTable();
+    $scope.productTableRow = adminData.getProductTable().products;
     
-    if (!adminData.getProductTable()[0]) {
+    if (!adminData.getProductTable().products[0]) {
         $('.prodTabMessage').html('<p>Ни один товар не соответствует заданному условию поиска.</p>');
         adminData.setSearchConditions(null);
     } else {
-        var a = adminData.getProductTable()[0].productsCount;
-        console.log(a);
-        
-        var paginationRow = $compile(paginator.getPaginRow(adminData.getProductTable()[0].productsCount))($scope);
+        var paginationRow = $compile(paginator.getPaginRow(adminData.getProductTable().count))($scope);
         $('.paginationBar').html(paginationRow);
     }
-    
     
     $scope.pagClickedStyle = function(num) {
         if (paginator.getClickedElem() === num){
@@ -602,6 +644,26 @@ adminApp.controller('updateProductController', function($scope, $window, $locati
                 catList.splice(i, 1);
             }
         }
+    };
+    
+    $scope.updateRecommend = function (prodId) {
+        console.log(prodId);
+        if (prodId) {
+            
+            updateProductService.updateRecommend(prodId)
+                    .then(function () {
+                        
+                        $scope.prods[0].product.isRecommend = ($scope.prods[0].product.isRecommend) ? false : true;
+                    }, function (ex) {
+                        if (typeof(ex) === 'string') {
+                            $log.error(ex);
+                            return;
+                        }
+                        
+                        exception.show(ex);
+                    });
+        }
+        
     };
     
     $scope.deleteProduct = function() {
@@ -776,8 +838,19 @@ adminApp.factory('updateProductService', function($http, $q, adminData) {
     var URL_UPDATE_CATEGORIES = '/admin/updateCategories';
     var URL_UPDATE_IMG = '/admin/updateImg';
     var URL_GET_ALL_COMMENTS = '/admin/getAllProductComments/';
+    var URL_ADD_TO_RECOMMEND = '/admin/updateRecommend/';
     
     return {
+        updateRecommend(prodId) {
+            if (prodId) {
+                return $http({url : URL_ADD_TO_RECOMMEND + prodId, method : 'POST'})
+                        .then(null, function (ex) {
+                            return $q.reject(ex.data.response);
+                        });
+            } else {
+                return $q.reject('updateProductService updateRecommend args === undefined');
+            }
+        },
         updateImage: function(productId, imageId, updateImgfile) {
             if (productId && imageId && updateImgfile) {
                 var form = new FormData();
@@ -1058,14 +1131,13 @@ adminApp.factory('exception', function($log) {
 
 //ADMIN DATA
 adminApp.factory('adminData', function($log) {
-    //conditions for searche form
+    
     var searchConditions;
-    //product searche table
+    var searchCondCategories = [];
     var productTable;
-    //for admin product update model
     var bindProduct;
-    //need to hold original response data. without this object angular binding will interfear with bindProduct
     var originalProduct;
+    
     
     function Product() {
         this.name; this.description; this.price; this.quantity; this.mark; this.imgUrl;  this.categories = new Array() ; this.comments = new Array(); this.allCategories = new Array(); 
@@ -1091,6 +1163,31 @@ adminApp.factory('adminData', function($log) {
     function Category(id, name) { this.id = id; this.name = name; }
     
     return {
+        setSearchCondCategories(catId) {
+            if (catId) {
+                if (searchCondCategories.length === 0) {
+                    searchCondCategories.push(catId);
+                    return;
+                }
+                
+                var catIndex = -1;
+                for (var i = 0; i < searchCondCategories.length; i++) {
+                    if (searchCondCategories[i] === catId) {
+                        catIndex = i;
+                    }
+                }
+                
+                if (catIndex === -1) {
+                    searchCondCategories.push(catId);
+                } else {
+                    searchCondCategories.splice(catIndex, 1);
+                    console.log( searchCondCategories);
+                }
+            }
+        },
+        getSearchCondCategories() {
+            return searchCondCategories;
+        },
         deleteProductData() {
            bindProduct = null;
            originalProduct = null;

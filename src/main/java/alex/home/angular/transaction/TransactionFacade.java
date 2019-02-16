@@ -1,14 +1,14 @@
 package alex.home.angular.transaction;
 
+import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
-import alex.home.angular.dto.ProductRow;
 import alex.home.angular.dto.ProductsCount;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface TransactionProduct {
+public interface TransactionFacade {
     
     Product selectProduct(Long id);
     
@@ -16,7 +16,7 @@ public interface TransactionProduct {
     
     ProductsCount selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset);
     
-    List<ProductRow> searchFormSelection(String query);
+    ProductsCount searchFormSelection(String query);
 
     List<Product> selectLastAddedInCategory(Long catId, Integer limit);
     
@@ -43,5 +43,7 @@ public interface TransactionProduct {
     void insertProduct(InsertProdDto dto);
     
     void deleteProduct(Long id);
+    
+    void updateRecommend(Long prodId);
         
 }

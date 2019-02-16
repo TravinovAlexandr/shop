@@ -3,16 +3,17 @@
         <p>Поиск продукта:</p>
     </div>
     <form ng-submit="submitSerchForm()">
-        <table >
-            <tbody>
-            <div class="searchTBodyWrapper" ng-repeat="obj in searchForm">
+
+            <div class="searchTBodyWrapper" ng-repeat="obj in searchForm.searchElements">
                 <div  class="searchChangeElem" ng-if="obj.type !== 'UNDEFINED'">
                     <div class="searchFormEl">
                         <div class="nameSearchWrapper">
-                            <p>{{obj.name}}</p>
+                            <p ng-click="setActive($event)">{{obj.name}}</p>
+                            <!--<input class="searchIsActive" type="hidden" value="false" />-->
                         </div>
                     </div>
                     <div class="searchInputWrapper">
+                        <input class="searchIsActive" type="hidden" value="false" />
                         <div class="searchFormEl">
                             <input class="searchNameHidden" type="hidden" value="{{obj.name}}" />
                         </div>
@@ -44,8 +45,14 @@
                     </div>
                 </div>
             </div>
-            </tbody>
-        </table>
+            <div class="searchFormEl">
+                <div class="searchFormCategories">
+                    <div class="searchCategory" ng-repeat="cat in searchForm.categories">
+                        <p ng-click="selectCategories ( cat.id, $event )">{{cat.name}}</p>
+                    </div>
+                </div>
+            </div>
+
         <div class="searchFormEl">
             <button>Поиск</button>
         </div>

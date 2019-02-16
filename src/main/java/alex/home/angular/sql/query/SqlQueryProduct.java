@@ -20,20 +20,24 @@ public class SqlQueryProduct implements SqlQuery {
         }
         
         List<SearchField> fields = query.searchQuery;
-        StringBuilder sb = new StringBuilder("SELECT ! ");
+        StringBuilder sb = new StringBuilder("SELECT p.* FROM product p ");
         StringBuilder categoryJoin = new StringBuilder();
         int categoryIndex = -1;
         int fieldsSize = fields.size();
         
         for (int i= 0; i < fieldsSize; i++) {
-            if (fields.get(i).columnName.equals("categories") && fields.get(i).data != null  
-                    && fields.get(i).data[0] != null && fields.get(i).operator != null) {
-                categoryIndex = i;
+            if (fields.get(i).columnName.equals("categories") && fields.get(i).data != null) {
+                if (fields.get(i).data.length != 0) {
+                    categoryIndex = i;    
+                } else {
+                    fields.remove(i);
+                    fieldsSize--;
+                }
             }
         }
         
         if (categoryIndex != -1) {
-            categoryJoin.append(" JOIN ").append(PGMeta.CATEGORY_PRODUCTS_TABLE).append(" pc ON p.id = pc.product_id AND pc.category_id IN");
+            categoryJoin.append(" JOIN ").append(PGMeta.CATEGORY_PRODUCTS_TABLE).append(" pc ON p.id = pc.product_id AND pc.category_id IN(");
 
             int lastItertion = fields.get(categoryIndex).data.length -1;
             
@@ -45,10 +49,9 @@ public class SqlQueryProduct implements SqlQuery {
                 }
             }
         }
+        
+        sb.append(categoryJoin.toString()).append(" WHERE ");
        
-        sb.append(" p.*, COUNT(pp.id) FROM ").append(PGMeta.PRODUCT_TABLE).append(" p ")
-                .append(" JOIN product pp ON pp.id = ANY(#) ").append(" WHERE ");
-
         SearchField fht;
         boolean isDataExist;
 
@@ -69,54 +72,33 @@ public class SqlQueryProduct implements SqlQuery {
                         continue;
                     }
 
-                    sb.append("@").append(fht.columnName).append(" >= ").append(fht.data[0]).append(" AND ").append(" @")
+                    sb.append("p.").append(fht.columnName).append(" >= ").append(fht.data[0]).append(" AND ").append(" p.")
                             .append(fht.columnName).append(" < ").append(fht.data[1]);
                 } else if ("Between".equals(fht.operator)) {
                     if (fht.data[1] == null || fht.data[1].trim().equals("")) {
                         continue;
                     }
 
-                    sb.append(" @").append(fht.columnName).append(" BETWEEN '").append(fht.data[0]).append("' AND '").append(fht.data[1]).append("'");
+                    sb.append(" p.").append(fht.columnName).append(" BETWEEN '").append(fht.data[0]).append("' AND '").append(fht.data[1]).append("'");
                 } else if ("text".equals(fht.type) || "textarea".equals(fht.type)) {
-                    sb.append(" @").append(fht.columnName).append("Like".equals(fht.operator) ? " LIKE '%" : " ='").append(fht.data[0])
-                            .append("Like".equals(fht.operator) ? "%'" : "'");
+                    sb.append(" p.").append(fht.columnName).append("Like".equals(fht.operator) ? " LIKE '%" : " ='").append(fht.data[0]).append("Like".equals(fht.operator) ? "%'" : "'");
                 } else if ("number".equals(fht.type)) {
-                    sb.append(" @").append(fht.columnName).append(fht.operator).append(fht.data[0]);
+                    sb.append(" p.").append(fht.columnName).append(fht.operator).append(fht.data[0]);
                 } else if ("boolean".equals(fht.type)) {
-                    sb.append(" @").append(fht.columnName).append("='").append(fht.data[0]).append("'");
-                    //single date type
+                    sb.append(" p.").append(fht.columnName).append("='").append(fht.data[0]).append("'");
                 } else {
-                    sb.append(" @").append(fht.columnName).append(" ").append(fht.operator).append("'").append(fht.data[0]).append("'");
+                    sb.append(" p.").append(fht.columnName).append(" ").append(fht.operator).append("'").append(fht.data[0]).append("'");
                 }
             }
 
-            if (i != fieldsSize - 1 && isDataExist) {
+            if (i != fieldsSize - ((categoryIndex == -1) ? 1 : 2) && isDataExist && !fht.columnName.equals("categories")) {
                 sb.append(" AND ");
             }
         }
         
-        sb.append(" GROUP BY p.id LIMIT ").append(query.limit).append(" OFFSET ").append(query.offset).append(";");
+        sb.append(" GROUP BY (p.id) LIMIT ").append(query.limit).append(" OFFSET ").append(query.offset).append(";");
         
-        int whereIndex = sb.indexOf("WHERE") + 5;
-        int groupByIndex = sb.indexOf("GROUP");
-        String anySubstring = sb.substring(whereIndex, groupByIndex);
-        String queryRow = sb.toString();
-        
-        anySubstring = " SELECT id FROM " + PGMeta.PRODUCT_TABLE + " WHERE " +  anySubstring.replaceAll("@", "");
-        queryRow = queryRow.replaceAll("@", "p.");
-        queryRow = queryRow.replaceFirst("#", anySubstring);
-        
-        if (categoryIndex != -1) {
-            int joinIndex = queryRow.indexOf("JOIN");
-            String queryWithCategory = queryRow.substring(0, joinIndex - 4);
-            
-            queryWithCategory = queryWithCategory + categoryJoin.toString() + queryRow.substring(joinIndex);
-            queryRow = queryWithCategory.replaceFirst("!", "DISTINCT");
-        } else {
-            queryRow = queryRow.replaceFirst("!", "");
-        }
-        
-        return queryRow;
+        return sb.toString();
     }
     
 }

@@ -6,6 +6,9 @@
             <p class="jampToProductTableLink" ng-click="jampToProductTable()">Вернуться к поиску</p>
             
             <p class="adminProdRemoveLink" ng-click="deleteProduct()">Удалить товар</p>
+            <p class="adminProdRecommendLink" ng-if="!adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Добавить в рекомендуемые</p>
+            <p class="adminProdRecommendLink" ng-if="adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Удалить из рекомендуемых</p>
+
             
             <input class="adminProdId" type="hidden" value="{{adminProd.product.id}}" ng-model="adminProd.product.id"/>
             <div class="adminProdUpSingleParent">

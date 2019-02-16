@@ -5,10 +5,8 @@ import alex.home.angular.domain.Category;
 import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
-import alex.home.angular.dto.ProductRow;
 import alex.home.angular.exception.AdminException;
 import alex.home.angular.sql.PGMeta;
-import alex.home.angular.utils.DateUtil;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +84,7 @@ public class ProductService implements ProductDao {
                     product.name = rs.getString("name"); 
                     product.description = rs.getString("description");
                     product.isExist = rs.getBoolean("exist"); 
-                    product.isReccomend = rs.getBoolean("recommend");
+                    product.isRecommend = rs.getBoolean("recommend");
                     product.startDate = rs.getDate("start"); 
                     product.lastBuyDate = rs.getDate("last");
                     product.imgUrl =  rs.getString("url");
@@ -170,7 +168,7 @@ public class ProductService implements ProductDao {
         
         try {
             return jdbcTemplate.query("SELECT p.*, i.url FROM product WHERE recommend = 't' LIMIT " + limit, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), 
-                    rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("reccomend"), 
+                    rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"), 
                     rs.getDate("start"), rs.getDate("last"), rs.getString("url")));
         } catch (DataAccessException ex) {
             ex.printStackTrace();
@@ -180,14 +178,14 @@ public class ProductService implements ProductDao {
     
     @Override @NotNull
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public List<ProductRow> searchFormSelection(@NotNull String query) {
+    public List<Product> searchFormSelection(@NotNull String query) {
         if (query == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
-            return jdbcTemplate.query(query, (ResultSet rs, int i) -> new ProductRow(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"),rs.getDouble("price"), 
-                    rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"),DateUtil.getDate(rs.getDate("start")),DateUtil.getDate(rs.getDate("last")), rs.getInt("count")));
+            return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), 
+                    rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"),rs.getDate("start"), rs.getDate("last")));
         } catch (DataAccessException | IllegalArgumentException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -308,6 +306,21 @@ public class ProductService implements ProductDao {
             throw new AdminException(ex);
         }
     }
+    
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void updateRecommend(String query) {
+        if (query == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
+        }
+        
+        try {
+            jdbcTemplate.update(query);
+        } catch (DataAccessException ex) {
+            throw new AdminException(ex);
+        }
+    }
+
     
     @Autowired
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {

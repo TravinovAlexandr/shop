@@ -1,5 +1,5 @@
 <div class="left"></div>
-<div ng-controller="adminNavController" class="right">
+<div ng-controller="adminNavController" class="right"           >
     <div class="changeAdminDataBlock">
         <div class="adminGreetings">
             <a class="adminka" href="/admin">Админка</a>
@@ -39,13 +39,20 @@
                                                                                 <p ng-click="productUlVisible()">Операции с товарами</p>
                                                                                 <ul class="hidden">
                                                                                     <li><a ng-href="admin#!/addNewProduct">Добавить</a></li>
-                                                                                    <li><a ng-href="admin#!/searchProduct">Поиск</a></li>
+                                                                                    <li><a ng-href="admin#!/searchProduct">Найти/Изменить/удалить</a></li>
+                                                                                    <li><a ng-href="admin#!/addRecommend"></a></li>
                                                                                 </ul>
                                                                             </li>
                                                                             <li class="navCategory">
                                                                                 <p ng-click="categoryUlVisible()">Операции с категориями</p>
                                                                                 <ul class="hidden">
                                                                                     <li><a ng-href="admin#!/categories">Добавить / Изменить / Удалить</a></li>
+                                                                                </ul>
+                                                                            </li>
+                                                                            <li class="navCategory">
+                                                                                <p ng-click="categoryUlVisible()">Статистика</p>
+                                                                                <ul class="hidden">
+                                                                                    <li><a ng-href="admin#!/categories">Nop</a></li>
                                                                                 </ul>
                                                                             </li>
                                                                         </ul>

@@ -2,7 +2,6 @@ package alex.home.angular.dao;
 
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
-import alex.home.angular.dto.ProductRow;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +20,7 @@ public interface ProductDao {
     
     List<Long> selectIds(String query);
     
-    List<ProductRow> searchFormSelection(String query);
+    List<Product> searchFormSelection(String query);
     
     Integer getProductCount(String query);
     
@@ -34,5 +33,7 @@ public interface ProductDao {
     void insertProduct(InsertProdDto dto);
     
     void deleteProduct(Long id);
+    
+    void updateRecommend(String query);
  
 }

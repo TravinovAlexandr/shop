@@ -1,9 +1,11 @@
 package alex.home.angular.transaction;
 
+import alex.home.angular.dao.CategoryDao;
+import alex.home.angular.dao.CommentDao;
 import alex.home.angular.dao.ProductDao;
+import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
-import alex.home.angular.dto.ProductRow;
 import alex.home.angular.dto.ProductsCount;
 import alex.home.angular.exception.AdminException;
 import alex.home.angular.sql.PGMeta;
@@ -18,7 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class TransactionProductImpl implements TransactionProduct {
+public class TransactionFacadeImpl implements TransactionFacade {
     
     private ProductDao productDao;
 
@@ -98,8 +100,20 @@ public class TransactionProductImpl implements TransactionProduct {
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public List<ProductRow> searchFormSelection(String query) {
-        return productDao.searchFormSelection(query);
+    public ProductsCount searchFormSelection(String query) {
+        if (query == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
+        }
+
+        List<Product> products = productDao.searchFormSelection(query);
+        if (products == null) {
+            return null;
+        }
+        
+        ProductsCount pc = new ProductsCount();
+        pc.products = products;
+        pc.count = productDao.getProductCount(query.substring(0, query.indexOf("LIMIT")).replace("p.*", " COUNT (p.id) "));
+        return pc;
     }
 
     @Override
@@ -162,6 +176,12 @@ public class TransactionProductImpl implements TransactionProduct {
         productDao.updateSingleField(id, mark, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET mark = ? WHERE id = ?"  , "IllegalArgumentException", "Controller validation args error.");
     }
     
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
+    public void updateRecommend(Long prodId) {
+        productDao.updateRecommend("UPDATE product SET recommend = (SELECT (SELECT recommend AS rec FROM product WHERE id = "+ prodId +") = 'f')  WHERE id = " + prodId);
+    }
+
     private static List<Long> selectRandom(List<Long> ids, Integer limit) {
         if (ids == null || limit == null) {
             return null;

@@ -1,0 +1,20 @@
+<div class="contract">
+    <form ng-submit="submitContract()">
+        <label for="contractName">Введите ваше имя:</label>
+        <input id="contractName" ng-model="contract.name" type="text" placeholder="ФИО"/>
+
+        <label for="contractEmail">Введите email:</label>
+        <input id="contractEmail" ng-model="contract.email" type="email" placeholder="Email"/>
+
+        <label for="contractTelephone">Введите телефон:</label>
+        <input id="contractTelephone" ng-model="contract.telephone" type="text" placeholder="Телефон"/>
+
+        <label for="contractAddress">Введите адрес:</label>
+        <input id="contractAddress" ng-model="contract.address" type="text" placeholder="Адрес"/>
+
+        <label for="contractWish">Дополнительные пожелания:</label>
+        <textarea id="contractWish" ng-model="contract.wish"></textarea>
+
+        <button>Подтвердить</button>
+    </form>
+</div>

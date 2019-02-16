@@ -10,6 +10,9 @@
     <div class="minCartInfo" >
         <a ng-href="#!/cart">К покупкам</a>
     </div>
+    <div class="minCartInfo" >
+        <a ng-href="#!/contract">Оформить заказ</a>
+    </div>
     
     <div class="minCartPagLink">
         <p  ng-click="cartProdUp()" ng-if="cartProdLength > 3">Вверх</p>
@@ -17,7 +20,7 @@
     
     <div class="cartMinProductWrapper" title="{{cartProd.name}}" ng-repeat="cartProd in cartProds | sliderFilter:'cart'" >
         <div class="minCartImg">
-            <img  ng-src="/img/no_photo.png" alt="" ng-click="showMainProduct(cartProd.id)"/>
+            <img  ng-src="/img/car.jpg" alt="" ng-click="showMainProduct( cartProd.id )"/>
         </div>
         <div class="minCartContent">
         <div class="minProdEl">
@@ -32,7 +35,7 @@
             <p class="greenFont">Количество:</p>
             <p>{{cartProd.quantInCart}}</p>
         </div>
-            <p class="redLink" ng-click="deleteProductMinCart(cartProd.id)">Удалить</p>
+            <p class="redLink" ng-click="deleteProductMinCart( cartProd.id )">Удалить</p>
     </div>
     </div>
     <div class="minCartPagLink">

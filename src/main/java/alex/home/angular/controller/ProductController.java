@@ -4,6 +4,7 @@ import alex.home.angular.dao.CategoryDao;
 import alex.home.angular.dao.ImgDao;
 import alex.home.angular.dao.PGDao;
 import alex.home.angular.domain.Category;
+import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Img;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
@@ -11,8 +12,8 @@ import alex.home.angular.dto.LimitOffset;
 import alex.home.angular.dto.ProductCategories;
 import alex.home.angular.dto.ProductCategoriesUpdate;
 import alex.home.angular.dto.ProductField;
-import alex.home.angular.dto.ProductRow;
 import alex.home.angular.dto.ResponseRsWrapper;
+import alex.home.angular.dto.SearchElementsCtegories;
 import alex.home.angular.dto.SearchQuery;
 import alex.home.angular.dto.UpdateProd;
 import alex.home.angular.exception.AdminException;
@@ -41,7 +42,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import alex.home.angular.task.AsyncService;
-import alex.home.angular.transaction.TransactionProduct;
 import alex.home.angular.utils.properties.PropCache;
 import alex.home.angular.utils.properties.PropFsLoader;
 import alex.home.angular.utils.properties.PropLoader;
@@ -52,6 +52,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+import alex.home.angular.transaction.TransactionFacade;
+import org.springframework.web.bind.annotation.GetMapping;
   
 @RestController
 public class ProductController {
@@ -59,7 +61,7 @@ public class ProductController {
     private CategoryDao categoryDao;
     private ImgDao imgDao;
     private PGDao pGDao;
-    private TransactionProduct transactionProduct;
+    private TransactionFacade transactionFacade;
     private HttpServletResponse hsr;
     private ImageWriter fsImageWriter;
     private TaskExecutor taskExecutor;
@@ -68,14 +70,28 @@ public class ProductController {
     private final CategoryCache categoryCache = new CategoryCache();
     private volatile int productCacheVal = -1;
     
-    @PostMapping("/selectLastAddedInCategory/{catId}/{limit}")
-    public ResponseRsWrapper selectLastAddedInCategory(@PathVariable Long catId, @PathVariable Integer limit, ResponseRsWrapper rrw) {
-        if (limit == null || catId == null) {
-            return rrw.addResponse("~ControllerBindingException").addHttpErrorStatus(hsr,400);    
+    @PostMapping("/admin/updateRecommend/{prodId}")
+    public ResponseRsWrapper addToRecommend(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+        if (prodId == null) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
         }
         
         try {
-            return rrw.addResponse(transactionProduct.selectLastAddedInCategory(catId, limit));
+            transactionFacade.updateRecommend(prodId);
+            return null;
+        } catch (AdminException ex) {
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+        }
+    }
+    
+    @PostMapping("/selectLastAddedInCategory/{catId}/{limit}")
+    public ResponseRsWrapper selectLastAddedInCategory(@PathVariable Long catId, @PathVariable Integer limit, ResponseRsWrapper rrw) {
+        if (limit == null || catId == null) {
+            return rrw.addResponse("IllegalArgumentException").addHttpErrorStatus(hsr,400);    
+        }
+        
+        try {
+            return rrw.addResponse(transactionFacade.selectLastAddedInCategory(catId, limit));
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
         } 
@@ -88,7 +104,7 @@ public class ProductController {
         }
         
         try {
-            return rrw.addResponse(transactionProduct.selectLastAddedInAllCategories(limit));
+            return rrw.addResponse(transactionFacade.selectLastAddedInAllCategories(limit));
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
         } 
@@ -101,7 +117,7 @@ public class ProductController {
         }
         
         try {
-            return rrw.addResponse(transactionProduct.selectRecommend(limit));
+            return rrw.addResponse(transactionFacade.selectRecommend(limit));
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
         }
@@ -114,7 +130,7 @@ public class ProductController {
         }
         
         try {
-            return rrw.addResponse(transactionProduct.selectProductCategoriesComments(prodId));
+            return rrw.addResponse(transactionFacade.selectProductCategoriesComments(prodId));
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
         }
@@ -127,7 +143,7 @@ public class ProductController {
         }
         
         try {
-            if (!transactionProduct.incrementProductMark(prodId)) {
+            if (!transactionFacade.incrementProductMark(prodId)) {
                 return rrw.addHttpErrorStatus(hsr, 500);
             }
             
@@ -144,7 +160,7 @@ public class ProductController {
         }
         
         try {
-            return rrw.addResponse(transactionProduct.selectProductsWhereCtegoryId(dto.id, dto.limit, dto.offset));
+            return rrw.addResponse(transactionFacade.selectProductsWhereCtegoryId(dto.id, dto.limit, dto.offset));
          } catch (AdminException ex) {
              return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
          }
@@ -158,7 +174,7 @@ public class ProductController {
         }
         
         try {
-            transactionProduct.deleteProduct(id);
+            transactionFacade.deleteProduct(id);
             return null;
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
@@ -239,11 +255,11 @@ public class ProductController {
         
         try {
             switch (productField.columnName) {
-                case "name": transactionProduct.updateProductName(productField.productId, productField.value); break;
-                case "description": transactionProduct.updateProductDesc(productField.productId, productField.value); break;
-                case "price": transactionProduct.updateProductPrice(productField.productId, Float.parseFloat(productField.value)); break;
-                case "mark": transactionProduct.updateProductMark(productField.productId, Integer.parseInt(productField.value)); break;
-                case "quantity": transactionProduct.updateProductQuant(productField.productId, Integer.parseInt(productField.value)); break;
+                case "name": transactionFacade.updateProductName(productField.productId, productField.value); break;
+                case "description": transactionFacade.updateProductDesc(productField.productId, productField.value); break;
+                case "price": transactionFacade.updateProductPrice(productField.productId, Float.parseFloat(productField.value)); break;
+                case "mark": transactionFacade.updateProductMark(productField.productId, Integer.parseInt(productField.value)); break;
+                case "quantity": transactionFacade.updateProductQuant(productField.productId, Integer.parseInt(productField.value)); break;
             }
             
             return null;
@@ -265,7 +281,7 @@ public class ProductController {
         }
         
         try {
-            Product product = transactionProduct.selectProductCategoriesComments(id);
+            Product product = transactionFacade.selectProductCategoriesComments(id);
             List<Category> categories;
             
             if (product != null) {
@@ -279,7 +295,7 @@ public class ProductController {
                 
                 return rrw.addResponse(new ProductCategories(product, categories));
             } else {
-                return rrw.addResponse("Ни один товар не соответствует заданному условию.");
+                return null;
             }
             
         } catch (AdminException ex) { 
@@ -290,8 +306,7 @@ public class ProductController {
             return rrw.addResponse(new AdminException(ex).get()).addHttpErrorStatus(hsr, 500);
         }
     }
-    
-    //подумать о достаточном колве полей для товара
+
     @PostMapping(value = "/admin/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody public ResponseRsWrapper addProduct(@ModelAttribute InsertProdDto dto, ResponseRsWrapper rrw) {
         if (dto == null) {
@@ -304,7 +319,7 @@ public class ProductController {
                 dto.url = "/img/no_photo.png";
             }
 
-            transactionProduct.insertProduct(dto);
+            transactionFacade.insertProduct(dto);
             return null;
         } catch (IOException | AdminException ex) {
             ex.printStackTrace();
@@ -323,30 +338,38 @@ public class ProductController {
         FutureTask futureTask;
         SearchCondition searcCond = new SearchProductCondition();
         
+        List<Category> cats;
+        
         try {
-          props = propCache.getProductProps(productCacheVal);
-          
-          if (props == null) {
-                PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(), "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
-                futureTask = new FutureTask(propTask);
-                taskExecutor.execute(futureTask);
-                rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
-                props = (Properties) futureTask.get();
-                
-                if (props != null) {
-                    productCacheVal = props.hashCode();
-                    propCache.initProdPropsCache(props);
-                }
-                
-            } else {
-              rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
-          }
-          
-          if (rows == null) {
-              return rrw.addHttpErrorStatus(hsr, 500).addResponse(new AdminException().addMessage("~UnexpectedResult")
-                      .addMessage("rows = tr.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE)); == null").get());
-          }
+//          props = propCache.getProductProps(productCacheVal);
+//          
+//          if (props == null) {
+//                PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(), "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
+//                futureTask = new FutureTask(propTask);
+//                taskExecutor.execute(futureTask);
+//                rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
+//                props = (Properties) futureTask.get();
+//                
+//                if (props != null) {
+//                    productCacheVal = props.hashCode();
+//                    propCache.initProdPropsCache(props);
+//                }
+//                
+//            } else {
+//              rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
+//          }
+//          
+//          if (rows == null) {
+//              return rrw.addHttpErrorStatus(hsr, 500);
+//          }
 
+            PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(), "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
+            futureTask = new FutureTask(propTask);
+            taskExecutor.execute(futureTask);
+            props = (Properties) futureTask.get();
+            rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
+            cats = categoryDao.selectAllCategories();
+                
             if (props != null) {
                 for (int i = 0; i < rows.size(); i++) {
                     switch (rows.get(i).name) {
@@ -359,11 +382,14 @@ public class ProductController {
                         case "last": rows.get(i).name = props.getProperty("last"); break;
                         case "quant": rows.get(i).name = props.getProperty("quant"); break; 
                         case "exist": rows.get(i).name = props.getProperty("exist"); break;
+                        case "recommend": rows.get(i).name = props.getProperty("recommend"); break;
                     }
                 }
             }
             
-            return rrw.addResponse(rows);
+            
+            
+            return rrw.addResponse(new SearchElementsCtegories(rows, cats));
         } catch (InterruptedException | ExecutionException | AdminException ex) {
             if (ex.getClass() == AdminException.class) {
                 rrw.addResponse( ((AdminException) ex).get()).addHttpErrorStatus(hsr, 500);
@@ -398,7 +424,6 @@ public class ProductController {
             }
             
             List keys = Collections.list(props.propertyNames());
-            
             for (int i = 0; i < query.searchQuery.size(); i++) {
                 for (int j = 0; j < keys.size(); j++) {
                     if (query.searchQuery.get(i).columnName.equals(props.get(keys.get(j)))) {
@@ -411,7 +436,7 @@ public class ProductController {
             String sqlRow = sqlQuery.getQueryRow();
 
             if (sqlRow != null) {
-                return rrw.addResponse(transactionProduct.searchFormSelection(sqlRow));
+                return rrw.addResponse(transactionFacade.searchFormSelection(sqlRow));
             }
 
             return rrw.addResponse(new AdminException().addExceptionName("~ParseQueryException").addMessage("Qury row == null.").get()).addHttpErrorStatus(hsr, 400);
@@ -447,8 +472,8 @@ public class ProductController {
     }
     
     @Autowired
-    public void setTransactionProduct(TransactionProduct transactionProduct) {
-        this.transactionProduct = transactionProduct;
+    public void setTransactionFacade(TransactionFacade transactionFacade) {
+        this.transactionFacade = transactionFacade;
     }
 
     @Autowired

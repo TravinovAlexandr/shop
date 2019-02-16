@@ -19,12 +19,25 @@ indexApp.config(function ($routeProvider) {
     }).when('/product/:mainProdId', {
         templateUrl: '/html/product.html',
         controller: 'MainProdController'
+    }).when('/contract', {
+        templateUrl: '/html/contract.html',
+        controller: 'ContractController'
     });
     $routeProvider.otherwise({redirectTo: '/'});
 });
 
+//CONTRACT CONTROLLER
+indexApp.controller('ContractController', function ($scope, $log, SharedData, CartService) {
+    
+});
+
+//CONTRACT SERVICE
+indexApp.factory('ContractService', function ($http) {
+    
+});
+
 //INDEX INIT CONTROLLER
-var initController =  indexApp.controller('IndexInitController', function ($scope,$timeout, $log, $location, CategoryService, CartService) {
+indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $location, CategoryService, CartService) {
     if (CartService.checkCookies()) {
         _refreshView();
     }
@@ -45,12 +58,10 @@ var initController =  indexApp.controller('IndexInitController', function ($scop
     };
     
     $scope.cartProdUp = function () {
-        //декремент  установлен правильно
         CartService.decCartPageIndex();
     };
     
     $scope.cartProdDown = function () {
-        //инкремент установлен правильно
         CartService.incCartPageIndex();
     };
     
@@ -73,14 +84,14 @@ var initController =  indexApp.controller('IndexInitController', function ($scop
         }
     };
     
-    $scope.cartProds = CartService.getCart().products;
-    CartService.computeCartSizePrice();
+    _refreshView();
     
     function _refreshView () {
         CartService.computeCartSizePrice();
         $scope.cartQuant = CartService.getCartSize();
         $scope.cartPrice = CartService.getCartPrice();
         $scope.cartProdLength = CartService.getCart().products.length;
+        $scope.cartProds = CartService.getCart().products;
     };
     
     function _addProdToCart (prodId, prodName, prodPrice, productUrl, productExist) {
@@ -105,7 +116,6 @@ var initController =  indexApp.controller('IndexInitController', function ($scop
     
     $scope.$on('changeCartData', function () {
         _refreshView();
-        $scope.cartProds = CartService.getCart().products;
     });
     
     $scope.$on('addProdToCart', function (e, data) {
@@ -208,7 +218,7 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
     };
     
     $scope.addMinProdToCart = function (prodId, name, price, imgUrl, isExist) {
-        if (prodId && name && price && imgUrl && isExist) {
+        if (prodId && name && price && imgUrl && typeof(isExist) === 'boolean') {
             $scope.$emit('addProdToCart', {
                 prodId: prodId, name: name, price: price, imgUrl: imgUrl, isExist: isExist
             });
@@ -330,6 +340,22 @@ indexApp.factory('SharedData', function ($log) {
 
 indexApp.controller('MainProdController', function ($scope, $log, $routeParams, $location, CartService, ProductService, SharedData, Paginator) {
     
+    $scope.submitNewComment = function (prodId) {
+        if (prodId) {
+            ProductService.addNewComment(prodId, $scope.addCommentName, $scope.addCommentBody)
+                    .then(function () {
+                        ProductService.getComments(prodId)
+                        .then(function (res) {
+                            $scope.mainProd.comments = res;
+                            $scope.addCommentName = '';
+                            $scope.addCommentBody = '';
+                        }, null);
+                    }, function (ex) {
+                        $log.error(ex);
+                    });
+        }
+    };
+     
     ProductService.selectMainPageProduct($routeParams.mainProdId)
                 .then(function (res) {
                     var redirectInfo = CartService.getRedirectInfo();
@@ -457,9 +483,33 @@ indexApp.factory('ProductService', function ($q, $http) {
     var URL_GET_PRODUCTS = '/getProductsPage/';
     var URL_LAST_ADDED_PROD_CATEGORY = '/selectLastAddedInCategory/';
     var URL_LAST_ALL_ADDED = '/selectLastAddedInAllCategories';
+    var URL_ADD_NEW_COMMENT = '/addComment/';
+    var URL_GET_COMMENTS = '/getAllComments/';
     var LIMIT = 20;
     
     return {
+        getComments(prodId) {
+            if (prodId) {
+                return $http({url: URL_GET_COMMENTS + prodId, method : 'POST'})
+                        .then(function (res) {
+                            return res.data.response;
+                        }, function (ex) {
+                            return $q.reject(ex.data.response);
+                        });
+            } else {
+                return $q.reject('ProductService getAllComments args === undefined');
+            }
+        },
+        addNewComment(prodId, nick, body) {
+            if (prodId && nick.trim() && body.trim()) {
+                return $http({url : URL_ADD_NEW_COMMENT, method : 'POST', data : {productId : prodId, nick : nick, body : body}})
+                        .then(null, function (ex) {
+                            return $q.reject(ex.data.response);
+                        });
+            } else {
+                return $q.reject('ProductService addNewComment args === undefined');
+            }
+        },
         selectLastAddedInCategory(curCatId) {
             if (curCatId) {
                 return $http({

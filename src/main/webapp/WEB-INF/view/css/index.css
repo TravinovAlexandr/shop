@@ -33,7 +33,7 @@ body textarea { font-size: 17px; }
 
 /*CATEGORY BAR*/
 .categoriesWrapper { float: left; width: 100%; border-top: 1px solid gray; border-bottom: 1px solid gray; padding: 10px 0; margin-bottom: 10px; }
-.categoryButton { float: left; width: auto; padding: 0 1% 0 1%; border-right: 1px solid #157700; font-size: 1.3vw;}
+.categoryButton { float: left; width: auto; padding: 0 1% 0 1%; border-right: 1px solid #157700; font-size: 20px;}
 .categoryButton:hover { cursor: pointer; color: white; background-color: #157700; }
 .categoryButton:hover a { text-decoration: underline; }
 
@@ -49,7 +49,7 @@ body textarea { font-size: 17px; }
 .minProdEl { float: left; width: 100%;}
 .minProdEl p { float: left; background-color: white; margin: 0;}
 .minCartImg { float: left; }
-.minCartImg img { width: 5vw; }
+.minCartImg img { width: 7vw; height: 80%; }
 .minCartContent { float: left; width: 10vw; min-width: 0vw; margin-left: 4%; }
   
 /*PRODUCTS*/
@@ -60,6 +60,7 @@ body textarea { font-size: 17px; }
 .minProdEl { margin: 0; width: 100%;}
 .minProdEl p { min-width: 0vw; max-width: 10vw;}
 
+
 /*PAGINATION WRAPPER*/
 .productPagWrapper { float: left;  width: 100%;  }
 
@@ -67,7 +68,7 @@ body textarea { font-size: 17px; }
 /*MAIN PRODUCT*/
 .mainProductWrapper { margin-top: 50px; }
 .leftMainProdWrapper { float: left; width: 45%;}
-.mainProdImg img { width: 60%; min-width: 1vw; }
+.mainProdImg img { width: 80%; min-width: 1vw; height: 40%; }
 .mainProdEl { float: left; width: 100%; margin-bottom: 10px; }
 .mainProdEl p { float: left; margin: 0; padding-right: 2%; } 
 .mainProdEl img { float: left; margin: 0; width: 30px;  }
@@ -88,6 +89,7 @@ body textarea { font-size: 17px; }
 .vw1-2 { font-size: 1.2vw; }
 .vw2 { font-size: 2vw; }
 .px14 { font-size: 14px; }
+.px17 { font-size: 17px; }
 .px16 { font-size: 16px; }
 .px18 { font-size: 18px; }
 .px20 { font-size: 20px; }
@@ -102,6 +104,8 @@ body textarea { font-size: 17px; }
 .blueFont { color: #200772; }
 .grayFont { color: #131313; }
 .redLink { color: #960400; text-decoration: underline; cursor: pointer; }
+
+
 
 .money:after { content: " руб."}
 
@@ -119,18 +123,23 @@ body textarea { font-size: 17px; }
 .cartProductsWrapper { float: left; width: 100%; }
 .cartLinkRedirect { margin-bottom: 30px; }
 .bigProdEl { float: left; width: 100%; }
-.bigProdEl p { float: left; margin: 0; padding-right: 1%;}
-.bigProdElImg { float: left; min-width: 20%; max-width: 20%; margin-right: 6%; }
-.bigProdElImg img { width: 200px; }
+.bigProdEl p { float: left; margin: 0; padding-right: 1%; }
+.bigProdElImg { float: left; min-width: 20%; max-width: 20%; margin-right: 2%; }
+.bigProdElImg img { width: 100%; height: 24%; }
 .bigProdContent { float: left; max-width: 44%;  }
 .bigProdOperations { float: right; width: 29%;  }
-.bigProdOperations p {margin: 0 0 10px 0;}
+.bigProdOperations p {margin: 0 0 10px 0; }
 .plusMinusWrapper p { float: left; margin-right: 4%;}
-operationEl { width: 100%; float: left;}
+operationEl { width: 100%; float: left; }
 .operationEl img { width: 30px; float: left; margin: 0; padding: 0; cursor: pointer;}
-.plusMinus { background-color: yellow; width: fit-content; min-width: 20px;border-radius: 40%; text-align: center; cursor: pointer;}
-
-
+.plusMinus { background-color: yellow; width: fit-content; min-width: 20px; border-radius: 40%; text-align: center; cursor: pointer;}
+.blockParagraph { display: block; }
+.blockParagraph p { display: block; margin: 0 ;}
+.bigProdName {float:left; }
+.bigProdName p:after { content: "\a0"; }
+.bigProdName p {margin: 0 ;}
+.deleteFromeCart { clear: both; text-decoration: underline; cursor: pointer; }
+.deleteFromeCart:hover { color:green; }
 /*SLIDER*/
 .sliderBox { float: left; }
 .slider { float: left; border: 1px solid gray; width: fit-content; padding: 0; margin: 0;}
@@ -144,3 +153,16 @@ operationEl { width: 100%; float: left;}
 
 .width15prc { width: 9.1vw; max-width: 15.3%;}
 .width22prc { width: 12vw; max-width: 23.6%; }
+
+
+
+
+/*ADD COMMENT*/
+.addProductComment { float: left; width: 100%; margin-top: 40px; padding: 1%; border: 1px solid gray; background-color: gray; color: white;}
+.addProductComment button, input, textarea, label { float: left;  margin-bottom: 10px; }
+.addProductComment span { float: left; width: 100% ;color: yellow; font-size: 0.8vw;  margin: auto 10px 10px 0; }
+.addProductComment input, textarea, label { font-size: 1vw; }
+.addProductComment button { clear: both; font-size: 0.8vw; }
+.addProductComment label { width: 100%; }
+.addProductComment input { width: 40%; }
+.addProductComment textarea { width: 40%; max-width: 80%; }
