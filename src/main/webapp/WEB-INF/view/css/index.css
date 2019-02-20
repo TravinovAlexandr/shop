@@ -120,6 +120,7 @@ body textarea { font-size: 17px; }
 
 /*BIG CART*/
 .bigProduct { float: left; border: 1px solid gray; padding: 1%; margin-bottom: 1%; }
+.bigProduct:hover { box-shadow: 0 0 10px rgba(0,0,0,0.5); } 
 .cartProductsWrapper { float: left; width: 100%; }
 .cartLinkRedirect { margin-bottom: 30px; }
 .bigProdEl { float: left; width: 100%; }
@@ -150,6 +151,8 @@ operationEl { width: 100%; float: left; }
 .sliderMidleWrapper { float: left; }
 .sliderElement { float: left; padding: 0.5%; margin: 0 0 0 0; border: 1px solid gray; overflow: hidden; }
 .sliderElImg img { width: 100px; }
+.linkToMainPr { cursor: pointer; }
+
 
 .width15prc { width: 9.1vw; max-width: 15.3%;}
 .width22prc { width: 12vw; max-width: 23.6%; }
@@ -158,7 +161,7 @@ operationEl { width: 100%; float: left; }
 
 
 /*ADD COMMENT*/
-.addProductComment { float: left; width: 100%; margin-top: 40px; padding: 1%; border: 1px solid gray; background-color: gray; color: white;}
+.addProductComment { float: left; width: 100%; margin-top: 40px; padding: 1%; border: 1px solid gray; background-color: gray; color: white; }
 .addProductComment button, input, textarea, label { float: left;  margin-bottom: 10px; }
 .addProductComment span { float: left; width: 100% ;color: yellow; font-size: 0.8vw;  margin: auto 10px 10px 0; }
 .addProductComment input, textarea, label { font-size: 1vw; }
@@ -166,3 +169,13 @@ operationEl { width: 100%; float: left; }
 .addProductComment label { width: 100%; }
 .addProductComment input { width: 40%; }
 .addProductComment textarea { width: 40%; max-width: 80%; }
+
+
+
+
+/*CONTRACT*/
+.contract { background-color: gray; float:left; width:100%; padding: 1%; }
+.contract span { float:left; clear: both; width: 100%; font-size: 18px; color: yellow; }
+.contract label, .contract p { float:left; width: 100% }
+.contract button { float:left; clear: both; }
+.contract input, .contract textarea { margin-left: 1%; font-size: 18px; width: 40%; max-width: 50%; }

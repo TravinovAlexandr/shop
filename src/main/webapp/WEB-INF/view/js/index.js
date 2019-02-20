@@ -27,17 +27,42 @@ indexApp.config(function ($routeProvider) {
 });
 
 //CONTRACT CONTROLLER
-indexApp.controller('ContractController', function ($scope, $log, SharedData, CartService) {
-    
+indexApp.controller('ContractController', function ($scope, $log, CartService, ContractService) {
+    $scope.submitContract = function () {
+        var contract = $scope.contract;
+        var cart = CartService.getCart();
+        if (cart.uuid && cart.products && cart.products.length > 0 && contract.name && contract.email && contract.telephone) {
+            var products = [];
+            cart.products.forEach(function (el) {
+                products.push({prodId : el.id, quantInCart: el.quantInCart});
+            });
+            contract.cookie = cart.uuid;
+            ContractService.submitContract({ products: products, cart: contract });
+        }
+    };
 });
 
 //CONTRACT SERVICE
-indexApp.factory('ContractService', function ($http) {
-    
+indexApp.factory('ContractService', function ($http, $q) {
+   
+   var URL_SUBMIT_CONTRACT = '/submitContract';
+   
+    return {
+      submitContract(contract) {
+          if (contract.cart && contract.cart.cookie && contract.products && contract.products.length > 0) {
+              return $http({url : URL_SUBMIT_CONTRACT, method : 'POST',  data : contract})
+                      .then(null, function (ex) {
+                          return $q.reject(ex.data.response);
+                      });
+          } else {
+              return $q.reject('ContractService submitContract args === undefined');
+          }
+      }
+   };
 });
 
 //INDEX INIT CONTROLLER
-indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $location, CategoryService, CartService) {
+indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $location, CategoryService, CartService, ProductService) {
     if (CartService.checkCookies()) {
         _refreshView();
     }
@@ -54,7 +79,7 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
             $log.warn('indexInitController getProductsByCategory: argument catId === '.concat(catId));
             return;
        }
-       $location.path('/products/' + catId + '/' + 1);        
+       $location.path('/products/' + catId + '/' + 1);
     };
     
     $scope.cartProdUp = function () {
@@ -70,7 +95,6 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
         CartService.setCookies();
         _refreshView();
     };
-    
         
     $scope.showMainProduct = function (prodId) {
         if (prodId) {
@@ -84,7 +108,8 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
         }
     };
     
-    _refreshView();
+      //не удалять поведение не определено
+     //_refreshView();
     
     function _refreshView () {
         CartService.computeCartSizePrice();
@@ -95,23 +120,25 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
     };
     
     function _addProdToCart (prodId, prodName, prodPrice, productUrl, productExist) {
+//        CartService.deleteCookie();
         if (!CartService.checkCookies()) {
             CartService.initCart();
         }
         
-        $timeout(function () {
-            CartService.setProduct(prodId, prodName, prodPrice, productUrl, productExist);
-            CartService.setCookies();
-            if (CartService.getCart().uuid === undefined) {
-                CartService.deleteCart();
-                $log.error('TimeException: 500 млс не достаточно для полной инициализации UUID');
-                return;
-            }
+        ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "ADD")
+                .then(function () {
+                    CartService.setProduct(prodId, prodName, prodPrice, productUrl, productExist);
+                    CartService.setCookies();
+                    if (!CartService.getCart().uuid) {
+                        CartService.deleteCart();
+                        return;
+                    }
 
-            CartService.computeCartSizePrice();
-            _refreshView();
-            
-        }, 500);
+                    CartService.computeCartSizePrice();
+                    _refreshView();
+                }, function (ex) {
+                    $log.error(ex);
+                });
     };
     
     $scope.$on('changeCartData', function () {
@@ -119,13 +146,15 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
     });
     
     $scope.$on('addProdToCart', function (e, data) {
-        _addProdToCart(data.prodId, data.name, data.price, data.imgUrl, data.isExist);
+        if (data.prodId && data.name && data.price !== undefined, data.imgUrl && data.isExist !== undefined) {
+            _addProdToCart(data.prodId, data.name, data.price, data.imgUrl, data.isExist);
+        }
     });
     
 });
 
 //CART CONTROLLER
-indexApp.controller('CartController', function ($scope, CartService) {
+indexApp.controller('CartController', function ($scope, $location, CartService) {
     
     $scope.incProductQuant = function (prodId) {
         CartService.getCart().products.forEach(function (el) {
@@ -136,6 +165,11 @@ indexApp.controller('CartController', function ($scope, CartService) {
                 return;
             }
         });
+    };
+    
+    $scope.showBigProductWithoutLink = function (prodId) {
+        $scope.mainProdRet = null;
+        $location.path('/product/' + prodId);
     };
     
     $scope.decProductQuant = function (prodId) {
@@ -224,6 +258,7 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
             });
         }
     };
+    
     
     $scope.showBigProduct = function (prodId) {
         CartService.setRedirectInfo($routeParams.catId, $routeParams.pageId);
@@ -485,9 +520,20 @@ indexApp.factory('ProductService', function ($q, $http) {
     var URL_LAST_ALL_ADDED = '/selectLastAddedInAllCategories';
     var URL_ADD_NEW_COMMENT = '/addComment/';
     var URL_GET_COMMENTS = '/getAllComments/';
+    var URL_ADD_PRODUCT_TO_CART = '/updateProductInCart';
     var LIMIT = 20;
     
     return {
+        updateProductInCart(uuid, prodId, type) {
+           if (uuid && prodId && type) {
+               return $http({url: URL_ADD_PRODUCT_TO_CART, method: 'POST', data : { uuid: uuid, prodId: prodId, type: type}})
+                       .then(null, function (ex) {
+                            return $q.reject(ex.data.response);
+                        });
+           } else {
+               return $q.reject('ProductService addProduct args === undefined');
+           }
+        },
         getComments(prodId) {
             if (prodId) {
                 return $http({url: URL_GET_COMMENTS + prodId, method : 'POST'})
@@ -684,6 +730,7 @@ indexApp.factory('CartService', function ($cookieStore, $http) {
         },
         deleteCookie() {
             $cookieStore.remove(COOKIES_CART_KEY);
+            CART = new CartCookies();
         },
         setCookies : function() {
             $cookieStore.put(COOKIES_CART_KEY, CART, new Date(now.getFullYear(), now.getMonth() + 6, now.getDate()));

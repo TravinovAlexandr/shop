@@ -9,8 +9,8 @@ import java.util.List;
 //CREATE TABLE cart(id BIGSERIAL PRIMARY KEY, description VARCHAR(300) NOT NULL, 
 //startday TIMASTAMP NOT NULL, endday TIMESTAMP, stts status NOT NULL, client_id BIGINT REFERENCES client(id) ON DELETE RESTRICT ON UPDATE CASCADE);
 
-//CREATE TABLE cart_product(cart_id BIGINT REFERENCES cart (id) ON DELETE CASCADE ON UPDATE CASCADE, 
-//product_id BIGINT REFERENCESproduct (id) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(cart_id, product_id));
+//CREATE TABLE cart_products(cart_id BIGINT REFERENCES cart (id) ON DELETE CASCADE ON UPDATE CASCADE, 
+//product_id BIGINT REFERENCES product (id) ON DELETE CASCADE ON UPDATE CASCADE);
 public class Cart implements Serializable {
 
     public enum OrderStatus {
@@ -19,53 +19,113 @@ public class Cart implements Serializable {
     
     public Long id;
     public String desc;
+    public String name;
+    public String email;
+    public String address;
+    public String telephone;
+    public String clientWish;
+    public String cookie;
     public Date startDay;
     public Date endDay;
     public OrderStatus status;
-    //O-M
-    public Client client;
     //M-M
     public List<Product> products;
 
     public Cart() {}
-    
-    public Cart(Long id) {
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Cart addId(Long id) {
-        this.id = id;
-        return this;
+    public String getDesc() {
+        return desc;
     }
 
-    public Cart addDesc(String desc) {
+    public void setDesc(String desc) {
         this.desc = desc;
-        return this;
     }
 
-    public Cart addStartDay(Date startDay) {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getClientWish() {
+        return clientWish;
+    }
+
+    public void setClientWish(String clientWish) {
+        this.clientWish = clientWish;
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
+    }
+
+    public Date getStartDay() {
+        return startDay;
+    }
+
+    public void setStartDay(Date startDay) {
         this.startDay = startDay;
-        return this;
     }
 
-    public Cart addEndDay(Date endDay) {
+    public Date getEndDay() {
+        return endDay;
+    }
+
+    public void setEndDay(Date endDay) {
         this.endDay = endDay;
-        return this;
     }
 
-    public Cart addStatus(OrderStatus status) {
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
         this.status = status;
-        return this;
     }
 
-    public Cart addClient(Client client) {
-        this.client = client;
-        return this;
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public Cart addProducts(List<Product> products) {
+    public void setProducts(List<Product> products) {
         this.products = products;
-        return this;
     }
-
 }

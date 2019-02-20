@@ -7,12 +7,14 @@
     <div class="cartProductsWrapper">        
 
         <div class='bigProduct' ng-repeat="cartProd in cartProds">
-
+           
+            <div class="linkToMainPr" ng-click="showBigProductWithoutLink( cartProd.id )">
+               
             <span class="anchor{{cartProd.id}}"></span>
             <div class='bigProdElImg'>
                 <img ng-src="/img/car.jpg" alt=""/>
             </div>
-            <div class="bigProdContent px17">
+            <div class="bigProdContent px17" >
                 <div class="bigProdName">
                     <div>
                     <p class="greenFont">Название:</p>
@@ -39,6 +41,7 @@
                     <p >{{cartProd.mark | defaultVal:'0'}}</p>
                 </div>
             </div>
+           </div>
             <div class="bigProdOperations px17" >
                 <div class="operationEl">
                     <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="likeBigProd( mainProd.id )"/>

@@ -1,10 +1,11 @@
 package alex.home.angular.utils;
 
+import alex.home.angular.dto.SubmitContract;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class PGUtil {
+public class SqlUtil {
     
     @Nullable
     private static final <T extends Number> String getArray(List<T> lst, String castType, boolean isNum) {
@@ -52,6 +53,26 @@ public class PGUtil {
     @Nullable
     public static final String getBigintArray(List<Long> arg) {
           return getArray(arg, "]::BIGINT[]", true);
+    }
+    
+    
+    public  static String getMultyInsertValues(List<SubmitContract.ProductInCart> lpc, Long cartId) {
+        if (lpc == null || cartId == null || lpc.isEmpty()) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        int size = lpc.size();
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < lpc.get(i).quantInCart; j++) {
+                sb.append("(").append(cartId).append(",").append(lpc.get(i).prodId).append(")");
+                if (i != size - 1) {
+                    sb.append(",");
+                }
+            }
+        }
+        return sb.toString();
     }
     
 }

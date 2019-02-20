@@ -1,7 +1,6 @@
 package alex.home.angular.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 //CREATE TABLE client(id BIGSERIAL PRIMARY KEY, age SMALLINT, name VARCHAR(100), email VARCHAR(255), 
@@ -9,88 +8,79 @@ import java.util.List;
 public class Client implements Serializable {
     
     public Long id;
-    public Byte age;
+    public String wish;
     public String name;
     public String email;
-    public String mobilePhone;
-    public String homePhone;
-    public String infoCompany;
+    public String telephone;
     public String address;
-    public String cookie;
-    public Date lastData;
+
     //M-O
     public List<Cart> orders;
     
     public Client() {}
     
-        public Client(Long id, Byte age, String name, String email, String mobilePhone, 
-            String homePhone, String infoCompany, String address, String cookie, Date lastData) {
+    public Client(Long id, String name, String email, String telephone, String address, String wish) {
         this.id = id;
-        this.age = age;
         this.name = name;
         this.email = email;
-        this.mobilePhone = mobilePhone;
-        this.homePhone = homePhone;
-        this.infoCompany = infoCompany;
+        this.telephone = telephone;
+        this.wish = wish;
         this.address = address;
-        this.cookie = cookie;
-        this.lastData = lastData;
     }
 
-    public Client addId(Long id) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
-        return this;
     }
 
-    public Client addAge(Byte age) {
-        this.age = age;
-        return this;
+    public String getWish() {
+        return wish;
     }
 
-    public Client addName(String name) {
+    public void setWish(String wish) {
+        this.wish = wish;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
-        return this;
     }
 
-    public Client addEmail(String email) {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
         this.email = email;
-        return this;
     }
 
-    public Client addMobilePhone(String mobilePhone) {
-        this.mobilePhone = mobilePhone;
-        return this;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public Client addHomePhone(String homePhone) {
-        this.homePhone = homePhone;
-        return this;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
-    public Client addInfoCompany(String infoCompany) {
-        this.infoCompany = infoCompany;
-        return this;
+    public String getAddress() {
+        return address;
     }
 
-    public Client addAddress(String address) {
+    public void setAddress(String address) {
         this.address = address;
-        return this;
     }
 
-    public Client addCookie(String cookie) {
-        this.cookie = cookie;
-        return this;
+    public List<Cart> getOrders() {
+        return orders;
     }
 
-    public Client addLastData(Date lastData) {
-        this.lastData = lastData;
-        return this;
-    }
-
-    public Client addOrders(List<Cart> orders) {
+    public void setOrders(List<Cart> orders) {
         this.orders = orders;
-        return this;
     }
-    
-
 }

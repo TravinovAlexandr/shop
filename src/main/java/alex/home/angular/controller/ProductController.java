@@ -15,6 +15,7 @@ import alex.home.angular.dto.ProductField;
 import alex.home.angular.dto.ResponseRsWrapper;
 import alex.home.angular.dto.SearchElementsCtegories;
 import alex.home.angular.dto.SearchQuery;
+import alex.home.angular.dto.SubmitContract;
 import alex.home.angular.dto.UpdateProd;
 import alex.home.angular.exception.AdminException;
 import alex.home.angular.sql.PGMeta;
@@ -53,7 +54,7 @@ import java.util.concurrent.FutureTask;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import alex.home.angular.transaction.TransactionFacade;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
   
 @RestController
 public class ProductController {
@@ -69,6 +70,48 @@ public class ProductController {
     private final PropCache propCache = new PropCache();
     private final CategoryCache categoryCache = new CategoryCache();
     private volatile int productCacheVal = -1;
+    
+    @PostMapping("/updateProductInCart")
+    public ResponseRsWrapper updateProductInCart(@RequestParam("prodId") Long prodId, @RequestParam("uuid") String uuid, @RequestParam("type") String type, ResponseRsWrapper rrw) {
+        if (prodId == null || uuid == null || type == null) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
+        }
+        
+        try {
+            switch (type) {
+                case "ADD" : break;
+                case "DEL" : break;
+                case "INC" : break;
+                case "DEC" : break;
+                default: return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException")
+                        .addMessage("Algorithm id incorrect.").get()).addHttpErrorStatus(hsr,400);
+            }
+            
+            return null;
+        } catch (AdminException ex) {
+            ex.printStackTrace();
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+        }
+    }
+    
+    @PostMapping("/submitContract")
+    public ResponseRsWrapper submitContract(@RequestBody SubmitContract sc, ResponseRsWrapper rrw) {
+        if (sc == null || sc.cart == null || sc.cart.cookie == null || sc.products == null || sc.products.isEmpty()) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
+        }
+        
+        try {
+            List<Product> prods = transactionFacade.checkCartProducts(sc);
+            if (prods == null) {
+                transactionFacade.submitContract(sc);
+                return null;
+            }
+            
+            return rrw.addResponse(prods);
+        } catch (AdminException ex) {
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
+        }
+    }
     
     @PostMapping("/admin/updateRecommend/{prodId}")
     public ResponseRsWrapper addToRecommend(@PathVariable Long prodId, ResponseRsWrapper rrw) {

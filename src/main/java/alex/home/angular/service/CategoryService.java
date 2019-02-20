@@ -6,7 +6,7 @@ import alex.home.angular.domain.Category;
 import alex.home.angular.dto.ProductCategoriesUpdate;
 import alex.home.angular.exception.AdminException;
 import alex.home.angular.sql.PGMeta;
-import alex.home.angular.utils.PGUtil;
+import alex.home.angular.utils.SqlUtil;
 import java.sql.ResultSet;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -53,8 +53,8 @@ public class CategoryService implements CategoryDao {
             StringBuilder query = new StringBuilder();
             
             query.append("SELECT UPDATE_PRODUCT_CATEGORIES(").append(pcu.productId).append(",")
-                        .append(PGUtil.getBigintArray(pcu.oldCategoriesId)).append(",")
-                        .append(PGUtil.getBigintArray(pcu.newCategoriesId))
+                        .append(SqlUtil.getBigintArray(pcu.oldCategoriesId)).append(",")
+                        .append(SqlUtil.getBigintArray(pcu.newCategoriesId))
                         .append(")");
             
             jdbcTemplate.execute(query.toString());

@@ -12,9 +12,9 @@ public interface ProductDao {
 
     Product selectProductCategoriesComments(Long id);
     
-    List<Product> selectProductsWhereCtegoryId(String query);
+//    List<Product> selectProductsWhereCtegoryId(String query);
     
-    List<Product> selectLastAdded(String query);
+//    List<Product> selectLastAdded(String query);
     
     List<Product> selectRecommended(Integer limit);
     
@@ -22,11 +22,15 @@ public interface ProductDao {
     
     List<Product> searchFormSelection(String query);
     
+    List<Product> singleStrArgListProdRet(String query);
+    
     Integer getProductCount(String query);
     
-    boolean incrementProductMark(Long id);
+    Boolean incrementProductMark(Long id);
     
-    boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId);
+    Boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId);
+    
+    Boolean isAllProductsExist(List<Long> prodIds);
     
     <T, E> void updateSingleField(T cond, E val, String query, String exName, String exMessage);
     

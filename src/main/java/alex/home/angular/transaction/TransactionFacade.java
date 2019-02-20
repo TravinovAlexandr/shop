@@ -1,9 +1,9 @@
 package alex.home.angular.transaction;
 
-import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Product;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ProductsCount;
+import alex.home.angular.dto.SubmitContract;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +23,8 @@ public interface TransactionFacade {
     List<Product> selectLastAddedInAllCategories(Integer limit);
     
     List<Product> selectRecommend(Integer limit);
+    
+    List<Product> checkCartProducts(SubmitContract sc);
     
     Integer getProductCount(String query);
     
@@ -45,5 +47,14 @@ public interface TransactionFacade {
     void deleteProduct(Long id);
     
     void updateRecommend(Long prodId);
-        
+    
+    void submitContract(SubmitContract sc);
+    
+    void addProductInCart(Long cartId, Long prodId);
+
+    void deleteProductFromCart(Long cartId, Long prodId);
+
+    void decProductInCart(Long cartId, Long prodId);
+
+    void incProductInCart(Long cartId, Long prodId);
 }
