@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import alex.home.angular.annotation.*;
 import alex.home.angular.utils.SqlUtil;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,7 @@ public class ProductService implements ProductDao {
     
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Boolean incrementProductMark(@NotNull Long id) {
+    public Boolean incrementProductMark(Integer id) {
         if (id == null) {
             return false;
         }
@@ -42,13 +41,13 @@ public class ProductService implements ProductDao {
     
     @Override @NotNull
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public Product selectProduct(@NotNull Long id) {
+    public Product selectProduct(Integer id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM product WHERE id = " + id, (ResultSet rs, int i) -> new Product(rs.getLong("id"),rs.getInt("buyStat"), rs.getInt("quant"), 
+            return jdbcTemplate.queryForObject("SELECT * FROM product WHERE id = " + id, (ResultSet rs, int i) -> new Product(rs.getInt("id"),rs.getInt("buyStat"), rs.getInt("quant"), 
                     rs.getInt("mark"), rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"), rs.getDate("start"), rs.getDate("last")));
         } catch (DataAccessException ex) {
             ex.printStackTrace();
@@ -56,9 +55,11 @@ public class ProductService implements ProductDao {
         }
     }
     
-    @Override @Nullable
+    //REWRITE WITH DISTINCT
+    
+    @Override
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public Product selectProductCategoriesComments(@Nullable Long id) {
+    public Product selectProductCategoriesComments(Integer id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
@@ -67,7 +68,7 @@ public class ProductService implements ProductDao {
             List<Category> categories = new ArrayList<>();
             List<Comment> comments = new ArrayList<>();
             Product product = new Product();
-            String query = "SELECT p.*, i.url, c.id AS cat_id, c.name AS cat_name, "
+            String query = "SELECT p.*, i.url, c.id AS cat_id, c.pid as cat_pid, c.name AS cat_name, "
                     + "cm.id  AS cm_id, cm.nick AS cm_nick, cm.date AS cm_date, cm.body AS cm_body  FROM product p "
                     + "LEFT JOIN img i ON  p.img_id = i.id "
                     + "LEFT JOIN category_products cp ON p.id = cp.product_id "
@@ -76,7 +77,7 @@ public class ProductService implements ProductDao {
             
             jdbcTemplate.query(query, (ResultSet rs, int i) -> {    
                 if (i == 0) {
-                    product.id = rs.getLong("id"); 
+                    product.id = rs.getInt("id"); 
                     product.buyStat = rs.getInt("buyStat");
                     product.quantity = rs.getInt("quant");
                     product.mark = rs.getInt("mark");
@@ -88,15 +89,15 @@ public class ProductService implements ProductDao {
                     product.startDate = rs.getDate("start"); 
                     product.lastBuyDate = rs.getDate("last");
                     product.imgUrl =  rs.getString("url");
-                    product.imgId = rs.getLong("img_id");
+                    product.imgId = rs.getInt("img_id");
                 }
                 
-                Category category =  new Category(rs.getLong("cat_id"), rs.getString("cat_name"));
+                Category category =  new Category(rs.getInt("cat_id"), rs.getInt("cat_pid"), rs.getString("cat_name"));
                 if (!categories.contains(category)) {
                     categories.add(category);
                 }
                 
-                Comment comment = new Comment(rs.getLong("cm_id"), rs.getString("cm_body"), rs.getString("cm_nick"), rs.getDate("cm_date"));
+                Comment comment = new Comment(rs.getInt("cm_id"), rs.getString("cm_body"), rs.getString("cm_nick"), rs.getDate("cm_date"));
                 if (!comments.contains(comment)) {
                     comments.add(comment);
                 }
@@ -160,14 +161,14 @@ public class ProductService implements ProductDao {
 //    }
     
     @Override @NotNull
-    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public List<Product> selectRecommended(@NotNull Integer limit) {
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public List<Product> selectRecommended(Integer limit) {
         if (limit == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
         
         try {
-            return jdbcTemplate.query("SELECT p.*, i.url FROM product WHERE recommend = 't' LIMIT " + limit, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), 
+            return jdbcTemplate.query("SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id WHERE  p.recommend = 'T' LIMIT " + limit, (ResultSet rs, int i) -> new Product(rs.getInt("id"), rs.getInt("buyStat"), 
                     rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"), 
                     rs.getDate("start"), rs.getDate("last"), rs.getString("url")));
         } catch (DataAccessException ex) {
@@ -178,13 +179,13 @@ public class ProductService implements ProductDao {
     
     @Override @NotNull
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public List<Product> searchFormSelection(@NotNull String query) {
+    public List<Product> searchFormSelection(String query) {
         if (query == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
-            return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), 
+            return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getInt("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"),rs.getFloat("price"), 
                     rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"),rs.getDate("start"), rs.getDate("last")));
         } catch (DataAccessException | IllegalArgumentException ex) {
             ex.printStackTrace();
@@ -193,14 +194,23 @@ public class ProductService implements ProductDao {
     }
     
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<Product> singleStrArgListProdRet(String query) {
         if (query == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
-
+        
         try {
-        return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getLong("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
-                rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"), rs.getDate("start"),rs.getDate("last"), rs.getString("url")));
+            return jdbcTemplate.query(query, (ResultSet rs, int i) -> {
+                Product pr = new Product();
+                pr.id = rs.getInt("id");
+                        pr.name = rs.getString("name");
+                                pr.description = rs.getString("description");
+                                        pr.price = rs.getFloat("price");
+                return pr;
+            });
+//        return jdbcTemplate.query(query, (ResultSet rs, int i) -> new Product(rs.getInt("id"), rs.getInt("buyStat"), rs.getInt("quant"), rs.getInt("mark"), 
+//                rs.getFloat("price"), rs.getString("name"), rs.getString("description"), rs.getBoolean("exist"), rs.getBoolean("recommend"), rs.getDate("start"),rs.getDate("last"), rs.getString("url")));
         } catch (DataAccessException ex) {
                 ex.printStackTrace();
                 throw ex;
@@ -237,9 +247,9 @@ public class ProductService implements ProductDao {
     $$ LANGUAGE plpgsql VOLATILE;
     */
     
-    @Override @NullableArgs
+    @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId) {
+    public Boolean updateProductCategories(Integer id, Integer oldCategoryId, Integer newCategoryId) {
         if (id == null || oldCategoryId == null || newCategoryId == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
@@ -253,7 +263,7 @@ public class ProductService implements ProductDao {
     
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Boolean isAllProductsExist(List<Long> prodIds) {
+    public Boolean isAllProductsExist(List<Integer> prodIds) {
         if (prodIds == null || prodIds.isEmpty()) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
@@ -315,7 +325,7 @@ public class ProductService implements ProductDao {
         }
         
         try {
-            jdbcTemplate.query("SELECT INSERT_PRODUCT(?, ?, ?, " + SqlUtil.getBigintArray(dto.categoryIds) +" , ?, ?);", 
+            jdbcTemplate.query("SELECT INSERT_PRODUCT(?, ?, ?, " + SqlUtil.getIntArray(dto.categoryIds) +" , ?, ?);", 
                     new Object[]{dto.name, dto.description, dto.url, dto.price, dto.quantity}, (rs) -> {});
         } catch (DataAccessException ex) {
             ex.printStackTrace();
@@ -325,7 +335,7 @@ public class ProductService implements ProductDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public void deleteProduct(@NotNull Long id) {
+    public void deleteProduct(Integer id) {
         if (id == null) {
              throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
@@ -351,7 +361,6 @@ public class ProductService implements ProductDao {
         }
     }
 
-    
     @Autowired
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

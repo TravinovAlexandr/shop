@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="202d611c-e399-458e-8fa0-adb44d583297">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select * from product p join cart_orders co on p.id = co.product_id join cart c on c.id = co.cart_id]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="price" class="java.lang.Float"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="136" splitType="Stretch">
+			<staticText>
+				<reportElement x="6" y="45" width="100" height="20" uuid="0ed2cf7a-6449-4813-ab69-bed55dcb601e"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12"/>
+				</textElement>
+				<text><![CDATA[Здравствуйте]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="6" y="71" width="100" height="20" uuid="5b818555-292e-4052-a46d-7184cc571f15"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12"/>
+				</textElement>
+				<text><![CDATA[Заказ оформлен:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="6" y="97" width="208" height="39" uuid="6691a031-2549-4065-b363-d389fc8b80d5"/>
+				<textElement>
+					<font fontName="Serif" size="12"/>
+				</textElement>
+				<text><![CDATA[В случае необходимости звоните по телефону: 1234567890]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="5" y="4" width="183" height="28" uuid="dc0a0884-6fca-42fb-ba6a-cb192c2c8a48"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="14"/>
+				</textElement>
+				<text><![CDATA[ALEX_SHOP.RU  No: Заказа: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="191" y="11" width="100" height="20" uuid="91b9093b-37dd-48de-965d-a28ab967af9c"/>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="426" y="62" width="100" height="20" uuid="b90ccedd-6aa4-4dfb-b834-6c0eb2a3e6ac"/>
+				<text><![CDATA[asdqw]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="282" y="100" width="100" height="20" uuid="9873fd91-8697-436e-8c52-d63ce7841d02"/>
+				<text><![CDATA[ывйцкйцк]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="28" splitType="Stretch">
+			<staticText>
+				<reportElement x="6" y="7" width="100" height="20" uuid="aaedcaf9-8bcb-4118-9d02-422576dbf86c"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ваши товары:]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="370" y="5" width="169" height="20" uuid="170391cb-6f85-4979-aa29-828ff4d23032"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Цена:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="149" y="5" width="208" height="20" uuid="d656c56b-4ff6-4203-a0d8-689312da97fd"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Описание:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="6" y="5" width="130" height="20" uuid="29edc1c4-6d65-4d48-ae3b-d951a26be9ac"/>
+				<textElement>
+					<font fontName="Ubuntu" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Название:]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="26" splitType="Stretch">
+			<textField>
+				<reportElement x="370" y="6" width="100" height="20" uuid="39f2fc12-055d-419d-ad08-8226b7daa8e5"/>
+				<textFieldExpression><![CDATA[$F{price}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="6" y="6" width="100" height="20" uuid="68b51d6c-42a3-434d-8578-4ae3519d86d2"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="149" y="6" width="208" height="20" uuid="891a220c-ce8f-4742-ac71-2975afb36b91"/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -31,7 +31,7 @@
                         <p class="blueFont" ng-if="mainProd.isExist">В наличии</p>
                         <p class="blueFont" ng-if="!mainProd.isExist">Нет в наличии</p>
                     </div>
-                    <div class="mainProdEl px18 chest" ng-if="mainProd.isExist" ng-click="addToCart( mainProd.id, mainProd.name, mainProd.price, mainProd.imgUrl, mainProd.isExist )">
+                    <div class="mainProdEl px18 chest" ng-if="mainProd.isExist" ng-click="addToCart( mainProd.id, mainProd.name, mainProd.price, mainProd.imgUrl, mainProd.isExist, mainProd.mark )">
                         <p class="breakWord">Добавить в корзину</p>
                         <img  ng-src="/img/treasure_chest_PNG80.png" alt="" />
                     </div>

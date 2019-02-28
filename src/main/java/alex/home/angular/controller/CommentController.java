@@ -36,7 +36,7 @@ public class CommentController {
     
     @PostMapping("/admin/deleteComment/{id}")
     @ResponseBody
-    public ResponseRsWrapper deleteComment(@PathVariable Long id, ResponseRsWrapper rrw) {
+    public ResponseRsWrapper deleteComment(@PathVariable Integer id, ResponseRsWrapper rrw) {
         if (id == null) {
             return rrw.addHttpErrorStatus(hsr, 400).addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("Check args names"));
         }
@@ -51,7 +51,7 @@ public class CommentController {
     }
     
     @PostMapping(value = { "/admin/getAllProductComments/{prodId}", "/getAllComments/{prodId}"})
-    @ResponseBody public ResponseRsWrapper getAllProductComments(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getAllProductComments(@PathVariable Integer prodId, ResponseRsWrapper rrw) {
         if (prodId == null) {
             return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }

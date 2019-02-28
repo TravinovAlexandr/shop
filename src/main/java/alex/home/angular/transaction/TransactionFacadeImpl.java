@@ -1,15 +1,13 @@
 package alex.home.angular.transaction;
 
 import alex.home.angular.dao.CartDao;
-import alex.home.angular.dao.CategoryDao;
-import alex.home.angular.dao.CommentDao;
 import alex.home.angular.dao.ProductDao;
-import alex.home.angular.domain.Comment;
+import alex.home.angular.dao.ReportDao;
 import alex.home.angular.domain.Product;
+import alex.home.angular.dto.ClientInfoProductsSum;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ProductsCount;
 import alex.home.angular.dto.SubmitContract;
-import alex.home.angular.dto.SubmitContract.ProductInCart;
 import alex.home.angular.exception.AdminException;
 import alex.home.angular.sql.PGMeta;
 import alex.home.angular.utils.SqlUtil;
@@ -17,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,53 +25,48 @@ public class TransactionFacadeImpl implements TransactionFacade {
     
     private ProductDao productDao;
     private CartDao cartDao;
+    private ReportDao reportDao;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public Product selectProduct(Long id) {
+    public Product selectProduct(Integer id) {
          return productDao.selectProduct(id);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public Product selectProductCategoriesComments(Long id) {
+    public Product selectProductCategoriesComments(Integer id) {
         return productDao.selectProductCategoriesComments(id);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public ProductsCount selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset) {
+    public ProductsCount selectProductsWhereCtegoryId(Integer categoryId, Integer limit, Integer offset) {
         if (categoryId == null || limit == null || offset == null) {
             return null;
         }
         
-        List<Product> products = productDao.singleStrArgListProdRet("SELECT p.*, i.url FROM  product p JOIN img i ON p.img_id =  i.id "
+        List<Product> products = productDao.singleStrArgListProdRet("SELECT p.*, i.url FROM  product p LEFT JOIN img i ON p.img_id =  i.id "
                 + "JOIN category_products cp ON cp.product_id = p.id WHERE cp.category_id = "+ categoryId +" LIMIT " + limit+" OFFSET " + offset);
         if (products == null) {
             return null;
         }
         
-        Integer count = productDao.getProductCount("SELECT COUNT(p.id) FROM  product p JOIN img i ON p.img_id =  i.id "
+        Integer count = productDao.getProductCount("SELECT COUNT(p.id) FROM  product p LEFT JOIN img i ON p.img_id =  i.id "
                 + "JOIN category_products cp ON cp.product_id = p.id WHERE cp.category_id = " + categoryId);
         return new ProductsCount(products, count);
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
-    public List<Product> selectLastAddedInCategory(Long catId, Integer limit) {
+    public List<Product> selectLastAddedInCategory(Integer catId, Integer limit) {
         if (catId == null || limit == null) {
             return null;
         }
         
-        List<Long> ids = selectRandom(productDao.selectIds("SELECT p.id FROM product p JOIN category_products cp ON cp.product_id = p.id AND cp.category_id = " 
-                + catId + " ORDER BY id DESC LIMIT 100"), limit);
-        if (ids == null) {
-            return null;
-        }
-        
-        String query = "SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id JOIN category_products cp ON cp.product_id = p.id AND cp.category_id = " + catId 
-                +" WHERE p.id IN (" + SqlUtil.getINNumSequence(ids) + " ) ORDER BY RANDOM() LIMIT " + limit;
-        return productDao.singleStrArgListProdRet(query);
+        return productDao.singleStrArgListProdRet("SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id JOIN category_products cp ON cp.product_id = p.id "
+                + "AND cp.category_id = " + catId +" WHERE p.id IN (SELECT p.id FROM product p JOIN category_products cp ON cp.product_id = p.id AND cp.category_id = " 
+                + catId + "ORDER BY id DESC LIMIT 50 ) ORDER BY RANDOM() LIMIT " + limit);
     }
 
     @Override
@@ -83,14 +75,9 @@ public class TransactionFacadeImpl implements TransactionFacade {
         if (limit == null) {
             return null;
         }
-        
-        List<Long> ids = selectRandom(productDao.selectIds("SELECT id FROM product ORDER BY id DESC LIMIT 100"), limit);
-        if (ids == null) {
-            return null;
-        }
-        
-        String query = "SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id WHERE p.id IN (" +  SqlUtil.getINNumSequence(ids) + ") ORDER BY RANDOM() LIMIT " + limit;
-        return productDao.singleStrArgListProdRet(query);
+
+        return productDao.singleStrArgListProdRet("SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id WHERE p.id IN ("
+                + "SELECT id FROM product ORDER BY id DESC LIMIT 50 ) ORDER BY RANDOM() LIMIT " + limit);
     }
     
     @Override
@@ -103,21 +90,18 @@ public class TransactionFacadeImpl implements TransactionFacade {
         return productDao.selectRecommended(limit);
     }
     
-    
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public List<Product> checkCartProducts(SubmitContract sc) {
         if (sc == null || sc.products == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation args error.");
         }
         
-        List<Long> prodIds = new ArrayList<>();
+        List<Integer> prodIds = new ArrayList<>();
         sc.products.forEach(el -> prodIds.add(el.prodId));
         String inValues = SqlUtil.getINNumSequence(prodIds);
-        
-        //explain (analyze)with a as (select * from product where id in (30,31,34)) select * from a where not exists (select 'f' in (select exist from a));
-        String query = "SELECT * FROM product WHERE id IN (" + inValues + ") AND EXISTS (SELECT 'F' = (SELECT exist FROM product WHERE id IN (" + inValues + ")))";
-        return productDao.singleStrArgListProdRet(query);
+        return productDao.singleStrArgListProdRet("SELECT p.*, i.url FROM product p LEFT JOIN img i ON p.img_id = i.id  WHERE p.id IN (" + inValues + ") "
+                + "AND 'F' =  ANY (SELECT exist FROM product WHERE id IN (" + inValues + "))");
     }
     
     @Override
@@ -143,16 +127,22 @@ public class TransactionFacadeImpl implements TransactionFacade {
     public Integer getProductCount(String query) {
         return productDao.getProductCount(query);
     }
+    
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public Boolean isConfirmed(Integer cartId) {
+     return cartDao.singleStrArgBoolRetIsUpdated("UPDATE cart SET stts = CAST('stop' AS status) WHERE id = " + cartId);
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public boolean incrementProductMark(Long id) {
+    public boolean incrementProductMark(Integer id) {
         return productDao.incrementProductMark(id);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId) {
+    public boolean updateProductCategories(Integer id, Integer oldCategoryId, Integer newCategoryId) {
         return productDao.updateProductCategories(id, oldCategoryId, newCategoryId);
     }
 
@@ -164,100 +154,99 @@ public class TransactionFacadeImpl implements TransactionFacade {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void deleteProduct(Long id) {
+    public void deleteProduct(Integer id) {
         productDao.deleteProduct(id);
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void updateProductName(Long id, String name) {
+    public void updateProductName(Integer id, String name) {
         productDao.updateSingleField(id, name, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET name = ? WHERE id = ?","IllegalArgumentException", "Controller validation args error.");
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void updateProductDesc(Long id, String desc) {
+    public void updateProductDesc(Integer id, String desc) {
         productDao.updateSingleField(id, desc, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET description = ? WHERE id = ?", "IllegalArgumentException", "Controller validation args error.");
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void updateProductPrice(Long id, Float price) {
+    public void updateProductPrice(Integer id, Float price) {
         productDao.updateSingleField(id, price, "UPDATE "  + PGMeta.PRODUCT_TABLE +  " SET price = ? WHERE id = ?" , "IllegalArgumentException", "Controller validation args error.");
     }
     
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void updateProductQuant(Long id, Integer quant) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public void updateProductQuant(Integer id, Integer quant) {
         productDao.updateSingleField(id, quant, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET quant = ? WHERE id = ?" , "IllegalArgumentException", "Controller validation args error.");
     }
     
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public void updateProductMark(Long id, Integer mark) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public void updateProductMark(Integer id, Integer mark) {
         productDao.updateSingleField(id, mark, "UPDATE " + PGMeta.PRODUCT_TABLE +" SET mark = ? WHERE id = ?"  , "IllegalArgumentException", "Controller validation args error.");
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
-    public void updateRecommend(Long prodId) {
-        productDao.updateRecommend("UPDATE product SET recommend = NOT(SELECT recommend AS rec FROM product WHERE id = "+ prodId +")  WHERE id = " + prodId);
-    }
-    
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
-    public void submitContract(SubmitContract sc) {
-        if (sc == null || sc.cart == null || sc.cart.cookie == null || sc.products == null || sc.products.isEmpty()) {
-            return;
-        }
-        
-        Long id = cartDao.updateCartGetId(sc.cart);
-        if (id == -1) {
-            return;
-        }
-        
-        cartDao.cartProductsMultyInsertion("INSERT INTO cart_orders VALUES " + SqlUtil.getMultyInsertValues(sc.products, id));
+    public void updateRecommend(Integer prodId) {
+        productDao.updateRecommend("UPDATE product SET recommend = NOT recommend WHERE id = " + prodId);
     }
     
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public void addProductInCart(Long cartId, Long prodId) {
-        if (prodId == null || uuid == null) {
+    public List<ClientInfoProductsSum> submitContract(SubmitContract sc) {
+        if (sc == null || sc.cart == null || sc.cart.id == null || sc.products == null || sc.products.isEmpty()) {
+            return null;
+        }
+          
+        List<ClientInfoProductsSum> prods = reportDao.selectConfirmationReport(sc.cart.id);
+        
+        if (prods == null || prods.isEmpty()) {
+            return null;
+        }
+        
+        new Thread(() -> cartDao.updateCart(sc.cart));
+       
+        return prods;
+    }
+    
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public void addProductInCart(Integer cartId, Integer prodId) {
+        if (cartId == null || prodId == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
         
-        cartDao.singleStrArgVoidRet("INSERT INTO cart_orders VALUES((SELECT id FROM cart WHERE cookie = '?'), " + prodId + ")", uuid);
+        cartDao.vargsStrArgVoidRet("INSERT INTO cart_orders (cart_id, product_id) VALUES(" + cartId + ", " + prodId + ");" , 
+                "UPDATE cart SET lastaccess = now() WHERE id = " + cartId);
     }
     
     
     @Override
-    public void deleteProductFromCart(Long cartId, Long prodId) {
-        if (prodId == null || uuid == null) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public void deleteProductFromCart(Integer cartId, Integer prodId) {
+        if (cartId == null || prodId == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
-        //DELETE FROM cart_orders WHERE product_id = product_id and cart_id = (SELECT id FROM cart WHERE cookie = '?')
-        cartDao.singleStrArgVoidRet("DELETE FROM cart_orders WHERE product_id = product_id and cart_id = (SELECT id FROM cart WHERE cookie = '?'), " + prodId + ")", uuid);
+        
+        cartDao.vargsStrArgVoidRet("DELETE FROM cart_orders WHERE product_id = " + prodId + " AND cart_id =  " + cartId + ";",
+                "UPDATE cart SET lastaccess = now() WHERE id = " + cartId);
     }
 
     @Override
-    public void decProductInCart(Long cartId, Long prodId) {
-        if (prodId == null || uuid == null) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public void decProductInCart(Integer cartId, Integer prodId) {
+        if (cartId == null || prodId == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
-        
-        cartDao.singleStrArgVoidRet("INSERT INTO cart_orders VALUES((SELECT id FROM cart WHERE cookie = '?'), " + prodId + ")", uuid);
-    }
 
-    @Override
-    public void incProductInCart(Long cartId, Long prodId) {
-        if (prodId == null || uuid == null) {
-            throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
-        }
-        
-        cartDao.singleStrArgVoidRet("INSERT INTO cart_orders VALUES((SELECT id FROM cart WHERE cookie = '?'), " + prodId + ")", uuid);
+        cartDao.vargsStrArgVoidRet("DELETE FROM cart_orders WHERE cart_id = " + cartId + " AND product_id = " + prodId + " and id = (SELECT id FROM cart_orders WHERE cart_id = " + cartId + " AND product_id = " + prodId + " LIMIT 1)",
+                "UPDATE cart SET lastaccess = now() WHERE id = " + cartId);
     }
     
-    private static List<Long> selectRandom(List<Long> ids, Integer limit) {
+    private static List<Integer> selectRandom(List<Integer> ids, Integer limit) {
         if (ids == null || limit == null) {
             return null;
         }
@@ -265,7 +254,7 @@ public class TransactionFacadeImpl implements TransactionFacade {
         int lmt, index;
         lmt = index = ids.size() < limit ? ids.size() : limit;
         Random random;
-        List<Long> tmpIds = new ArrayList<>();
+        List<Integer> tmpIds = new ArrayList<>();
         for (int i = 0; i < lmt; i++) {
             random = new Random();
             int nextEl = index == 0 ? 0 : random.nextInt(index--);
@@ -286,7 +275,11 @@ public class TransactionFacadeImpl implements TransactionFacade {
         this.cartDao = cartDao;
     }
 
+    @Autowired
+    public void setReportDao(ReportDao reportDao) {
+        this.reportDao = reportDao;
+    }
+    
+    
 
-    
-    
 }

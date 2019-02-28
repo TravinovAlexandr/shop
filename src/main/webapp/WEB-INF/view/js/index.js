@@ -22,22 +22,54 @@ indexApp.config(function ($routeProvider) {
     }).when('/contract', {
         templateUrl: '/html/contract.html',
         controller: 'ContractController'
+    }).when('/confirmation', {
+        templateUrl: '/html/email_confirm.html'
     });
     $routeProvider.otherwise({redirectTo: '/'});
 });
 
 //CONTRACT CONTROLLER
-indexApp.controller('ContractController', function ($scope, $log, CartService, ContractService) {
+indexApp.controller('ContractController', function ($location, $scope, $rootScope, $log, CartService, ContractService) {
+    
+    CartService.getCart().products.forEach(function (el) {
+            if (el.exist === false) {
+                $scope.contractProductsError = true;
+            }
+        });
+    
     $scope.submitContract = function () {
-        var contract = $scope.contract;
+        var contract = $scope.contractForm;
         var cart = CartService.getCart();
-        if (cart.uuid && cart.products && cart.products.length > 0 && contract.name && contract.email && contract.telephone) {
+        
+        cart.products.forEach(function (el) {
+            if (el.exist === false) {
+                $scope.contractProductsError = true;
+                return;
+            }
+        });
+
+        if (cart.uuid && cart.products && cart.products.length > 0 && contract.name.$modelValue && contract.email.$modelValue && contract.telephone.$modelValue) {
             var products = [];
             cart.products.forEach(function (el) {
-                products.push({prodId : el.id, quantInCart: el.quantInCart});
+                products.push( { prodId : el.id, quantInCart: el.quantInCart } );
             });
-            contract.cookie = cart.uuid;
-            ContractService.submitContract({ products: products, cart: contract });
+            
+            contract = { id :  cart.uuid, name : contract.name.$modelValue, email : contract.email.$modelValue, telephone : contract.telephone.$modelValue, wish : contract.wish.$modelValue };
+
+            ContractService.submitContract( { products: products, cart: contract } )
+                    .then(function () {
+                        CartService.deleteCookie();
+                        $rootScope.confirmationMessage = "На вашу почту отправленно сообщение c подтверждениeм заказа.";
+                        $location.path('/confirmation');
+                        $scope.$emit('changeCartData');
+                    }, function (ex) {
+                        if (ex.response === 'BadSqlGrammarException') {
+                            $rootScope.confirmationMessage = "InternalServerError";
+                            $location.path('/confirmation');
+                        } else {
+                            $log.error(ex); 
+                        }
+                    });
         }
     };
 });
@@ -49,8 +81,8 @@ indexApp.factory('ContractService', function ($http, $q) {
    
     return {
       submitContract(contract) {
-          if (contract.cart && contract.cart.cookie && contract.products && contract.products.length > 0) {
-              return $http({url : URL_SUBMIT_CONTRACT, method : 'POST',  data : contract})
+          if (contract.cart && contract.cart.id && contract.cart.email && contract.cart.telephone && contract.products && contract.products.length > 0) {
+              return $http( {url : URL_SUBMIT_CONTRACT, method : 'POST',  data : contract} )
                       .then(null, function (ex) {
                           return $q.reject(ex.data.response);
                       });
@@ -63,9 +95,16 @@ indexApp.factory('ContractService', function ($http, $q) {
 
 //INDEX INIT CONTROLLER
 indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $location, CategoryService, CartService, ProductService) {
-    if (CartService.checkCookies()) {
-        _refreshView();
-    }
+//    if (CartService.checkCookies()) {
+//        _refreshView();
+//    }
+
+    _refreshView();
+    
+    CartService.updateCartProducts()
+            .then(function () {
+                _refreshView();
+            }, function() {});
     
     CategoryService.getAllCategories()
             .then(function (res) {
@@ -73,12 +112,14 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
             }, function (ex) {
                 $log.error(ex);
             });
+            
 
     $scope.getProductsByCategory = function (catId) {
         if (!catId) {
-            $log.warn('indexInitController getProductsByCategory: argument catId === '.concat(catId));
+            $log.warn('indexInitController getProductsByCategory: args catId === undefined');
             return;
        }
+       
        $location.path('/products/' + catId + '/' + 1);
     };
     
@@ -90,10 +131,15 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
         CartService.incCartPageIndex();
     };
     
-    $scope.deleteProductMinCart = function (num) {
-        CartService.deleteProduct(num);
-        CartService.setCookies();
-        _refreshView();
+    $scope.deleteProductMinCart = function (prodId) {
+        ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "DEC")
+                .then(function () {
+                    CartService.deleteProduct(prodId);
+                    CartService.setCookies();
+                    _refreshView();
+                }, function (ex) {
+                    $log.error(ex);
+                });
     };
         
     $scope.showMainProduct = function (prodId) {
@@ -101,15 +147,16 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
             var prevLocation = $location.path();
             $location.path('/cart');
             $timeout(function () {
-                var top = $('.anchor' + prodId).offset().top;
-                $('body').animate({scrollTop: top}, 300);
+                var ancor = $('.anchor' + prodId).offset();
+                if (ancor) {
+                    ancor = ancor.top;
+                    $('body').animate( { scrollTop: ancor } , 300);
+                }
             });
+            
             $scope.prevLocation = prevLocation;
         }
     };
-    
-      //не удалять поведение не определено
-     //_refreshView();
     
     function _refreshView () {
         CartService.computeCartSizePrice();
@@ -119,92 +166,144 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
         $scope.cartProds = CartService.getCart().products;
     };
     
-    function _addProdToCart (prodId, prodName, prodPrice, productUrl, productExist) {
-//        CartService.deleteCookie();
-        if (!CartService.checkCookies()) {
-            CartService.initCart();
-        }
-        
+    function _addProdToCart(prodId, prodName, prodPrice, productUrl, productExist, productMark) {
         ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "ADD")
                 .then(function () {
-                    CartService.setProduct(prodId, prodName, prodPrice, productUrl, productExist);
+                    CartService.setProduct(prodId, prodName, prodPrice, productUrl, productExist, productMark);
                     CartService.setCookies();
-                    if (!CartService.getCart().uuid) {
-                        CartService.deleteCart();
-                        return;
-                    }
-
-                    CartService.computeCartSizePrice();
                     _refreshView();
                 }, function (ex) {
                     $log.error(ex);
                 });
-    };
+        }
     
     $scope.$on('changeCartData', function () {
         _refreshView();
     });
     
     $scope.$on('addProdToCart', function (e, data) {
-        if (data.prodId && data.name && data.price !== undefined, data.imgUrl && data.isExist !== undefined) {
-            _addProdToCart(data.prodId, data.name, data.price, data.imgUrl, data.isExist);
+        if (data.prodId && data.name && data.price !== undefined, data.imgUrl && data.isExist !== undefined && data.mark !== undefined) {
+            _addProdToCart(data.prodId, data.name, data.price, data.imgUrl, data.isExist, data.mark);
         }
     });
     
 });
 
 //CART CONTROLLER
-indexApp.controller('CartController', function ($scope, $location, CartService) {
+indexApp.controller('CartController', function ($scope, $location, $log, CartService, ProductService) {
+
+    CartService.updateCartProducts()
+            .then(function() {
+                    $scope.$emit('changeCartData');
+            }, function() {});
+
+    $scope.prodCartLike = function (prodId) {
+        if (prodId) {
+            if (CartService.isLikePosible(prodId)) {
+                ProductService.like(prodId)
+                        .then(function () {
+                            $scope.cartProds.forEach(function (el) {
+                                if (el.id === prodId) {
+                                    el.like++;
+                                    CartService.updateLikeCookies(prodId);
+                                    return;
+                                }
+                            });
+                            CartService.updateLikesInCart(prodId);
+                        }, function (ex) {
+                            $log.error(ex);
+                        });
+            }
+        } else {
+            $log.error('prodCartLike args === undefined');
+        }
+    };
     
     $scope.incProductQuant = function (prodId) {
-        CartService.getCart().products.forEach(function (el) {
-            if (el.id === prodId) {
-                el.quantInCart++;
-                CartService.setCookies();
-                $scope.$emit('changeCartData');
-                return;
-            }
-        });
+        if (prodId) {
+            ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "ADD")
+                    .then(function () {
+                        CartService.getCart().products.forEach(function (el) {
+                            if (el.id === prodId) {
+                                el.quantInCart++;
+                                CartService.setCookies();
+                                $scope.$emit('changeCartData');
+                                return;
+                            }
+                        });
+                    }, function (ex) {
+                        $log.error(ex);
+                    });
+        } else {
+            $log.error('incProductQuant args === undefined');
+        }
+    };
+    
+    $scope.decProductQuant = function (prodId) {
+        if (prodId) {
+            ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "DEC")
+                    .then(function () {
+                        var products = CartService.getCart().products;
+                        for (var i = 0; i < products.length; i++) {
+                            if (products[i].id === prodId) {
+                                if (products[i].quantInCart === 1) {
+                                    products.splice(i, 1);
+                                    CartService.setCookies();
+                                } else {
+                                    products[i].quantInCart--;
+                                    CartService.setCookies();
+                                }
+
+                                $scope.$emit('changeCartData');
+                                break;
+                            }
+                        }
+                    }, function (ex) {
+                        $log.error(ex);
+                    });
+        } else {
+            $log.error('decProductQuant args === undefined');
+        }
     };
     
     $scope.showBigProductWithoutLink = function (prodId) {
+        if (!prodId) {
+            $log.error('showBigProductWithoutLink args === undefined');
+        }
+        
         $scope.mainProdRet = null;
         $location.path('/product/' + prodId);
     };
     
-    $scope.decProductQuant = function (prodId) {
-        var products = CartService.getCart().products;
-        for (var i = 0; i < products.length; i++) {
-            if (products[i].id === prodId) {
-                if (products[i].quantInCart === 1) {
-                    products.splice(i, 1);
-                    CartService.setCookies();
-                } else {
-                    products[i].quantInCart--;
-                    CartService.setCookies();
-                }
-                
-                $scope.$emit('changeCartData');
-                break;
-            }
-        }
-    };
-    
     $scope.deleteProductBigCart = function (prodId) {
-        var products = CartService.getCart().products;
-        for (var i = 0; i < products.length; i++) {
-            if (products[i].id === prodId) {
-                products.splice(i, 1);
-                CartService.setCookies();
-                $scope.$emit('changeCartData');
-                break;
-            }
+        if (!prodId) {
+            $log.error('deleteProductBigCart args === undefined');
         }
+        
+        ProductService.updateProductInCart(CartService.getCart().uuid, prodId, "DEL")
+                .then(function () {
+                    var products = CartService.getCart().products;
+                    for (var i = 0; i < products.length; i++) {
+                        if (products[i].id === prodId) {
+                            products.splice(i, 1);
+                            CartService.setCookies();
+                            $scope.$emit('changeCartData');
+                            break;
+                        }
+                    }
+                }, function (ex) {
+                    $log.error(ex);
+                });
     };
 });
 
 //PRODUCT CONTROLLER
 indexApp.controller('ProductController', function ($log, $scope, $location, $compile, $routeParams, ProductService, Paginator, CartService, SharedData) {
+    
+    if (!$routeParams.catId) {
+        $log.warn('ProductController $routeParams.catId === undefined');
+        return;
+    }
     
     ProductService.getProductsByCategory($routeParams.catId, Paginator.getLimit(), Paginator.getOffset())
             .then(function (res) {
@@ -214,12 +313,13 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
             }, function (ex) {
                 $log.warn(ex);
             });
-
+            
     $scope.pagClickedStyle = function (num) {
         if (!num) {
-            $log.warn('ProductController: pagClickedStyle arg === undefined');
+            $log.warn('pagClickedStyle args === undefined');
             return;
         }
+        
         if ($routeParams.pageId == num) {
             return Paginator.getStyle();
         }
@@ -227,14 +327,25 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
     
     $scope.getAnotherPage = function(num) {
         if (!num) {
-            $log.warn('ProductController: getAnotherPage arg === undefined');
+            $log.warn('getAnotherPage args === undefined');
             return;
         }
+        
+        if (!$routeParams.catId) {
+            $log.warn('getAnotherPage $routeParams.catId === undefined');
+            return;
+        }
+        
         Paginator.setOffset( (num  - 1) * Paginator.getLimit());
         $location.path('/products/' + $routeParams.catId + '/' + num);
     };
 
     $scope.minProductLike = function (prodId) {
+        if (!prodId) {
+            $log.warn('minProductLike args === undefined');
+            return;
+        }
+        
         if (CartService.isLikePosible(prodId)) {
             ProductService.like(prodId)
                     .then(function () {
@@ -245,22 +356,32 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
                                 return;
                             }
                         });
+                        
+                        CartService.updateLikesInCart(prodId);
                     }, function (ex) {
                         $log.error(ex);
                     });
         }
     };
     
-    $scope.addMinProdToCart = function (prodId, name, price, imgUrl, isExist) {
-        if (prodId && name && price && imgUrl && typeof(isExist) === 'boolean') {
-            $scope.$emit('addProdToCart', {
-                prodId: prodId, name: name, price: price, imgUrl: imgUrl, isExist: isExist
-            });
+    $scope.addMinProdToCart = function (prodId, name, price, imgUrl, isExist, mark) {
+        if (prodId && name && price !== undefined && imgUrl && isExist !== undefined && mark !== undefined) {
+            $scope.$emit('addProdToCart', { prodId : prodId, name : name, price : price, imgUrl : imgUrl, isExist : isExist, mark : mark });
+        } else {
+            $log.warn('addMinProdToCart args === undefined');
         }
     };
     
     
     $scope.showBigProduct = function (prodId) {
+        if (!prodId) {
+            $log.warn('showBigProduct === undefined');
+        }
+        
+        if (!$routeParams.catId || !$routeParams.pageId) {
+            $log.warn('showBigProduct $routeParams.catId || $routeParams.pageId === undefined');
+        }
+        
         CartService.setRedirectInfo($routeParams.catId, $routeParams.pageId);
         SharedData.setCurrentCategory($routeParams.catId);
         $location.path('/product/' + prodId);
@@ -375,6 +496,11 @@ indexApp.factory('SharedData', function ($log) {
 
 indexApp.controller('MainProdController', function ($scope, $log, $routeParams, $location, CartService, ProductService, SharedData, Paginator) {
     
+    CartService.updateCartProducts()
+            .then(function() {
+                $scope.$emit('changeCartData');
+            }, function() {});
+    
     $scope.submitNewComment = function (prodId) {
         if (prodId) {
             ProductService.addNewComment(prodId, $scope.addCommentName, $scope.addCommentBody)
@@ -418,10 +544,10 @@ indexApp.controller('MainProdController', function ($scope, $log, $routeParams, 
                     $log.error(ex);
                 });
     
-    $scope.addToCart = function (prodId, name, price, imgUrl, isExist) {
-        if (prodId && name && price && imgUrl && isExist) {
+    $scope.addToCart = function (prodId, name, price, imgUrl, isExist, mark) {
+        if (prodId && name && price !== undefined && imgUrl && isExist && mark !== undefined) {
             $scope.$emit('addProdToCart', {
-                prodId:prodId, name:name, price:price, imgUrl:imgUrl, isExist:isExist
+                prodId:prodId, name:name, price:price, imgUrl:imgUrl, isExist:isExist, mark:mark
             });
         }
     };
@@ -435,12 +561,14 @@ indexApp.controller('MainProdController', function ($scope, $log, $routeParams, 
                             var info = CartService.getRedirectInfo();
                             ProductService.getProductsByCategory(info.category, Paginator.getLimit(), (info.page - 1) * Paginator.getLimit())
                                     .then(function (res) {
+                                        CartService.updateLikesInCart(prodId);
                                         SharedData.setProducts(res.products);
                                         _updateLike(prodId);
                                     }, function (ex) {
                                         $log.warn(ex);
                                     });
                         } else {
+                            CartService.updateLikesInCart(prodId);
                             _updateLike(prodId);
                         }
                     }, function (ex) {
@@ -513,26 +641,38 @@ indexApp.controller('MainProdController', function ($scope, $log, $routeParams, 
 });
 
 //PRODUCT SERVICE
-indexApp.factory('ProductService', function ($q, $http) {
+indexApp.factory('ProductService', function ($q, $http, $timeout, CartService) {
     
     var URL_GET_PRODUCTS = '/getProductsPage/';
     var URL_LAST_ADDED_PROD_CATEGORY = '/selectLastAddedInCategory/';
     var URL_LAST_ALL_ADDED = '/selectLastAddedInAllCategories';
     var URL_ADD_NEW_COMMENT = '/addComment/';
     var URL_GET_COMMENTS = '/getAllComments/';
-    var URL_ADD_PRODUCT_TO_CART = '/updateProductInCart';
+    var URL_ADD_PRODUCT_TO_CART = '/updateProductInCart/';
     var LIMIT = 20;
     
     return {
-        updateProductInCart(uuid, prodId, type) {
-           if (uuid && prodId && type) {
-               return $http({url: URL_ADD_PRODUCT_TO_CART, method: 'POST', data : { uuid: uuid, prodId: prodId, type: type}})
-                       .then(null, function (ex) {
-                            return $q.reject(ex.data.response);
-                        });
-           } else {
-               return $q.reject('ProductService addProduct args === undefined');
-           }
+        updateProductInCart(cartId, prodId, type) {
+            
+            var delay = 0;
+            
+            if (!CartService.getCart().uuid) {
+                delay = 500;
+                CartService.initCart();
+
+            }
+            
+            return $timeout(function () {        
+                cartId = CartService.getCart().uuid;
+                if (cartId && prodId && type) {
+                    return $http({url: URL_ADD_PRODUCT_TO_CART + cartId + '/' + prodId + '/' + type, method: 'POST'})
+                            .then(null, function (ex) {
+                                return $q.reject(ex.data.response);
+                    });
+                } else {
+                    return $q.reject('ProductService addProduct args === undefined');
+                }
+            }, delay);
         },
         getComments(prodId) {
             if (prodId) {
@@ -548,7 +688,7 @@ indexApp.factory('ProductService', function ($q, $http) {
         },
         addNewComment(prodId, nick, body) {
             if (prodId && nick.trim() && body.trim()) {
-                return $http({url : URL_ADD_NEW_COMMENT, method : 'POST', data : {productId : prodId, nick : nick, body : body}})
+                return $http({url : URL_ADD_NEW_COMMENT, method : 'POST', data : { productId : prodId, nick : nick, body : body }})
                         .then(null, function (ex) {
                             return $q.reject(ex.data.response);
                         });
@@ -638,24 +778,81 @@ indexApp.factory('CategoryService', function ($http, $q) {
 });
 
 //CART SERVICE
-indexApp.factory('CartService', function ($cookieStore, $http) {
+indexApp.factory('CartService', function ($cookieStore, $http, $q, $log) {
     
     var COOKIES_CART_KEY = 'AL_SH_KEY_2019';
     var COOKIES_INFO_KEY = 'REDIRECT_INFO_AL_SH_KEY_2019';
     var COOKIES_LIKE_CHECK = 'LIKE_CHECK_AL_SH_KEY_2019';
+    var URL_CHECK_CART_PRODS = '/checkCartProds';
     var now = new Date();
     var CART = new CartCookies();
     var cartPagIndex = 0;
     var cartSize = 0;
     var cartPrice = 0;
 
-    function Product(id, name, price, url, exist) { this.id = id; this.name = name; this.price = price; this.url = url; this.exist = exist; this.quantInCart = 1; };
+    function Product(id, name, price, url, exist, like) { this.id = id; this.like = like; this.name = name; this.price = price; this.url = url; this.exist = exist; this.quantInCart = 1; };
 
     function CartCookies() { this.uuid; this.products = []; };
     
     function RedirectInfoCookies(cat, pag) { this.category = cat; this.page = pag; };
     
     return {
+        updateCartProducts() {
+            var tmp = $cookieStore.get(COOKIES_CART_KEY);
+            if (!tmp) {
+                return $q.reject('');
+            }
+            
+            var prodIds = [];
+            tmp.products.forEach(function (el) {
+                prodIds.push( { prodId: el.id } );
+            });
+            
+            return $http({ url : URL_CHECK_CART_PRODS, method : 'POST', data : { products: prodIds} })
+                    .then(function (res) {
+                        //сервер возвращает null если все товары в корзине имеют exist == true
+                        var simpProds =  res.data.response;
+                        if (simpProds) {
+                            for (var i = 0; i < tmp.products.length; i++) {
+                                for (var j = 0; j < simpProds.length; j++) {
+                                    if (tmp.products[i].id === simpProds[j].id) {
+                                        //унифицировать все имена пропертей
+                                        tmp.products[i].like = simpProds[j].mark;
+                                        tmp.products[i].price = simpProds[j].price;
+                                        tmp.products[i].exist = simpProds[j].isExist;
+                                    }
+                                }
+                            }
+                            CART = tmp;
+                            $cookieStore.put(COOKIES_CART_KEY, CART, new Date(now.getFullYear(), now.getMonth() + 6, now.getDate()));
+                        }
+                    }, function (ex) {
+                        return $q.reject(ex.data.response);
+                    });
+        },
+        //plusMin не реализован
+        updateLikesInCart(prodId, plussMin) {
+            if (prodId) {
+                var tmp = $cookieStore.get(COOKIES_CART_KEY);
+                if (!tmp) {
+                    return;
+                } 
+                
+                plussMin = (plussMin) ? plussMin : 'PLUSS';
+
+                tmp.products.forEach(function (el) {
+                    if (el.id === prodId) {
+                        if (plussMin === 'PLUSS') {
+                            el.like++;
+                        } else {
+                            el.like--;
+                        }
+                    }                
+                    CART = tmp;
+                    $cookieStore.put(COOKIES_CART_KEY, CART, new Date(now.getFullYear(), now.getMonth() + 6, now.getDate()));
+                });
+            }
+        },
         updateLikeCookies(prodId) {
             $cookieStore.remove(COOKIES_LIKE_CHECK);
             
@@ -672,6 +869,7 @@ indexApp.factory('CartService', function ($cookieStore, $http) {
                     likeCookies[0] = prodId;
                 }
                 $cookieStore.put(COOKIES_LIKE_CHECK, likeCookies, new Date(now.getFullYear() + 10, now.getMonth(), now.getDate()));
+                
             } else {
                 $log.error('updateLikeCookies arg === undefined');
             }
@@ -755,8 +953,8 @@ indexApp.factory('CartService', function ($cookieStore, $http) {
         getCart : function (){
            return CART; 
         },
-        setProduct: function (id, name, price, url, exist) {
-            if (id && name && price !== undefined && url && exist !== undefined) {
+        setProduct: function (id, name, price, url, exist, mark) {
+            if (id && name && price !== undefined && url && exist !== undefined && mark !== undefined) {
             for (var i = 0; i < CART.products.length; i++) {
                 if (CART.products[i].id === id) {
                     CART.products[i].quantInCart++;
@@ -764,7 +962,7 @@ indexApp.factory('CartService', function ($cookieStore, $http) {
                 }
             }
             
-            CART.products.push(new Product(id, name, price, url, exist));
+            CART.products.push(new Product(id, name, price, url, exist, mark));
             }
         },
         deleteProduct: function (id) {
@@ -868,3 +1066,4 @@ indexApp.filter('sliderFilter', function (SharedData, CartService) {
         }
     };
 });
+

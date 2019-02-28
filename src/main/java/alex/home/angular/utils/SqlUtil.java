@@ -3,12 +3,10 @@ package alex.home.angular.utils;
 import alex.home.angular.dto.SubmitContract;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class SqlUtil {
     
-    @Nullable
-    private static final <T extends Number> String getArray(List<T> lst, String castType, boolean isNum) {
+    private static <T extends Number> String getArray(List<T> lst, String castType, boolean isNum) {
         if (lst == null || castType == null) {
             return null;
         }
@@ -26,7 +24,7 @@ public class SqlUtil {
         return sb.append(isNum ? "" : "'").append(castType).toString();
     }
     
-    public static final String getINNumSequence(List<Long> arg) {
+    public static String getINNumSequence(List<?> arg) {
         if (arg == null || arg.isEmpty()) {
             return null;
         }
@@ -45,16 +43,21 @@ public class SqlUtil {
         return sb.toString();
     }
     
-    @Nullable
-    public static final String getBigintArray(Long[] arg) {
+    public static String getBigintArray(Long [] arg) {
       return getBigintArray(Arrays.asList(arg));  
     }
-    
-    @Nullable
-    public static final String getBigintArray(List<Long> arg) {
+
+    public static String getBigintArray(List<Long> arg) {
           return getArray(arg, "]::BIGINT[]", true);
     }
     
+    public static String getIntArray(Integer [] arg) {
+      return getIntArray(Arrays.asList(arg));  
+    }
+    
+    public static String getIntArray(List<Integer> arg) {
+          return getArray(arg, "]::INT[]", true);
+    }
     
     public  static String getMultyInsertValues(List<SubmitContract.ProductInCart> lpc, Long cartId) {
         if (lpc == null || cartId == null || lpc.isEmpty()) {

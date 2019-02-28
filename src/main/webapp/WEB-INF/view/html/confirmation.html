@@ -1,0 +1,45 @@
+<!--<!DOCTYPE HTML>-->
+<html 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Alex_Shop</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" href="css/index.css" />
+        <link rel="stylesheet" href="css/products.css" />
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+                
+        <script src="js/angular-route1.6.7.js"></script>
+        <script src="js/angular-sanitize1.6.7.js"></script>
+        <script src="js/angular-cookies1.6.7.js"></script>
+        <script src="js/index.js"></script>
+
+</head>
+
+<body ng-app="indexPage" ng-controller="IndexInitController">
+    <!--<header></header>-->
+
+    <main>
+        <div class="indexPageWrapper" >
+            <p th:text="${confirmMessage}"></p>
+
+            <ng-include src="'html/notification.html'"></ng-include>
+                            <ng-include src="'html/index_category_bar.html'"></ng-include>
+            <div class="midleWrapper">
+
+                <div ng-view></div>
+            </div>
+            <div class="rightWrapper" >
+                <ng-include src="'html/cart_min_bar.html'"></ng-include>
+            </div>
+        </div>
+
+
+    </main>
+
+</body>
+</html>
+

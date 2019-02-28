@@ -8,45 +8,45 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class UpdateProd implements Serializable {
     
-    public Long productId;
-    public Long imageId;
-    public List<Long> oldCategoriesId;
-    public List<Long> newCategoriesId;
+    public Integer productId;
+    public Integer imageId;
+    public List<Integer> oldCategoriesId;
+    public List<Integer> newCategoriesId;
     public List<Category> allCategories;
     public Product product;
     public MultipartFile image;
     
     public UpdateProd() {}
 
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 
-    public Long getImageId() {
+    public Integer getImageId() {
         return imageId;
     }
 
-    public void setImageId(Long imageId) {
+    public void setImageId(Integer imageId) {
         this.imageId = imageId;
     }
 
-    public List<Long> getOldCategoriesId() {
+    public List<Integer> getOldCategoriesId() {
         return oldCategoriesId;
     }
 
-    public void setOldCategoriesId(List<Long> oldCategoriesId) {
+    public void setOldCategoriesId(List<Integer> oldCategoriesId) {
         this.oldCategoriesId = oldCategoriesId;
     }
 
-    public List<Long> getNewCategoriesId() {
+    public List<Integer> getNewCategoriesId() {
         return newCategoriesId;
     }
 
-    public void setNewCategoriesId(List<Long> newCategoriesId) {
+    public void setNewCategoriesId(List<Integer> newCategoriesId) {
         this.newCategoriesId = newCategoriesId;
     }
 

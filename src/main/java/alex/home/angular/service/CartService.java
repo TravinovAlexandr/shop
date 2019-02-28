@@ -2,9 +2,7 @@ package alex.home.angular.service;
 
 import alex.home.angular.dao.CartDao;import alex.home.angular.domain.Cart;
 import alex.home.angular.exception.AdminException;
-import alex.home.angular.utils.DateUtil;
 import java.sql.ResultSet;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,13 +17,8 @@ public class CartService implements CartDao {
     private JdbcTemplate jdbcTemplate;
     
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public String createCartGetCookieUUID() {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED) public String createCartGetId() {
         try {
-//            UUID cartUUID = UUID.randomUUID();
-//            jdbcTemplate.update("INSERT INTO cart (cookie, startday, stts) VALUES (?,?,"+ "'on'" +");", cartUUID, DateUtil.getCurrentTimestamp());
-//            return cartUUID.toString();
-
             return String.valueOf(jdbcTemplate.query("INSERT INTO cart (stts) VALUES ('on') returning id;", (ResultSet rs, int i) -> 
                     rs.getLong("id")).stream().findFirst().orElseThrow(AdminException::new));
         } catch (DataAccessException ex) {
@@ -33,18 +26,32 @@ public class CartService implements CartDao {
         }
     }
     
+    
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Long updateCartGetId(Cart cart) {
-        if (cart == null || cart.cookie == null || cart.email == null || cart.telephone == null) {
+    public Boolean singleStrArgBoolRetIsUpdated(String query) {
+      if (query == null) {
+            throw new AdminException().addExceptionName("IllegalArgumentException");
+        }
+      
+      try {
+          return jdbcTemplate.update(query) != 0;
+      } catch (DataAccessException ex) {
+          ex.printStackTrace();
+          throw new AdminException(ex);
+      }
+    }
+    
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void updateCart(Cart cart) {
+        if (cart == null || cart.id == null || cart.email == null || cart.telephone == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
         
         try {
-            //UPDATE cart SET name = ?, email = ?, telephone = ?, address = ?, client_wish = ? WHERE id = cart.id;
-            String query = "WITH up AS (UPDATE cart SET name = ?, email = ?, telephone = ?, address = ?, client_wish = ? WHERE cookie = CAST(? AS UUID)) "
-                + "SELECT id FROM cart WHERE cookie = CAST(? AS UUID);";
-            return jdbcTemplate.query(query, new Object[] { cart.name, cart.email, cart.telephone, cart.address, cart.clientWish, cart.cookie, cart.cookie }, (ResultSet rs, int i) -> rs.getLong("id")).stream().findFirst().orElse(-1L);
+            jdbcTemplate.update("UPDATE cart SET name = ?, email = ?, telephone = ?, address = ?, client_wish = ? WHERE id = " + cart.id,
+                    cart.name, cart.email, cart.telephone, cart.address, cart.clientWish);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -65,16 +72,16 @@ public class CartService implements CartDao {
             throw new AdminException(ex);
         }
     }
-
+    
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public void addProduct(String uuid, Long prodId) {
-        if (prodId == null || uuid == null) {
+    public void singleStrArgVoidRet(String query) {
+        if (query == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
         
         try {
-            jdbcTemplate.update("INSERT INTO cart_orders VALUES((SELECT id FROM cart WHERE cookie = '?'), " + prodId + ")", uuid);
+            jdbcTemplate.update(query);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -83,21 +90,19 @@ public class CartService implements CartDao {
     
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public void singleStrArgVoidRet(String query, String arg) {
-            if (query == null || arg == null) {
+    public void vargsStrArgVoidRet(String ... query) {
+        if (query == null || query.length == 0) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Controller validation err");
         }
         
         try {
-            jdbcTemplate.update(query, arg);
+            jdbcTemplate.batchUpdate(query);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
         }
     }
     
-    
-
     @Autowired
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

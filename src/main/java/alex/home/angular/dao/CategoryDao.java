@@ -12,15 +12,15 @@ public interface CategoryDao {
     
     void insertCategory(String name, String description);
     
-    void deleteCategory(Long id);
+    void deleteCategory(Integer id);
 
-    void upadateCategoryName(Long id , String newName);
+    void upadateCategoryName(Integer id , String newName);
     
-    void updateCategoryDesc(Long id ,String desc);
+    void updateCategoryDesc(Integer id ,String desc);
     
     void updateCategory(Category category);
     
-    Category selectCategory(Long id);
+    Category selectCategory(Integer id);
     
     List<Category> selectAllCategories();
     

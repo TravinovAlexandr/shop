@@ -13,16 +13,16 @@ public class SubmitContract implements Serializable {
     
     public static class ProductInCart implements Serializable {
         
-        public Long prodId;
+        public Integer prodId;
         public Short quantInCart;
         
         public ProductInCart() {}
 
-        public Long getProdId() {
+        public Integer getProdId() {
             return prodId;
         }
 
-        public void setProdId(Long prodId) {
+        public void setProdId(Integer prodId) {
             this.prodId = prodId;
         }
 

@@ -4,9 +4,9 @@ import alex.home.angular.dao.CategoryDao;
 import alex.home.angular.dao.ImgDao;
 import alex.home.angular.dao.PGDao;
 import alex.home.angular.domain.Category;
-import alex.home.angular.domain.Comment;
 import alex.home.angular.domain.Img;
 import alex.home.angular.domain.Product;
+import alex.home.angular.dto.ClientInfoProductsSum;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.LimitOffset;
 import alex.home.angular.dto.ProductCategories;
@@ -41,7 +41,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import alex.home.angular.task.AsyncService;
 import alex.home.angular.utils.properties.PropCache;
 import alex.home.angular.utils.properties.PropFsLoader;
@@ -54,15 +53,23 @@ import java.util.concurrent.FutureTask;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import alex.home.angular.transaction.TransactionFacade;
-import org.springframework.web.bind.annotation.RequestParam;
+import alex.home.angular.utils.DateUtil;
+import alex.home.angular.utils.email.EmailData;
+import alex.home.angular.utils.email.EmailSender;
+import alex.home.angular.utils.reports.PdfReportKit;
+import alex.home.angular.utils.reports.Report;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
   
-@RestController
+@Controller
 public class ProductController {
     
     private CategoryDao categoryDao;
     private ImgDao imgDao;
     private PGDao pGDao;
     private TransactionFacade transactionFacade;
+    private EmailSender emailSender;
     private HttpServletResponse hsr;
     private ImageWriter fsImageWriter;
     private TaskExecutor taskExecutor;
@@ -71,20 +78,19 @@ public class ProductController {
     private final CategoryCache categoryCache = new CategoryCache();
     private volatile int productCacheVal = -1;
     
-    @PostMapping("/updateProductInCart")
-    public ResponseRsWrapper updateProductInCart(@RequestParam("prodId") Long prodId, @RequestParam("uuid") String uuid, @RequestParam("type") String type, ResponseRsWrapper rrw) {
-        if (prodId == null || uuid == null || type == null) {
-            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
+    @PostMapping("/updateProductInCart/{cartId}/{prodId}/{type}")
+    @ResponseBody public ResponseRsWrapper updateProductInCart(@PathVariable("cartId") Integer cartId, @PathVariable("prodId") Integer prodId, 
+            @PathVariable("type") String type, ResponseRsWrapper rrw) {
+        if (prodId == null || cartId == null || type == null) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {
             switch (type) {
-                case "ADD" : break;
-                case "DEL" : break;
-                case "INC" : break;
-                case "DEC" : break;
-                default: return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException")
-                        .addMessage("Algorithm id incorrect.").get()).addHttpErrorStatus(hsr,400);
+                case "ADD" : transactionFacade.addProductInCart(cartId, prodId); break;
+                case "DEL" : transactionFacade.deleteProductFromCart(cartId, prodId); break;
+                case "DEC" :  transactionFacade.decProductInCart(cartId, prodId); break;
+                default: return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("Algorithm iden incorrect.").get()).addHttpErrorStatus(hsr,400);
             }
             
             return null;
@@ -94,27 +100,74 @@ public class ProductController {
         }
     }
     
-    @PostMapping("/submitContract")
-    public ResponseRsWrapper submitContract(@RequestBody SubmitContract sc, ResponseRsWrapper rrw) {
-        if (sc == null || sc.cart == null || sc.cart.cookie == null || sc.products == null || sc.products.isEmpty()) {
-            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
+    @PostMapping("/checkCartProds")
+    @ResponseBody public ResponseRsWrapper checkCartProds(@RequestBody SubmitContract sc, ResponseRsWrapper rrw) {
+        if (sc.products == null || sc.products.isEmpty()) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {
-            List<Product> prods = transactionFacade.checkCartProducts(sc);
-            if (prods == null) {
-                transactionFacade.submitContract(sc);
-                return null;
+            return rrw.addResponse(transactionFacade.checkCartProducts(sc));
+        } catch (AdminException ex) {
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
+        }
+    }
+    
+    @GetMapping("/confirmation/{cartId}")
+    public String submitContract(@PathVariable String cartId, Model model) {
+        if (cartId == null) {
+            model.addAttribute("confirmMessage", "Ваш запрос на подтверждение заказа не корректен.");
+            return "confirmation";
+        }
+        
+        try {
+            if (transactionFacade.isConfirmed(Integer.parseInt(cartId))) {
+                model.addAttribute("confirmMessage", "Ваш заказ подтвержден.");
+            } else {
+                model.addAttribute("confirmMessage", "Прошло слишком много времени. Ваш запрос на подтверждение заказа не корректен.");    
             }
             
-            return rrw.addResponse(prods);
-        } catch (AdminException ex) {
-            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr,500);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            model.addAttribute("confirmMessage", "InternalServerError");
+        }
+        
+        return "confirmation";
+    }
+    
+    @PostMapping("/submitContract")
+    @ResponseBody public ResponseRsWrapper submitContract(@RequestBody SubmitContract sc, ResponseRsWrapper rrw) {
+        if (sc == null || sc.cart == null || sc.cart.id == null  || sc.cart.email == null || sc.cart.telephone == null || sc.products == null || sc.products.isEmpty()) {
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
+        }
+
+        try {
+            List<ClientInfoProductsSum> prods = transactionFacade.submitContract(sc);
+            if (prods == null || prods.isEmpty()) {
+                return rrw.addResponse("BadSqlGrammarException").addHttpErrorStatus(hsr, 500);
+            }
+            
+            taskExecutor.execute(() -> {
+                String reportPath ="/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/jasperreports/client_products.jasper";
+                String emailConfirmation = "http://localhost:8080/confirmation/" + sc.cart.id;
+                Report pd = new PdfReportKit();
+                byte[] bytes = pd.getReport(prods, reportPath);
+
+                EmailData ed = new EmailData(sc.cart.email, "AlexShop подтверждение заказа.","Подтверждение: " + emailConfirmation + " \nСписок ваших товаров:", "travinovalexandr@gmail.com", 
+                    "client_products.pdf","application/pdf" , DateUtil.getCurrentTimestamp(), bytes);
+
+                emailSender.sendEmailWithAttachments(ed);
+            });
+            
+            return null;
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            return rrw.addResponse(ex).addHttpErrorStatus(hsr, 500);
         }
     }
     
     @PostMapping("/admin/updateRecommend/{prodId}")
-    public ResponseRsWrapper addToRecommend(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper addToRecommend(@PathVariable Integer prodId, ResponseRsWrapper rrw) {
         if (prodId == null) {
             return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr,400);
         }
@@ -128,7 +181,7 @@ public class ProductController {
     }
     
     @PostMapping("/selectLastAddedInCategory/{catId}/{limit}")
-    public ResponseRsWrapper selectLastAddedInCategory(@PathVariable Long catId, @PathVariable Integer limit, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper selectLastAddedInCategory(@PathVariable Integer catId, @PathVariable Integer limit, ResponseRsWrapper rrw) {
         if (limit == null || catId == null) {
             return rrw.addResponse("IllegalArgumentException").addHttpErrorStatus(hsr,400);    
         }
@@ -141,7 +194,7 @@ public class ProductController {
     }
     
     @PostMapping("/selectLastAddedInAllCategories/{limit}")
-    public ResponseRsWrapper selectLastAddedInAllCategories(@PathVariable Integer limit, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper selectLastAddedInAllCategories(@PathVariable Integer limit, ResponseRsWrapper rrw) {
         if (limit == null) {
             return rrw.addResponse("~ControllerBindingException").addHttpErrorStatus(hsr,400);    
         }
@@ -154,7 +207,7 @@ public class ProductController {
     }
     
     @PostMapping("/getRecommended/{limit}")
-    public ResponseRsWrapper getRecommended(@PathVariable Integer limit, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getRecommended(@PathVariable Integer limit, ResponseRsWrapper rrw) {
         if (limit == null) {
             return rrw.addResponse("~ControllerBindingException").addHttpErrorStatus(hsr,400);    
         }
@@ -167,7 +220,7 @@ public class ProductController {
     }
     
     @PostMapping("/getMainPageProduct/{prodId}")
-    public ResponseRsWrapper getMainPageProduct(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getMainPageProduct(@PathVariable Integer prodId, ResponseRsWrapper rrw) {
         if (prodId == null) {
             return rrw.addResponse("~ControllerBindingException").addHttpErrorStatus(hsr, 400);
         }
@@ -180,7 +233,7 @@ public class ProductController {
     }
     
     @PostMapping("/incrementMark/{prodId}")
-    public ResponseRsWrapper incrementMark(@PathVariable Long prodId, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper incrementMark(@PathVariable Integer prodId, ResponseRsWrapper rrw) {
         if (prodId == null) {
             return rrw.addResponse("~ControllerBindingException").addHttpErrorStatus(hsr, 400);
         }
@@ -197,7 +250,7 @@ public class ProductController {
     }
    
     @PostMapping("/getProductsPage")
-    public ResponseRsWrapper getProductsPage(@RequestBody LimitOffset dto, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getProductsPage(@RequestBody LimitOffset dto, ResponseRsWrapper rrw) {
         if (dto == null || dto.id == null || dto.limit == null | dto.offset == null) {
             return rrw.addResponse("~ControllerBindingException. Check args names.").addHttpErrorStatus(hsr, 400);
         }
@@ -210,7 +263,7 @@ public class ProductController {
     }
     
     @PostMapping("/admin/deleteProduct/{id}")
-    public ResponseRsWrapper deleteProduct(@PathVariable Long id, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper deleteProduct(@PathVariable Integer id, ResponseRsWrapper rrw) {
         if (id == null) {
             return rrw.addResponse(new AdminException().addExceptionName("~ControllerBindingException").get())
                     .addHttpErrorStatus(hsr, 400);
@@ -225,23 +278,23 @@ public class ProductController {
     }
        
     @PostMapping("/admin/updateCategories")
-    public ResponseRsWrapper updateCategories(@RequestBody ProductCategoriesUpdate pcu, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper updateCategories(@RequestBody ProductCategoriesUpdate pcu, ResponseRsWrapper rrw) {
         if (pcu == null || pcu.productId == null || pcu.oldCategoriesId == null || pcu.newCategoriesId == null || (pcu.oldCategoriesId.isEmpty() && pcu.newCategoriesId.isEmpty())) {
-            return rrw.addResponse(new AdminException().addMessage("Chech args names").addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addMessage("Check args names").addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {
             int oldCategLength = pcu.oldCategoriesId.size();
             int newCategLength = pcu.newCategoriesId.size();
-            List<Long> categoreToDelete = new ArrayList<>();
-            List<Long> categoreToInsert = new ArrayList<>();
+            List<Integer> categoreToDelete = new ArrayList<>();
+            List<Integer> categoreToInsert = new ArrayList<>();
             
             if (oldCategLength == 0 && newCategLength != 0) {
                 categoreToInsert.addAll(pcu.newCategoriesId);
             } else if (newCategLength == 0 && oldCategLength != 0) {
                  categoreToDelete.addAll(pcu.oldCategoriesId);
             } else {
-                List<Long> tmp = new ArrayList<>(pcu.oldCategoriesId);
+                List<Integer> tmp = new ArrayList<>(pcu.oldCategoriesId);
                 tmp.removeAll(pcu.newCategoriesId);
                 categoreToDelete.addAll(tmp);
                 tmp = new ArrayList<>(pcu.newCategoriesId);
@@ -260,7 +313,7 @@ public class ProductController {
     }
     
     @PostMapping(value = "/admin/updateImg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseRsWrapper updateImg(@ModelAttribute UpdateProd dto, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper updateImg(@ModelAttribute UpdateProd dto, ResponseRsWrapper rrw) {
         if (dto == null || dto.imageId == null || dto.image == null) {
             return rrw.addHttpErrorStatus(hsr, 400).addResponse(new AdminException().addExceptionName("IllegalArgumentException")
                     .addMessage(dto == null ? "@ModelAttribute UpdateProd dto == null" : " " + dto.imageId == null ? "dto.imageId == null" : "  " + dto.image == null ? "dto.image == null" : ""));
@@ -289,7 +342,7 @@ public class ProductController {
     }
     
     @PostMapping("/admin/updateProductField")
-    public ResponseRsWrapper updateProductSingleField(@RequestBody ProductField productField, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper updateProductSingleField(@RequestBody ProductField productField, ResponseRsWrapper rrw) {
         if (productField == null || productField.productId == null || productField.columnName == null || productField.value == null ) {
             
             return rrw.addHttpErrorStatus(hsr, 400).addResponse(new AdminException().addExceptionName("IllegalAttributeException").addMessage("@RequestBody ProductField "
@@ -317,7 +370,7 @@ public class ProductController {
     }
     
     @PostMapping("/admin/product/{id}")
-    public ResponseRsWrapper getUpdateProductForm(@PathVariable Long id, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getUpdateProductForm(@PathVariable Integer id, ResponseRsWrapper rrw) {
         if (id == null) {
             return rrw.addResponse(new AdminException().addExceptionName("IllegalAttributeException").addMessage("Chech atrs names.").get())
                     .addHttpErrorStatus(hsr, 400);
@@ -330,7 +383,6 @@ public class ProductController {
             if (product != null) {
                 if (categoryCache.isValid()) {
                   categories = categoryCache.getCategiries();
-                  
                 } else {
                   categories = categoryDao.selectAllCategories();
                   categoryCache.init(categories);
@@ -375,7 +427,7 @@ public class ProductController {
     }
     
     @PostMapping(value = "/admin/searchForm")
-    public ResponseRsWrapper getSearchProductForm(ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper getSearchProductForm(ResponseRsWrapper rrw) {
         Properties props;
         List<SearchElement> rows;
         FutureTask futureTask;
@@ -384,28 +436,6 @@ public class ProductController {
         List<Category> cats;
         
         try {
-//          props = propCache.getProductProps(productCacheVal);
-//          
-//          if (props == null) {
-//                PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(), "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
-//                futureTask = new FutureTask(propTask);
-//                taskExecutor.execute(futureTask);
-//                rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
-//                props = (Properties) futureTask.get();
-//                
-//                if (props != null) {
-//                    productCacheVal = props.hashCode();
-//                    propCache.initProdPropsCache(props);
-//                }
-//                
-//            } else {
-//              rows = searcCond.getCondition(pGDao.selectPGFieldMeta(PGMeta.PRODUCT_TABLE));
-//          }
-//          
-//          if (rows == null) {
-//              return rrw.addHttpErrorStatus(hsr, 500);
-//          }
-
             PropLoaderTask propTask = new PropLoaderTask(new PropFsLoader(), "/home/alexandr/NetBeansProjects/angular/src/main/webapp/WEB-INF/view/prop/db_prod_col.properties");
             futureTask = new FutureTask(propTask);
             taskExecutor.execute(futureTask);
@@ -430,8 +460,6 @@ public class ProductController {
                 }
             }
             
-            
-            
             return rrw.addResponse(new SearchElementsCtegories(rows, cats));
         } catch (InterruptedException | ExecutionException | AdminException ex) {
             if (ex.getClass() == AdminException.class) {
@@ -442,7 +470,7 @@ public class ProductController {
     }
     
     @PostMapping(value = "/admin/searchQuery")
-    public ResponseRsWrapper searchQuery(@RequestBody SearchQuery query, ResponseRsWrapper rrw) {
+    @ResponseBody public ResponseRsWrapper searchQuery(@RequestBody SearchQuery query, ResponseRsWrapper rrw) {
         if (query == null) {
             return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").addMessage("@RequestBody SearchQuery query == null.").get())
                     .addHttpErrorStatus(hsr, 500);
@@ -502,6 +530,11 @@ public class ProductController {
     @Autowired
     public void setHttpServletResponse(HttpServletResponse hsr) {
         this.hsr = hsr;
+    }
+
+    @Autowired
+    public void setEmailSender(EmailSender emailSender) {
+        this.emailSender = emailSender;
     }
     
     @Autowired

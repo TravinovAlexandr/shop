@@ -17,7 +17,7 @@ public class CartController {
     @PostMapping("/createCart")
     public ResponseRsWrapper createCart(ResponseRsWrapper rrw) {
         try {
-            return rrw.addResponse(cartDao.createCartGetCookieUUID());
+            return rrw.addResponse(cartDao.createCartGetId());
         } catch (AdminException ex) {
             return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
         }

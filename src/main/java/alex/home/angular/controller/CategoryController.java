@@ -22,16 +22,14 @@ public class CategoryController {
         try {
             return rrw.addResponse(categoryDao.selectAllCategories());
         } catch (AdminException ex) {
-            return rrw.addHttpErrorStatus(hsr, 500).addResponse(ex.get());
+            return rrw.addResponse(ex.get()).addHttpErrorStatus(hsr, 500);
         }
     }
     
     @PostMapping("/admin/addCategory")
     public ResponseRsWrapper addCategory(@RequestBody Category category, ResponseRsWrapper rrw) {
         if (category == null || category.name == null || category.description == null) {
-            return rrw.addResponse(new AdminException().addMessage("@NotNull rguments: " + category == null ? "category == null  " : "" + category != null ? category.name == null 
-                    ? "category.name == null  " : "" + category.description == null ? "category.description == null" : "" : "")
-                    .addExceptionName("IllegalAtributeException").get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {
@@ -45,9 +43,7 @@ public class CategoryController {
     @PostMapping("/admin/updateCategory")
     public ResponseRsWrapper updateCategory(@RequestBody Category category, ResponseRsWrapper rrw) {
         if (category == null || category.name == null || category.description == null) {
-            return rrw.addResponse(new AdminException().addMessage("@NotNull rguments: " + category == null ? "category == null  " : "" + category != null ? category.name == null 
-                    ? "category.name == null  " : "" + category.description == null ? "category.description == null" : "" : "")
-                    .addExceptionName("IllegalAtributeException").get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {
@@ -59,9 +55,9 @@ public class CategoryController {
     }
     
     @PostMapping("/admin/deleteCategory/{catId}")
-    public ResponseRsWrapper deleteCategory(@PathVariable Long catId, ResponseRsWrapper rrw) {
+    public ResponseRsWrapper deleteCategory(@PathVariable Integer catId, ResponseRsWrapper rrw) {
         if (catId == null) {
-            return rrw.addResponse(new AdminException().addMessage("Check atrb Names").addExceptionName("IllegalAtributeException").get()).addHttpErrorStatus(hsr, 400);
+            return rrw.addResponse(new AdminException().addExceptionName("IllegalArgumentException").get()).addHttpErrorStatus(hsr, 400);
         }
         
         try {

@@ -7,7 +7,7 @@ public class InsertProdDto implements Serializable {
     
     public Integer quantity;
     public Float price;
-    public Long[] categoryIds;
+    public Integer [] categoryIds;
     public String name;
     public String description;
     public String url;
@@ -31,11 +31,11 @@ public class InsertProdDto implements Serializable {
         this.price = price;
     }
 
-    public Long[] getCategoryIds() {
+    public Integer [] getCategoryIds() {
         return categoryIds;
     }
 
-    public void setCategoryIds(Long[] categoryIds) {
+    public void setCategoryIds(Integer [] categoryIds) {
         this.categoryIds = categoryIds;
     }
 

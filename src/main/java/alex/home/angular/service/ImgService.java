@@ -17,14 +17,14 @@ public class ImgService implements ImgDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override @NotNullArgs
-    public Img selectImgById(Long id) {
-        if (id == null) {
-            throw new AdminException().addMessage("IllegalArgumentException").addMessage("@NotNullArgs Long id == null");
+    public Img selectImgById(Integer imgId) {
+        if (imgId == null) {
+            throw new AdminException().addMessage("IllegalArgumentException");
         }
         
         try {
-            return jdbcTemplate.queryForObject("SELECT id, url FROM " + PGMeta.IMG_TABLE + " WHERE id = " + id, (ResultSet rs, int i) 
-                    -> { return new Img(rs.getLong("id"), rs.getString("url"));});
+            return jdbcTemplate.queryForObject("SELECT id, url FROM " + PGMeta.IMG_TABLE + " WHERE id = " + imgId, (ResultSet rs, int i) 
+                    -> { return new Img(rs.getInt("id"), rs.getString("url"));});
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
@@ -32,10 +32,9 @@ public class ImgService implements ImgDao {
     }
 
     @Override @NotNullArgs
-    public void updateImg(Long imgId, String url) {
+    public void updateImg(Integer imgId, String url) {
         if (imgId == null || url == null) {
-            throw new AdminException().addMessage("@NotNullArgs  " + imgId == null ? "Long imgId == null" : "  " + url == null  ? "String imageUrl == null" : "  ")
-                    .addExceptionName("IllegalArgumentException");
+            throw new AdminException().addExceptionName("IllegalArgumentException");
         }
         
         try {

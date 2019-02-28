@@ -17,27 +17,33 @@ public class Cart implements Serializable {
         ON, STOP, OFF
     }
     
-    public Long id;
+    public Integer id;
     public String desc;
     public String name;
     public String email;
     public String address;
     public String telephone;
     public String clientWish;
-    public String cookie;
     public Date startDay;
     public Date endDay;
     public OrderStatus status;
-    //M-M
     public List<Product> products;
 
+    public Cart(String name, String email, String address, String telephone, String clientWish) {
+        this.name = name;
+        this.email = email;
+        this.address = address;
+        this.telephone = telephone;
+        this.clientWish = clientWish;
+    }
+    
     public Cart() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -87,14 +93,6 @@ public class Cart implements Serializable {
 
     public void setClientWish(String clientWish) {
         this.clientWish = clientWish;
-    }
-
-    public String getCookie() {
-        return cookie;
-    }
-
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
     }
 
     public Date getStartDay() {

@@ -5,13 +5,13 @@ import java.io.Serializable;
 public class LimitOffset implements Serializable {
 
     public String stringId;
-    public Long id;
+    public Integer id;
     public Integer limit;
     public Integer offset;
     
     public LimitOffset() {}
     
-    public LimitOffset(Long id, Integer limit, Integer offset) {
+    public LimitOffset(Integer id, Integer limit, Integer offset) {
         this.id = id;
         this.limit = limit;
         this.offset = offset;
@@ -31,11 +31,11 @@ public class LimitOffset implements Serializable {
         this.stringId = stringId;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     

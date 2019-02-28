@@ -10,15 +10,15 @@ import java.util.List;
 
 //CREATE TABLE category_product(category_id BIGINT REFERENCES category (id) ON DELETE RESTRICT ON UPDATE CASCADE, 
 //product_id BIGINT REFERENCES product (id) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY (category_id, product_id));
+
 public class Product implements Serializable {
 
-    public Long id;
-    public Long imgId;
+    public Integer id;
+    public Integer imgId;
     public Integer buyStat;
     public Integer quantity;
     public Integer mark;
     public Float price;
-    //O-O
     public String imgUrl;
     public String name;
     public String description;
@@ -26,14 +26,12 @@ public class Product implements Serializable {
     public Boolean isRecommend;
     public Date startDate;
     public Date lastBuyDate;
-    //M-M
     public List<Category> category;
-    //M-O
     public List<Comment> comments;
     
     public Product() {}
     
-    public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
+    public Product(Integer id, Integer buyStat, Integer quantity, Integer mark, 
             Float price, String name, String description, Boolean isExist, Boolean isRecommend, Date startDate, Date lastBuyDate) {
    
         this.id = id;
@@ -50,7 +48,7 @@ public class Product implements Serializable {
     }
     
     //With image
-    public Product(Long id, Integer buyStat, Integer quantity, Integer mark, 
+    public Product(Integer id, Integer buyStat, Integer quantity, Integer mark, 
             Float price, String name, String description, Boolean isExist, Boolean isRecommend, Date startDate, Date lastBuyDate, String imgUrl) {
    
         this.id = id;
@@ -67,33 +65,31 @@ public class Product implements Serializable {
         this.imgUrl = imgUrl;
     }    
     
-    public  Product(Long id, String name, String description , Float price) {
+    public  Product(Integer id, String name, String description , Float price) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getImgId() {
+    public Integer getImgId() {
         return imgId;
     }
 
-    public void setImgId(Long imgId) {
+    public void setImgId(Integer imgId) {
         this.imgId = imgId;
     }
-
     public Integer getBuyStat() {
         return buyStat;
     }
-
     public void setBuyStat(Integer buyStat) {
         this.buyStat = buyStat;
     }

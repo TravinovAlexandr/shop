@@ -58,24 +58,24 @@ public class ImgDaoMediator implements AsyncMethod {
         
         private String algoName;
         private String url;
-        private Long imgId;
+        private Integer imgId;
         
-        private ImgDaoArgs(String algoName, Long imgId) {
+        private ImgDaoArgs(String algoName, Integer imgId) {
             this.algoName = algoName;
             this.imgId = imgId;
         }
         
-        private ImgDaoArgs(String algoName, Long imgId, String url) {
+        private ImgDaoArgs(String algoName, Integer imgId, String url) {
             this.algoName = algoName;
             this.imgId = imgId;
             this.url = url;
         }
         
-        public static final ImgDaoArgs create(String algoName, Long imgId) {
+        public static final ImgDaoArgs create(String algoName, Integer imgId) {
             return new ImgDaoArgs(algoName, imgId);
         }
         
-        public static final ImgDaoArgs create(String algoName, Long imgId, String url) {
+        public static final ImgDaoArgs create(String algoName, Integer imgId, String url) {
             return new ImgDaoArgs(algoName, imgId, url);
         }
         

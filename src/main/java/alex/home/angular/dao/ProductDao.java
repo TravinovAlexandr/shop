@@ -8,13 +8,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductDao {
 
-    Product selectProduct(Long id);
+    Product selectProduct(Integer id);
 
-    Product selectProductCategoriesComments(Long id);
-    
-//    List<Product> selectProductsWhereCtegoryId(String query);
-    
-//    List<Product> selectLastAdded(String query);
+    Product selectProductCategoriesComments(Integer id);
     
     List<Product> selectRecommended(Integer limit);
     
@@ -26,17 +22,17 @@ public interface ProductDao {
     
     Integer getProductCount(String query);
     
-    Boolean incrementProductMark(Long id);
+    Boolean incrementProductMark(Integer id);
     
-    Boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId);
+    Boolean updateProductCategories(Integer id, Integer oldCategoryId, Integer newCategoryId);
     
-    Boolean isAllProductsExist(List<Long> prodIds);
+    Boolean isAllProductsExist(List<Integer> prodIds);
     
     <T, E> void updateSingleField(T cond, E val, String query, String exName, String exMessage);
     
     void insertProduct(InsertProdDto dto);
     
-    void deleteProduct(Long id);
+    void deleteProduct(Integer id);
     
     void updateRecommend(String query);
  

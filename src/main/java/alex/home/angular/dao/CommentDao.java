@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentDao {
     
-    void deleteComment(Long id);
+    void deleteComment(Integer id);
     
     void addComment(Comment comment);
     
-    List<Comment> selectAllComments(Long prodId);
-    
     void updateComment(Comment comment);
+    
+    List<Comment> selectAllComments(Integer prodId);
 }

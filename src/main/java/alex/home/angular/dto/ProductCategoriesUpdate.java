@@ -5,33 +5,33 @@ import java.util.List;
 
 public class ProductCategoriesUpdate implements Serializable{
     
-    public Long productId;
-    public List<Long> oldCategoriesId;
-    public List<Long> newCategoriesId;
+    public Integer productId;
+    public List<Integer> oldCategoriesId;
+    public List<Integer> newCategoriesId;
     
     public ProductCategoriesUpdate() {}
 
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 
-    public List<Long> getOldCategoriesId() {
+    public List<Integer> getOldCategoriesId() {
         return oldCategoriesId;
     }
 
-    public void setOldCategoriesId(List<Long> oldCategoriesId) {
+    public void setOldCategoriesId(List<Integer> oldCategoriesId) {
         this.oldCategoriesId = oldCategoriesId;
     }
 
-    public List<Long> getNewCategoriesId() {
+    public List<Integer> getNewCategoriesId() {
         return newCategoriesId;
     }
 
-    public void setNewCategoriesId(List<Long> newCategoriesId) {
+    public void setNewCategoriesId(List<Integer> newCategoriesId) {
         this.newCategoriesId = newCategoriesId;
     }
     

@@ -6,14 +6,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CartDao {
     
-    String createCartGetCookieUUID();
+    String createCartGetId();
     
-    Long updateCartGetId(Cart sc);
+    Boolean singleStrArgBoolRetIsUpdated(String query);
+    
+    void updateCart(Cart sc);
     
     void cartProductsMultyInsertion(String query);
     
-    void singleStrArgVoidRet(String query, String arg);
+    void singleStrArgVoidRet(String query);
     
-    void addProduct(String uuid, Long prodId);
-    
+    void vargsStrArgVoidRet(String ... query);
 }

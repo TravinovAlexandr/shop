@@ -1,6 +1,7 @@
 package alex.home.angular.transaction;
 
 import alex.home.angular.domain.Product;
+import alex.home.angular.dto.ClientInfoProductsSum;
 import alex.home.angular.dto.InsertProdDto;
 import alex.home.angular.dto.ProductsCount;
 import alex.home.angular.dto.SubmitContract;
@@ -10,15 +11,15 @@ import org.springframework.stereotype.Component;
 @Component
 public interface TransactionFacade {
     
-    Product selectProduct(Long id);
+    Product selectProduct(Integer id);
     
-    Product selectProductCategoriesComments(Long id);
+    Product selectProductCategoriesComments(Integer id);
     
-    ProductsCount selectProductsWhereCtegoryId(Long categoryId, Integer limit, Integer offset);
+    ProductsCount selectProductsWhereCtegoryId(Integer categoryId, Integer limit, Integer offset);
     
     ProductsCount searchFormSelection(String query);
 
-    List<Product> selectLastAddedInCategory(Long catId, Integer limit);
+    List<Product> selectLastAddedInCategory(Integer catId, Integer limit);
     
     List<Product> selectLastAddedInAllCategories(Integer limit);
     
@@ -26,35 +27,36 @@ public interface TransactionFacade {
     
     List<Product> checkCartProducts(SubmitContract sc);
     
+    List<ClientInfoProductsSum> submitContract(SubmitContract sc);
+    
     Integer getProductCount(String query);
     
-    boolean incrementProductMark(Long id);
+    Boolean isConfirmed(Integer cartId);
     
-    boolean updateProductCategories(Long id, Long oldCategoryId, Long newCategoryId);
+    boolean incrementProductMark(Integer id);
     
-    void updateProductName(Long id, String newName);
+    boolean updateProductCategories(Integer id, Integer oldCategoryId, Integer newCategoryId);
     
-    void updateProductDesc(Long id, String desc);
+    void updateProductName(Integer id, String newName);
     
-    void updateProductPrice(Long id, Float price);
+    void updateProductDesc(Integer id, String desc);
     
-    void updateProductQuant(Long id, Integer quant);
+    void updateProductPrice(Integer id, Float price);
     
-    void updateProductMark(Long id, Integer mark);
+    void updateProductQuant(Integer id, Integer quant);
+    
+    void updateProductMark(Integer id, Integer mark);
     
     void insertProduct(InsertProdDto dto);
     
-    void deleteProduct(Long id);
+    void deleteProduct(Integer id);
     
-    void updateRecommend(Long prodId);
+    void updateRecommend(Integer prodId);
     
-    void submitContract(SubmitContract sc);
-    
-    void addProductInCart(Long cartId, Long prodId);
+    void addProductInCart(Integer cartId, Integer prodId);
 
-    void deleteProductFromCart(Long cartId, Long prodId);
+    void deleteProductFromCart(Integer cartId, Integer prodId);
 
-    void decProductInCart(Long cartId, Long prodId);
+    void decProductInCart(Integer cartId, Integer prodId);
 
-    void incProductInCart(Long cartId, Long prodId);
 }

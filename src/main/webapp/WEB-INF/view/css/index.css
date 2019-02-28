@@ -178,4 +178,4 @@ operationEl { width: 100%; float: left; }
 .contract span { float:left; clear: both; width: 100%; font-size: 18px; color: yellow; }
 .contract label, .contract p { float:left; width: 100% }
 .contract button { float:left; clear: both; }
-.contract input, .contract textarea { margin-left: 1%; font-size: 18px; width: 40%; max-width: 50%; }
+.contract input[type="text"], .contract input[type="email"], .contract textarea { margin-left: 1%; font-size: 17px; width: 40%; max-width: 50%; }

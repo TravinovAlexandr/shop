@@ -53,8 +53,8 @@ public class CategoryService implements CategoryDao {
             StringBuilder query = new StringBuilder();
             
             query.append("SELECT UPDATE_PRODUCT_CATEGORIES(").append(pcu.productId).append(",")
-                        .append(SqlUtil.getBigintArray(pcu.oldCategoriesId)).append(",")
-                        .append(SqlUtil.getBigintArray(pcu.newCategoriesId))
+                        .append(SqlUtil.getIntArray(pcu.oldCategoriesId)).append(",")
+                        .append(SqlUtil.getIntArray(pcu.newCategoriesId))
                         .append(")");
             
             jdbcTemplate.execute(query.toString());
@@ -96,7 +96,7 @@ public class CategoryService implements CategoryDao {
 
     @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
-    public void deleteCategory(@NotNull Long id) {
+    public void deleteCategory(@NotNull Integer id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
         }
@@ -126,7 +126,7 @@ public class CategoryService implements CategoryDao {
     
     @Override @NotNullArgs
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public void upadateCategoryName(Long id, String name) {
+    public void upadateCategoryName(Integer id, String name) {
         if (id == null || name == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage(name == null ? "String name  == null" : "" + id == null ? "Long id == null" : "");
         }
@@ -141,7 +141,7 @@ public class CategoryService implements CategoryDao {
     
     @Override @NotNullArgs
     @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
-    public void updateCategoryDesc(Long id, String description) {
+    public void updateCategoryDesc(Integer id, String description) {
         if (id == null || description == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("@NotNullArgs: " +description == null ? "String description == null  " : ""
                     + id == null ? "Long id == null" : "");
@@ -157,14 +157,14 @@ public class CategoryService implements CategoryDao {
     
     
     @Override
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
+    @Transactional( propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
     public void updateCategory(Category category) {
         if (category == null || category.id == null || category.name == null || category.description == null) {
                 throw new AdminException().addMessage("@NotNull rguments: " + category == null ? "category == null  " : "" + category != null 
                         ? category.id == null ? "category.id == null  " : "" + category.name == null ? "category.name == null  " : "" + category.description == null
                                 ? "category.description == null" : "" : "").addExceptionName("IllegalAtributeException");
         }
-        System.out.println(category.description);
+
         try {
             jdbcTemplate.update("UPDATE " + PGMeta.CATEGORY_TABLE + " SET name = ?, description = ? WHERE id = " + category.id, category.name, category.description);
         } catch (DataAccessException ex) {
@@ -173,15 +173,15 @@ public class CategoryService implements CategoryDao {
     }
     
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, readOnly = true)
-    public Category selectCategory(Long id) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public Category selectCategory(Integer id) {
         if (id == null) {
             throw new AdminException().addExceptionName("IllegalArgumentException").addMessage("Long id == null");
         }
         
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM category WHERE id = " + id, (ResultSet rs, int i)
-                    -> { return new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")); });
+            return jdbcTemplate.queryForObject("SELECT * FROM category WHERE id = " + id, (ResultSet rs, int i) 
+                    -> { return new Category(rs.getInt("id"), rs.getInt("pid"), rs.getString("name"), rs.getString("description")); });
         } catch (DataAccessException ex) {
             throw new AdminException(ex);
         }
@@ -189,10 +189,10 @@ public class CategoryService implements CategoryDao {
     
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, readOnly = true)
     public List<Category> selectAllCategories() {
         try {
-          return jdbcTemplate.query("SELECT * FROM category;", (ResultSet rs, int i) -> new Category(rs.getLong("id"), rs.getString("name"), rs.getString("description")));
+          return jdbcTemplate.query("SELECT * FROM category;", (ResultSet rs, int i) -> new Category(rs.getInt("id"), rs.getInt("pid"), rs.getString("name"), rs.getString("description")));
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);

@@ -4,26 +4,26 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-//CREATE TABLE coments(id BIGSERIAL PRIMARY KEY, product_id BIGINT REFERENCES product (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL, 
+//CREATE TABLE coments(id SERIAL PRIMARY KEY, product_id INT REFERENCES product (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL, 
 //body  VARCHAR(100) NOT NULL, nick VARCHAR(30) NOT NULL, date TIMESTAMP NOT NULL);
 public class Comment implements Serializable {
     
-    public Long id;
-    public Long productId;
+    public Integer id;
+    public Integer productId;
     public String body;
     public String nick;
     public Date date;
     
     public Comment() {}
     
-    public Comment(Long id, String body, String nick, Date date) {
+    public Comment(Integer id, String body, String nick, Date date) {
         this.id = id;
         this.body = body;
         this.nick = nick;
         this.date = date;
     }
     
-    public Comment(Long id, String body, String nick) {
+    public Comment(Integer id, String body, String nick) {
         this.id = id;
         this.body = body;
         this.nick = nick;

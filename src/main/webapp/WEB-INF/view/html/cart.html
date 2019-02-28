@@ -1,5 +1,5 @@
 <div class="cartWrapper">
-
+    
     <div class='cartLinkRedirect' ng-if="prevLocation && prevLocation !== '/cart'">
         <a ng-href="#!{{prevLocation}}">Вернуться</a>
     </div>
@@ -38,14 +38,14 @@
                 </div> 
                 <div class="bigProdEl">
                     <p class="greenFont">Like</p>
-                    <p >{{cartProd.mark | defaultVal:'0'}}</p>
+                    <p >{{cartProd.like | defaultVal:'0'}}</p>
                 </div>
             </div>
            </div>
             <div class="bigProdOperations px17" >
                 <div class="operationEl">
-                    <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="likeBigProd( mainProd.id )"/>
-                    <p ng-click="deleteProductBigCart(cartProd.id)">Like</p>
+                    <img ng-src="/img/icon-thumbsup.png" alt="" ng-click="prodCartLike( cartProd.id )"/>
+                    <p ng-click="likeBigProd(cartProd.id)">Like</p>
                 </div>
                 <div class="operationEl" >
                     <div class="plusMinusWrapper">

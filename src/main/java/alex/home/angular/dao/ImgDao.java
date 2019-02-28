@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ImgDao {
     
-    Img selectImgById(Long id);
+    Img selectImgById(Integer id);
     
-    void updateImg(Long imgId, String url);
+    void updateImg(Integer imgId, String url);
 }

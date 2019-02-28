@@ -23,7 +23,7 @@ public class CommentService implements CommentDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public void deleteComment(@NotNull Long id) {
+    public void deleteComment(@NotNull Integer id) {
         if (id == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
@@ -54,14 +54,14 @@ public class CommentService implements CommentDao {
     
     @Override @NotNull
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public List<Comment> selectAllComments(@NotNull Long prodId) {
+    public List<Comment> selectAllComments(Integer prodId) {
         if (prodId == null) {
             throw new AdminException().addMessage("Controller validation args error.").addExceptionName("IllegalArgumentException");
         }
         
         try {
             return jdbcTemplate.query("SELECT * FROM " + PGMeta.COMMENT_TABLE + " WHERE product_id = " + prodId, (ResultSet rs, int i) 
-                    -> new Comment(rs.getLong("id"), rs.getString("body"), rs.getString("nick")));
+                    -> new Comment(rs.getInt("id"), rs.getString("body"), rs.getString("nick")));
         } catch (DataAccessException ex) {
             ex.printStackTrace();
             throw new AdminException(ex);
