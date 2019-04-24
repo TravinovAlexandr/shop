@@ -1,0 +1,79 @@
+<div class="tagView">
+    <span ng-click="deleteAllOrphanedTags()">Удалить все неиспользуемые теги</span>
+    <div class="tagAlphabet">
+        <h1>Алфавит</h1>
+        <span ng-click="setVisible('russianAlphabet')">Русский</span>
+
+        <ul class="hidden russianAlphabet" ng-click="chooseLetter($event)">
+            <li>А</li><li>Б</li><li>В</li><li>Г</li><li>Д</li><li>Е</li>
+            <li>Ж</li><li>З</li><li>И</li><li>Й</li><li>К</li><li>Л</li>
+            <li>М</li><li>Н</li><li>О</li><li>П</li><li>Р</li><li>С</li>
+            <li>Т</li><li>У</li><li>Ф</li><li>Х</li><li>Ц</li><li>Ч</li>
+            <li>Ш</li><li>Щ</li><li>Ы</li><li>Э</li><li>Ю</li><li>Я</li>
+        </ul>
+
+        <span ng-click="setVisible('englishAlphabet')">Английский</span>
+
+        <ul class="hidden englishAlphabet" ng-click="chooseLetter($event)">
+            <li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li>
+            <li>G</li><li>H</li><li>I</li><li>J</li><li>K</li><li>L</li>
+            <li>M</li><li>N</li><li>O</li><li>P</li><li>Q</li><li>R</li>
+            <li>S</li><li>T</li><li>U</li><li>V</li><li>W</li><li>X</li>
+            <li>Y</li><li>Z</li>
+        </ul>
+    </div>
+
+    <div class="lastAddedTagId" ng-show="lastAddedTag">
+        <span>Последний добавленный тег:</span>
+        <span>Id: {{lastAddedTag.id}}</span>
+        <span>Название: {{lastAddedTag.name}}</span>
+    </div>
+
+    <div class="updateTag">
+        <form name="updateTagForm" ng-submit="submitUpdateTag()">
+            <span ng-click="updateTagExite()">X</span>
+            <label for="updateTagName">Изменить тег. Название:</label>
+            <input type="text" id="updateTagName" name="updateTagName" autocomplete="off" required placeholder="Введите название" ng-model="updateTagObj.name" />
+            <span ng-show="updateTagForm.updateTagName.$error.required && updateTagForm.updateTagName.$touched">Новое название неопределено</span>
+            <button>Ок</button>
+        </form>
+    </div>
+
+    <span ng-click="setVisible('addTag')">Добавить тег</span>
+
+    <div class="addTag">
+        <form name="addTagForm" ng-submit="submitAddTag()">
+            <label for="addTagName">Добавить тег. Название:</label>
+            <input type="text" id="addTagName" name="addTagName" autocomplete="off" required placeholder="Введите название" ng-model="addTagName" />
+            <span ng-show="addTagForm.addTagName.$error.required && addTagForm.addTagName.$touched">Название неопределено</span>
+            <button>Ок</button>
+        </form>
+    </div>
+
+    <span ng-click="getOrphanedTags()">Найти все неиспользуемые теги</span>
+
+    <span ng-click="selectByAlphabet()">Поиск по алфавиту</span>
+
+    <div class="tagTable" ng-show="tags">
+        <table>
+            <thead>
+                <tr>
+                    <th ng-click="orderTagTable('id')">Id</th>
+                    <th ng-click="orderTagTable('name')">Название</th>
+                    <th>Удалить</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="tag in tags | orderBy:tagOrder">
+                    <td ng-click="updateTag(tag.id, tag.name)">{{tag.id}}</td>
+                    <td ng-click="updateTag(tag.id, tag.name)">{{tag.name}}</td>
+                    <td><button ng-click="deleteTag(tag.id)">Удалить</button></td>
+                </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+        <div class="paginationBar"></div>
+    </div>
+
+</div>

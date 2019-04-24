@@ -1,38 +1,33 @@
-.productDescriptionWrapper { width: 68%; float: left; text-align: right; text-align: justify; }
+/*body { background-color: #505050; }*/
+
+.adminProdUp { width: 70%; }
+.adminProdUpRightWrapper { float: left; width: 38.5%; padding-left: 1.5%; }
+.adminProdUpLeftWrapper { float: left; width: 60%;  }
+.adminProdUp ul { float: left; width: 100%; margin: 10px 0 10px 0; padding: 0; font-size: 16px; }
+.adminProdUp li { float: left; list-style-type: none; background-color: yellow; margin: 0 3px 0 3px; padding: 3px; cursor: pointer; }
+.adminProdUp li:hover { background-color: blue; color: white; }
+.adminProdUp label { width: 100%; margin: 0; }
+.adminProdUpRightWrapper label { margin-top: 15px; }
+.adminProdUp input { width: 70%; }
+.adminProdUp textarea { width: 70%;  max-width: 99%; }
+.displayNone { display: none; }
+.adminProdImage { width: 90%; }
+.adminProdUp span { float: left; width: 100%; font-size: 20px; }
+.addNewComment span, .addNewComment label { float: left; margin-bottom: 10px; }
+.addnewComButton { padding: 1%; background-color: lightgray; width: 90px !important; clear: both; }
+.addnewComButton:hover { background-color: gray; cursor: pointer; }
+.upProdLink { float: left; margin-top: 5px; }
+.upProdLink:hover { text-decoration: underline; cursor: pointer; }
+.upComBlock { float: left; width: 100%; }
+.upBlock { float: left; margin-top: 20px; padding: 1%; width : 97.7%; border: 1px solid gray; }
+
+.backColorGray { background-color: #303030	; }
+.backColorLightGray { background-color: #404040; }
+
+
+/*ПРОВЕРИТЬ ДЛЯ ЧЕГО ЭТА ФИГНЯ*/
+/*.productDescriptionWrapper { width: 68%; float: left; text-align: right; text-align: justify; }
 .ultimateRightWrapper { width: 30%; background-color: white; float: right; }
 .cartWrapper { width: 100%; }
 .cartImage { width: 150px; height: 100px; border: 1px solid silver; }
-.singleProductImg { width: 100%; max-width: 200px; }
-
-/*ADMIN PRODUCT*/
-.adminProdRemoveLink { color: #FF2800; margin: 0; margin-bottom: 4vh; text-decoration: underline;}
-.adminProdUp { width: 70%; }
-.adminProdUpRightWrapper { width: 40%; float: left; }
-.adminProdUpLeftWrapper { width: 60%; float: left; }
-.adminProdUpImg img { width: 90%; transition: 0.7s;}
-.adminProdUpImg img:hover { width: 100%; transition: 0.7s;}
-.adminProdRemoveLink:hover { cursor: pointer;}
-.adminProdUpLink { color: #157700; font-size: 0.9vw;}
-.adminProdUpLink:hover { text-decoration: underline; cursor: pointer;}
-.adminProdUp { padding-left: 2%; }
-.adminProdUp input { width: 70%; margin-left: 1vw; margin-top: 1vh;}
-.adminProdUp textarea { width: 70%; margin-left: 1vw; margin-top: 1vh; width:  90%; max-width: 90%; height: 10vh; }
-.adminProdUpInputWrapper { width: 100%; }
-.adminProdUpCurrentCategories { float: left; margin-right: 1vw; }
-.adminProdUpCurrentCategories p {margin-bottom: 0;}
-.adminProdUpCurrentCategories p:before { content: "- "}
-.adminProdUpCurrentCategories p:hover { cursor: pointer; text-decoration: underline;}
-.adminProdUpCommentBlock { clear: both; }
-.categoryLinkWrapper {width: 100%; clear: both; padding-top: 1vh;}
-.categoryLabel {margin-bottom: 0; }
-.adminImgLinkWrapper { padding-top: 10vh;}
-.adminImgLinkWrapper label { text-decoration: underline; cursor: pointer; }
-#adminImgMultipart { display: none; }
-.adminProdUpAllCategoriesWrapper { display: none; }
-.adminProdUpAllCategoriesWrapper p { margin-bottom: 1vh; margin-top: 1vh;}
-.adminProdUpAllCategoriesWrapper p:before { content: "- "; }
-.adminProdUpAllCategoriesWrapper p:hover{ cursor: pointer; text-decoration: underline; }
-.jampToProductTableLink { text-decoration: underline; cursor: pointer; margin-top: 0; }
-.adminProdUpCommentBlock { display: none; }
-.addnewComment { cursor: pointer; font-size: 1wh;}
-.addnewComment:hover { text-decoration: underline; }
+.singleProductImg { width: 100%; max-width: 200px; }*/

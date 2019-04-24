@@ -38,7 +38,7 @@ indexApp.controller('ContractController', function ($location, $scope, $rootScop
         });
     
     $scope.submitContract = function () {
-        var contract = $scope.contractForm;
+        var contract = $scope.contract;
         var cart = CartService.getCart();
         
         cart.products.forEach(function (el) {
@@ -47,16 +47,17 @@ indexApp.controller('ContractController', function ($location, $scope, $rootScop
                 return;
             }
         });
-
-        if (cart.uuid && cart.products && cart.products.length > 0 && contract.name.$modelValue && contract.email.$modelValue && contract.telephone.$modelValue) {
+        
+        if (cart.uuid && cart.products && cart.products.length > 0 && contract.clientName && contract.clientEmail && contract.clientTelephone && contract.delivery) {
             var products = [];
             cart.products.forEach(function (el) {
                 products.push( { prodId : el.id, quantInCart: el.quantInCart } );
             });
-            
-            contract = { id :  cart.uuid, name : contract.name.$modelValue, email : contract.email.$modelValue, telephone : contract.telephone.$modelValue, wish : contract.wish.$modelValue };
+            contract.id = cart.uuid;
+//            contract = { id : cart.uuid, name : contract.name.$modelValue, email : contract.email.$modelValue, telephone : contract.telephone.$modelValue, 
+//                wish : contract.wish.$modelValue, delivery : $scope.delivery };
 
-            ContractService.submitContract( { products: products, cart: contract } )
+            ContractService.submitContract({ products: products, cart: contract })
                     .then(function () {
                         CartService.deleteCookie();
                         $rootScope.confirmationMessage = "На вашу почту отправленно сообщение c подтверждениeм заказа.";
@@ -81,8 +82,9 @@ indexApp.factory('ContractService', function ($http, $q) {
    
     return {
       submitContract(contract) {
-          if (contract.cart && contract.cart.id && contract.cart.email && contract.cart.telephone && contract.products && contract.products.length > 0) {
-              return $http( {url : URL_SUBMIT_CONTRACT, method : 'POST',  data : contract} )
+          console.log(contract);
+          if (contract.cart && contract.cart.id && contract.cart.clientEmail && contract.cart.clientTelephone && contract.cart.delivery && contract.products && contract.products.length > 0) {
+              return $http({ url : URL_SUBMIT_CONTRACT, method : 'POST',  data : contract })
                       .then(null, function (ex) {
                           return $q.reject(ex.data.response);
                       });
@@ -95,9 +97,6 @@ indexApp.factory('ContractService', function ($http, $q) {
 
 //INDEX INIT CONTROLLER
 indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $location, CategoryService, CartService, ProductService) {
-//    if (CartService.checkCookies()) {
-//        _refreshView();
-//    }
 
     _refreshView();
     
@@ -108,19 +107,20 @@ indexApp.controller('IndexInitController', function ($scope, $timeout, $log, $lo
     
     CategoryService.getAllCategories()
             .then(function (res) {
-                $scope.categories = res;
+                $scope.categories = res.nodes;
             }, function (ex) {
                 $log.error(ex);
             });
-            
 
-    $scope.getProductsByCategory = function (catId) {
-        if (!catId) {
+    $scope.getProductsByCategory = function (catId, nodes) {
+        if (catId && nodes && nodes.length > 0) {
+            $scope.subCats = nodes;
+        } else if (catId && nodes.length === 0) {
+            $scope.subCats = null;
+            $location.path('/products/' + catId + '/' + 1);
+        } else {
             $log.warn('indexInitController getProductsByCategory: args catId === undefined');
-            return;
-       }
-       
-       $location.path('/products/' + catId + '/' + 1);
+        }
     };
     
     $scope.cartProdUp = function () {
@@ -308,6 +308,7 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
     ProductService.getProductsByCategory($routeParams.catId, Paginator.getLimit(), Paginator.getOffset())
             .then(function (res) {
                 $scope.products = res.products;
+                console.log(res.products);
                 $('.paginationBar').html($compile(Paginator.getPaginRow(res.count))($scope));
                 Paginator.setOffset(0);
             }, function (ex) {
@@ -366,9 +367,9 @@ indexApp.controller('ProductController', function ($log, $scope, $location, $com
     
     $scope.addMinProdToCart = function (prodId, name, price, imgUrl, isExist, mark) {
         if (prodId && name && price !== undefined && imgUrl && isExist !== undefined && mark !== undefined) {
-            $scope.$emit('addProdToCart', { prodId : prodId, name : name, price : price, imgUrl : imgUrl, isExist : isExist, mark : mark });
+            $scope.$emit('addProdToCart', { prodId : prodId, name : name, price : price, imgUrl : imgUrl, isExist : isExist, mark : mark } );
         } else {
-            $log.warn('addMinProdToCart args === undefined');
+            $log.error('addMinProdToCart args === undefined');
         }
     };
     
@@ -519,9 +520,21 @@ indexApp.controller('MainProdController', function ($scope, $log, $routeParams, 
      
     ProductService.selectMainPageProduct($routeParams.mainProdId)
                 .then(function (res) {
-                    var redirectInfo = CartService.getRedirectInfo();
-                    $scope.mainProdRet = 'products/' + redirectInfo.category + '/' + redirectInfo.page;
+                    if (res.imgs && res.imgs.length > 0) {
+                        for (var i = 0; i < res.imgs.length; i++) {
+                            if (res.imgs[i].isMainImg === true) {
+                                res.url = res.imgs[i].url;
+                                res.imgs.splice(i,1);
+                            }
+                        }
+                    }
+                    
                     $scope.mainProd = res;
+                    console.log(res);
+                    var redirectInfo = CartService.getRedirectInfo();
+                    if (redirectInfo) {
+                        $scope.mainProdRet = 'products/' + redirectInfo.category + '/' + redirectInfo.page;
+                    }
                 }, function (ex) {
                     $log.error(ex);
                 });
@@ -558,15 +571,20 @@ indexApp.controller('MainProdController', function ($scope, $log, $routeParams, 
                     .then(function () {
                         var products = SharedData.getProducts();
                         if (!products || products.length === 0) {
+                            CartService.updateLikesInCart(prodId);
+                            _updateLike(prodId);
+                            $scope.mainProd.mark++;
                             var info = CartService.getRedirectInfo();
-                            ProductService.getProductsByCategory(info.category, Paginator.getLimit(), (info.page - 1) * Paginator.getLimit())
-                                    .then(function (res) {
-                                        CartService.updateLikesInCart(prodId);
-                                        SharedData.setProducts(res.products);
-                                        _updateLike(prodId);
-                                    }, function (ex) {
-                                        $log.warn(ex);
-                                    });
+                            if (info) {
+                                ProductService.getProductsByCategory(info.category, Paginator.getLimit(), (info.page - 1) * Paginator.getLimit())
+                                        .then(function (res) {
+                                            CartService.updateLikesInCart(prodId);
+                                            SharedData.setProducts(res.products);
+                                            _updateLike(prodId);
+                                        }, function (ex) {
+                                            $log.warn(ex);
+                                        });
+                            } 
                         } else {
                             CartService.updateLikesInCart(prodId);
                             _updateLike(prodId);
@@ -725,6 +743,9 @@ indexApp.factory('ProductService', function ($q, $http, $timeout, CartService) {
             if (prodId) {
                 return $http({url : '/getMainPageProduct/' + prodId, method : 'POST'})
                         .then(function (res) {
+                            console.log('-------------');
+                    console.log(res.data.response);
+                    console.log('-------------');
                             return res.data.response;
                         }, function (ex) {
                             return $q.reject(ex.data.response);
@@ -865,8 +886,7 @@ indexApp.factory('CartService', function ($cookieStore, $http, $q, $log) {
                         }
                     });
                 } else {
-                    likeCookies = [];
-                    likeCookies[0] = prodId;
+                    likeCookies = [prodId];
                 }
                 $cookieStore.put(COOKIES_LIKE_CHECK, likeCookies, new Date(now.getFullYear() + 10, now.getMonth(), now.getDate()));
                 
@@ -991,10 +1011,10 @@ indexApp.factory('Paginator', function() {
     var clickedElemtIndex = -1;
 
     return {
-        getPaginRow : function(elementNum) {
+        getPaginRow : function(count) {
             var pagElement = '';
-            var mod = elementNum % limit;
-            for (var i = 1; i <= elementNum / limit + ((mod === 0) ? 0 : 1); i++) {
+            var mod = count % limit;
+            for (var i = 1; i <= count / limit + ((mod === 0) ? 0 : 1); i++) {
                 pagElement += '<div class="pagElement"  ng-style="pagClickedStyle(' + i + ')"  ng-click="getAnotherPage('+ i +')"> <p style="width:20px;" class="pagP">' + i + '</p> </div>';
             }   
             return pagElement;
@@ -1029,8 +1049,8 @@ indexApp.factory('Paginator', function() {
 //CHECK VALUE FILTER
 indexApp.filter('defaultVal', function () {
     return function (val, arg) {
-        if (val == undefined) {
-            if (arg != undefined) {
+        if (val === undefined) {
+            if (arg !== undefined) {
                 return arg;
             }
             return '-';
@@ -1066,4 +1086,3 @@ indexApp.filter('sliderFilter', function (SharedData, CartService) {
         }
     };
 });
-

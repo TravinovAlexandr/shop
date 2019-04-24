@@ -1,60 +1,38 @@
 <div class="searchFormWrapper ">
+
     <div class="searchProductTitle">
         <p>Поиск продукта:</p>
     </div>
+
     <form ng-submit="submitSerchForm()">
-
-            <div class="searchTBodyWrapper" ng-repeat="obj in searchForm.searchElements">
-                <div  class="searchChangeElem" ng-if="obj.type !== 'UNDEFINED'">
-                    <div class="searchFormEl">
-                        <div class="nameSearchWrapper">
-                            <p ng-click="setActive($event)">{{obj.name}}</p>
-                            <!--<input class="searchIsActive" type="hidden" value="false" />-->
-                        </div>
-                    </div>
-                    <div class="searchInputWrapper">
-                        <input class="searchIsActive" type="hidden" value="false" />
-                        <div class="searchFormEl">
-                            <input class="searchNameHidden" type="hidden" value="{{obj.name}}" />
-                        </div>
-                        <div class="searchFormEl">
-                        <input class="searchTypeHidden" type="hidden" value="{{obj.type}}" />
-                        </div>
-                        <div class="searchFormEl">
-                        <input class="searchOptionHidden" type="hidden" value="{{obj.conditions[0]}}" />
-                        </div>
-                        <div class="searchFormEl" ng-if="obj.type !== 'radio' && obj.type !== 'textarea'">
-                            <input class="mainSearchInput" type="{{obj.type}}" />
-                        </div>
-                        <div class="searchFormEl" ng-if="obj.type === 'textarea'">
-                            <input class="mainSearchInput" type="text" />
-                        </div>
-                        <div class="searchFormEl">
-                        <input class="doubleSearchInput" type="number"ng-if="obj.type === 'number'"/>
-                        </div>
-                        <div class="searchFormEl">
-                        <input class="doubleSearchInput" type="date"ng-if="obj.type === 'date'"/>
-                        </div>
-                        <div class="searchFormEl">
-                            <div class="conditionWrapper">
-                                <select class="searchSelect">
-                                    <option ng-repeat="op in obj.conditions" value="{{op}}">{{op}}</option>
-                                </select>
-                            </div>
-                        </div>
+        <div class="searchTBodyWrapper" ng-repeat="obj in searchForm.searchElements">
+            <div  class="searchElem" ng-if="obj.type !== 'UNDEFINED'">
+                <div class="nameSearchWrapper">
+                    <p ng-click="setActive($event)">{{obj.name}}</p>
+                </div>
+                <div class="searchInputWrapper">
+                    <input class="searchIsActive" type="hidden" value="false" />
+                    <input class="searchNameHidden" type="hidden" value="{{obj.name}}" />
+                    <input class="searchTypeHidden" type="hidden" value="{{obj.type}}" />
+                    <input class="searchOptionHidden" type="hidden" value="{{obj.conditions[0]}}" />
+                    <input ng-if="obj.type !== 'radio' && obj.type !== 'textarea'" class="mainSearchInput" type="{{obj.type}}" />
+                    <input ng-if="obj.type === 'textarea'" class="mainSearchInput" type="text" />
+                    <input class="doubleSearchInput" type="number"ng-if="obj.type === 'number'"/>
+                    <input class="doubleSearchInput" type="date"ng-if="obj.type === 'date'"/>
+                    <div class="conditionWrapper">
+                        <select class="searchSelect">
+                            <option ng-repeat="op in obj.conditions" value="{{op}}">{{op}}</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="searchFormEl">
-                <div class="searchFormCategories">
-                    <div class="searchCategory" ng-repeat="cat in searchForm.categories">
-                        <p ng-click="selectCategories ( cat.id, $event )">{{cat.name}}</p>
-                    </div>
-                </div>
-            </div>
-
-        <div class="searchFormEl">
-            <button>Поиск</button>
         </div>
+        <div class="searchFormCategories">
+            <p>Терминальные категории:</p>
+            <div class="searchCategory" ng-repeat="cat in searchForm.categories">
+                <p ng-click="selectCategories(cat.id, $event)">{{cat.name}}</p>
+            </div>
+        </div>
+        <button>Поиск</button>
     </form>
 </div>

@@ -1,36 +1,30 @@
 <div class="indexProductsWrapper">
     <div class="minProduct" ng-repeat="product in products">
-        <div ng-click="showBigProduct( product.id )" >
-        <div class="minProductImg">
-            <img ng-src="/img/no_photo.png" alt="no image"/ >
-        </div>
-        <div class="minProductContent">
-            <div class="minProdEl">
-                <p>Название:</p>
-                <p>{{product.name}} Понятно. А Я уж перепугался, что мои sql-бэкапы не сработают :)</p>
+        <a ng-click="showBigProduct(product.id)">
+            <div class="minProductImg">
+                <img ng-src="/img/no_photo.png" alt="no image"/ >
             </div>
-            <div class="minProdEl">
-                <p>Цена:</p>
-                <p>{{product.price}}</p>
+            <div>
+                <span>{{product.title}} </span>
             </div>
-            <div class="minProdEl">
-                <p>{{product.exist}}</p>
+            <div>
+                <span>{{product.price}}</span>
+                <span>{{product.prevPrice}}</span>
+                <span>{{product.discount}}</span>
             </div>
-            <div class="minProdEl">
-                <p>Like:</p>
-                <p>{{product.mark}}</p>
-            </div>
-        </div>
-            </div>
-        <p ng-click="minProductLike( product.id )">Оценить</p>
-            <p class="minProdAddToCart" ng-click="addMinProdToCart( product.id, product.name, product.price, product.imgUrl, product.isExist, product.mark )">В корзину<p>
-
+            <span>{{product.exist}}</span>
+            <div>
+                <span>{{product.mark}}</span>
+            <div>
+            <span ng-click="minProductLike(product.id)">Оценить</span>
+            <span class="minProdAddToCart" 
+                  ng-click="addMinProdToCart(product.id, product.name, product.price, product.imgUrl, product.isExist, product.mark)">В корзину</span>
+        </a>
     </div>
 </div>
 
-<div class="productPagWrapper">
-<div class="prodTabMessage"></div>
 
-<div class="paginationBar">
-</div>
+
+<div class="productPagWrapper">
+    <div class="paginationBar"></div>
 </div>

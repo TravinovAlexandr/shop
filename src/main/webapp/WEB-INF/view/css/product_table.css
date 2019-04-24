@@ -1,11 +1,5 @@
-.productTable { margin-top: 10px; width: fit-content; border: solid 1px #157700;}
-.prodTableBody { }
-.prodTableBody:hover {transition: 0.2s; cursor:pointer; background-color: #CEFF81; }
-.productTableElem {padding-left: 5px; }
-.productTableElem:hover { }
-.productTableElem td { border: none;}
-.productTableElem p {height: auto; margin-right: 5px; }
-
-.prodTableHead { background-color: #157700; color: white;}
-.productTableHElem {padding-left: 5px;}
-.productTableHElem p{height: auto; margin-right: 5px; }
+.productTable { float: left; width: 95%; padding: 10px; margin-top: 20px; }
+.productTable tr:hover { background-color: #ccc; }
+.productTable th { background-color: black; color: white; }
+.productTable th, .catTable td { text-align: left; margin: 0; padding: 0 10px; }
+.productTable td { border: 1px solid black; max-width: 500px; word-break: break-all; padding: 1%; }

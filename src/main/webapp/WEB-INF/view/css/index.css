@@ -33,9 +33,15 @@ body textarea { font-size: 17px; }
 
 /*CATEGORY BAR*/
 .categoriesWrapper { float: left; width: 100%; border-top: 1px solid gray; border-bottom: 1px solid gray; padding: 10px 0; margin-bottom: 10px; }
-.categoryButton { float: left; width: auto; padding: 0 1% 0 1%; border-right: 1px solid #157700; font-size: 20px;}
+.categoryButton { float: left; width: auto; padding: 0 1% 0 1%; border-right: 1px solid #157700; font-size: 20px; }
 .categoryButton:hover { cursor: pointer; color: white; background-color: #157700; }
 .categoryButton:hover a { text-decoration: underline; }
+
+.modalCats { float: left; width: 100%; padding: 1px 0; }
+.modalCats a, .modalCats p { font-size: 20px; margin: 0; }
+.modelCatsEl { float: left; padding: 0 1% 0 1%; border-right: 1px solid #157700;}
+.modelCatsEl:hover { cursor: pointer; color: white; background-color: #157700; }
+
 
 /*MIN CART*/
 .minCartWrapper { float: right; max-width: 30vw; background-color: white; padding: 1%; border: 1px solid grey; }
@@ -46,12 +52,12 @@ body textarea { font-size: 17px; }
 .minCartPagLink { float: left; width: 100%; color: white; background-color: #157700; text-align: center; margin-top: 5px; cursor: pointer; } 
 .minCartPagLink:hover { color: #D8FA3F; text-decoration: underline; transition: 0.2s; }
 .minCartPagLink p { margin: 5px 0; }
-.minProdEl { float: left; width: 100%;}
-.minProdEl p { float: left; background-color: white; margin: 0;}
 .minCartImg { float: left; }
 .minCartImg img { width: 7vw; height: 80%; }
 .minCartContent { float: left; width: 10vw; min-width: 0vw; margin-left: 4%; }
-  
+
+
+
 /*PRODUCTS*/
 .minProduct { float: left; width: 10vw; max-width: 9vw; min-width: 0vw; font-size: 1vw; border-bottom: 1px solid gray; transition: 0.7s; margin-right: 2%; padding: 1%;}
 .minProductImg { width: 80%; margin-bottom: 20px;}
@@ -61,9 +67,10 @@ body textarea { font-size: 17px; }
 .minProdEl p { min-width: 0vw; max-width: 10vw;}
 
 
+
+
 /*PAGINATION WRAPPER*/
 .productPagWrapper { float: left;  width: 100%;  }
-
 
 /*MAIN PRODUCT*/
 .mainProductWrapper { margin-top: 50px; }
@@ -141,6 +148,7 @@ operationEl { width: 100%; float: left; }
 .bigProdName p {margin: 0 ;}
 .deleteFromeCart { clear: both; text-decoration: underline; cursor: pointer; }
 .deleteFromeCart:hover { color:green; }
+
 /*SLIDER*/
 .sliderBox { float: left; }
 .slider { float: left; border: 1px solid gray; width: fit-content; padding: 0; margin: 0;}

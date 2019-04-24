@@ -1,94 +1,23 @@
 <div class="productTable">
     <table>
-        <tr class="prodTableHead">
-            <td>
-                <div class="productTableHElem">
-                    <p>Название</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Описание</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Цена</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Кол-во</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Оценка</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Добавлен</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>Последняя продажа</p>
-                </div>
-            </td>
-            <td>
-                <div class="productTableHElem">
-                    <p>В наличии</p>
-                </div>
-            </td>
+        <tr>
+            <th ng-click="orderprodTab('id')"><p>Id</p></th>
+            <th ng-click="orderprodTab('title')"><p>Название</p></th>
+            <th ng-click="orderprodTab('mpn')"><p>Mpn</p></th>
+            <th ng-click="orderprodTab('ean')"><p>Ean</p></th>
+            <th ng-click="orderprodTab('quant')"><p>Количество</p></th>
         </tr>
         <!-- ELEMENT CAN NOT BE RENAMED -->
-        <tr class="prodTableBody" ng-repeat="element in productTableRow" ng-click="selectProduct()">
-        <input class="productTableId" type="hidden" value="{{element.id}}" />
-        <td>
-            <div class="productTableElem">
-                <p class="productTableName">{{element.name}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableDescription">{{element.description}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTablePrice">{{element.price}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableQuant">{{element.quant}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableMark">{{element.mark}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableStart">{{element.startDate}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableLast">{{element.lastBuyDate}}</p>
-            </div>
-        </td>
-        <td>
-            <div class="productTableElem">
-                <p class="productTableExist">{{element.isExist}}</p>
-            </div>
-        </td>
+        <tr ng-repeat="element in productTableRow | orderBy:prodTabOrder" ng-click="selectProduct( element.id )">
+            <td><p>{{element.id}}</p></td>
+            <td><p>{{element.title.substring(0, 100)}}</p></td>
+            <td><p>{{element.mpn}}</p></td>
+            <td><p>{{element.ean}}</p></td>
+            <td><p>{{element.quantity}}</p></td>
         </tr>
     </table>
 </div>
 
-<div class="prodTabMessage"></div>
+<div class="prodTabMessage">{{prodTabMessage}}</div>
 
 <div class="paginationBar"></div>

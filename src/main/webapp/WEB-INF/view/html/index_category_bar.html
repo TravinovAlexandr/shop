@@ -1,5 +1,12 @@
 <div class="categoriesWrapper">
-    <div class="categoryButton" ng-repeat="cat in categories" ng-click="getProductsByCategory(cat.id)">
-        <a>{{cat.name}}</a>
+    <div class="categoryButton" ng-repeat="cat in categories" ng-click="getProductsByCategory(cat.category.id, cat.nodes)">
+        <a>{{cat.category.name}}</a>
     </div>
 </div>
+
+<div class="modalCats" >
+    <div class="modelCatsEl" ng-repeat="subCat in subCats" ng-click="getProductsByCategory(subCat.category.id, subCat.nodes)">
+        <p >{{subCat.category.name}}</p>
+    </div>
+</div>
+

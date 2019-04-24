@@ -1,152 +1,214 @@
 <div class="adminProdUp">
     <form ng-submit="updateProduct"> 
-        <div class="adminProdUpSingleBlock" ng-repeat="adminProd in prods">
+        <div ng-repeat="adminProd in prods">
             <div class="adminProdUpLeftWrapper">
-                
-            <p class="jampToProductTableLink" ng-click="jampToProductTable()">Вернуться к поиску</p>
-            
-            <p class="adminProdRemoveLink" ng-click="deleteProduct()">Удалить товар</p>
-            <p class="adminProdRecommendLink" ng-if="!adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Добавить в рекомендуемые</p>
-            <p class="adminProdRecommendLink" ng-if="adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Удалить из рекомендуемых</p>
+                <span>Изменить товар</span>
 
-            
-            <input class="adminProdId" type="hidden" value="{{adminProd.product.id}}" ng-model="adminProd.product.id"/>
-            <div class="adminProdUpSingleParent">
-                <label>Название:</label>
-                <div class="adminProdUpInputWrapper">
-                    <input name="name" class="updateClickTarget" type="text" value="{{adminProd.product.name}}" 
-                           placeholder="{{adminProd.product.name}}" ng-model="adminProd.product.name" />
-                </div>
-                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
-            </div>
-            
-            <div class="adminProdUpSingleParent">
-                <label>Описание:</label>
-                <div class="adminProdUpInputWrapper">
-                    <textarea name="description"  class="updateClickTarget" ng-model="adminProd.product.description">{{adminProd.product.description}}</textarea>
-                </div>
-                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
-            </div>
-            
-            <div class="adminProdUpSingleParent">
-                <label>Цена:</label>
-                <div class="adminProdUpInputWrapper">
-                    <input name="price"  class="updateClickTarget" type="number" value="{{adminProd.product.price}}" 
-                           placeholder="{{adminProd.product.price}}"  ng-model="adminProd.product.price"/>
-                </div>
-                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
-            </div>
-            
-            <div class="adminProdUpSingleParent">
-                <label>Оценка:</label>
-                <div class="adminProdUpInputWrapper">
-                    <input name="mark"  class="updateClickTarget" type="number" value="{{adminProd.product.mark}}" 
-                           placeholder="{{adminProd.product.mark}}" ng-model="adminProd.product.mark"/>
-                </div>
-                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
-            </div>
-            
-            <div class="adminProdUpSingleParent">
-                <label>Кол-во:</label>
-                <div class="adminProdUpInputWrapper">
-                    <input name="quantity" class="updateClickTarget" type="number" value="{{adminProd.product.quantity}}" 
-                           placeholder="{{adminProd.product.quantity}}" ng-model="adminProd.product.quantity"/>
-                </div>
-                <p class="adminProdUpLink" ng-click="updateProductTableField($event)" >Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginSingleVal($event)">Востановить</p>
-            </div>
-            
-            <div class="adminProdUpCtegoryBlock">
-                <p class="categoryLabel">Категории:</p>
-                <div class="adminProdUpCtegories" ng-repeat="cat in adminProd.product.category">
-                    <div class="adminProdUpCurrentCategories">
-                        <input type="hidden" value="{{cat.id}}"/>
-                        <p ng-click="deleteCategory($event)">{{cat.name}}</p>
-                    </div>
-                </div>
-                <div class="categoryLinkWrapper">
-                    <p class="adminProdUpLink" ng-click="updateCategories()">Применить изменения</p>
-                    <p class="adminProdUpLink" ng-click="getOriginCategories()">Востановить категории</p>
-                </div>
-                <div class="categoryLinkWrapper">
-                    <p class="adminProdUpLink" ng-click="showCategories()">Добавить категории</p>
-                </div>
-            </div>
-            
-                            <div class="adminProdUpAllCategoriesWrapper">
-                    <div class="adminProdUpAllCategories" ng-repeat="allCat in adminProd.allCategories">
-                        <div class="adminProdUpNewCategories">
-                            <input type="hidden" value="{{allCat.id}}"/>
-                            <p ng-click="addCategory($event)">{{allCat.name}}</p>
+                <span class="upProdLink" ng-click="jampToProductTable()">Вернуться к поиску</span>
+                <span class="upProdLink" ng-click="deleteProduct( adminProd.product.id )">Удалить товар</span>
+                <span class="upProdLink" ng-if="!adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Добавить в рекомендуемые</span>
+                <span class="upProdLink" ng-if="adminProd.product.isRecommend" ng-click="updateRecommend( adminProd.product.id )">Удалить из рекомендуемых</span>
+                <span class="upProdLink showCategoryUpdate" ng-click="showCategories()">Показать все категории</span>
+                <span class="upProdLink showCommentsUpdate" ng-click="showComments()">Показать комментарии</span>
+
+                <div class="upComBlock displayNone">
+                    <div class="upBlock backColorGray">
+                        <span>Комментарии. Всего {{ adminProd.product.comments.length || 0 }} шт.</span>
+                        <div class="adminProdUpComment" ng-repeat="com in adminProd.product.comments">
+                            <div class="upBlock backColorLightGray">
+                                <ul>
+                                    <li ng-click="updateComment(com.id)">Изменить</li>
+                                    <li ng-click="getOriginComment(com.id)">Востановить</li>
+                                    <li ng-click="deleteComment(com.id)">Удалить</li>
+                                </ul>
+                                <label for="upComNick">Ник:</label>
+                                <input id="upComNick" type="text" value="{{com.nick}}" ng-model="com.nick"/>
+                                <label for="upComBody">Комментарий:</label>
+                                <textarea id="upComBody" ng-model="com.body">{{com.body}}</textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
-            
-        
-            <p class="adminProdUpLink" ng-click="showComments()">Показать коментарии</p>
-            
-        <div class="adminProdUpCommentBlock">
-            <div class="adminProdUpComment" ng-repeat="com in adminProd.product.comments">
-                <input class="adminProdCommentId" type="hidden" value="{{com.id}}" ng-model="com.id"/>
-                
-                <div class="dminProdUpCommentParrent">
-                    <label>Ник:</label>
-                        <div class="adminProdUpInputWrapper">
-                            <input type="text" value="{{com.nick}}"  ng-model="com.nick"/>
-                        </div>
+
+                <div class="upBlock backColorGray">
+                    <span class="categoryLabel">Категории:</span>
+                    <ul ng-if="adminProd.product.category">
+                        <li ng-click="updateCategories(adminProd.product.id)">Изменить</li>
+                        <li  ng-click="getOriginCategories()">Востановить</li>
+                    </ul>
+                    <div class="adminProdUpCtegories" ng-repeat="cat in adminProd.product.category">
+                        <span ng-click="deleteCategory(cat.id)">{{cat.name}}</span>
+                    </div>
+                    <div class="upAllCatBlock displayNone upBlock backColorLightGray">
+                        <span ng-click="addCategory(cat.id)" ng-repeat="cat in adminProd.allCategories">{{cat.name}}</span>
+                    </div>
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Название:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'name', adminProd.product.name)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('name')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.name}}" placeholder="{{adminProd.product.name}}" ng-model="adminProd.product.name" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Описание:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'description', adminProd.product.description)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('description')">Востановить</li>
+                    </ul>
+                    <textarea ng-model="adminProd.product.description">{{adminProd.product.description}}</textarea>
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Сокращенное название:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'title', adminProd.product.title)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('title')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.title}}" placeholder="{{adminProd.product.title}}" ng-model="adminProd.product.title" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Бренд:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'brand', adminProd.product.brand)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('name')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.brand}}" placeholder="{{adminProd.product.brand}}" ng-model="adminProd.product.brand" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Еан:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'ean', adminProd.product.ean)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('ean')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.ean}}" placeholder="{{adminProd.product.ean}}" ng-model="adminProd.product.ean" />
                 </div>
                 
-                <div class="dminProdUpCommentParrent">
-                    <label>Комментарий:</label>
-                    <div class="adminProdUpInputWrapper">
-                    <textarea ng-model="com.body">{{com.body}}</textarea>
+                <div class="upBlock backColorLightGray">
+                    <label>Мпн:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'mpn', adminProd.product.mpn)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('mpn')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.mpn}}" placeholder="{{adminProd.product.mpn}}" ng-model="adminProd.product.mpn" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Цена:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'price', adminProd.product.price)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('price')">Востановить</li>
+                    </ul>
+                    <input type="number" value="{{adminProd.product.price}}" placeholder="{{adminProd.product.price}}"  ng-model="adminProd.product.price"/>
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Скидка:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'discount', adminProd.product.discount)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('discount')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.discount}}" placeholder="{{adminProd.product.discount}}" ng-model="adminProd.product.discount" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Количество оценок:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'markCount', adminProd.product.markCount)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('markCount')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.markCount}}" placeholder="{{adminProd.product.markCount}}" ng-model="adminProd.product.markCount" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Оценка:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'mark', adminProd.product.mark)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('mark')">Востановить</li>
+                    </ul>
+                    <input value="{{adminProd.product.mark}}" placeholder="{{adminProd.product.mark}}" ng-model="adminProd.product.mark"/>
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Кол-во:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'quantity', adminProd.product.quantity)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('quantity')">Востановить</li>
+                    </ul>
+                    <input type="number" value="{{adminProd.product.quantity}}" placeholder="{{adminProd.product.quantity}}" ng-model="adminProd.product.quantity"/>
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Объем:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'volume', adminProd.product.volume)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('volume')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.volume}}" placeholder="{{adminProd.product.volume}}" ng-model="adminProd.product.volume" />
+                </div>
+                <div class="upBlock backColorLightGray">
+                    <label>Длина:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'length', adminProd.product.length)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('length')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.length}}" placeholder="{{adminProd.product.length}}" ng-model="adminProd.product.length" />
+                </div>
+                <div class="upBlock backColorLightGray">
+                    <label>Ширина:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'width', adminProd.product.width)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('width')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.width}}" placeholder="{{adminProd.product.width}}" ng-model="adminProd.product.width" />
+                </div>
+                <div class="upBlock backColorLightGray">
+                    <label>Высота:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'height', adminProd.product.height)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('height')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.height}}" placeholder="{{adminProd.product.height}}" ng-model="adminProd.product.height" />
+                </div>
+
+                <div class="upBlock backColorLightGray">
+                    <label>Вес:</label>
+                    <ul>
+                        <li ng-click="updateProductTableField(adminProd.product.id, 'weight', adminProd.product.weight)">Изменить</li>
+                        <li ng-click="getOriginSingleVal('weight')">Востановить</li>
+                    </ul>
+                    <input type="text" value="{{adminProd.product.weight}}" placeholder="{{adminProd.product.weight}}" ng-model="adminProd.product.weight" />
+                </div>
+
+
+                <div class="upBlock backColorLightGray">
+                    <div class="addNewComment">
+                        <span>Добавить комментарий:</span>
+                        <label for="commentNick">Ник:</label>
+                        <input id="commentNick" type="text"  ng-model="addNewComment.nick"/>
+                        <label for="commentBody">Коментарий:</label>
+                        <textarea id="commentBody" ng-model="addNewComment.body"></textarea>
+                        <span class="addnewComButton" ng-click="addComment( adminProd.product.id )">Добавить</span>
                     </div>
                 </div>
-                
-                <p class="adminProdUpLink" ng-click="updateComment($event)">Применить изменения</p>
-                <p class="adminProdUpLink" ng-click="getOriginComment($event)">Востановить</p>
-                <p class="adminProdRemoveLink" ng-click="deleteComment($event)">Удалить комментарий</p>
+
             </div>
-        </div>
-            
-        <div class="dminProdUpCommentParrent">
-            <p>Добавить комментарий:</p>
-                    <div class="adminProdUpAddCommentWrapper">
-                        <label>Ник:</label>
-                        <div class="adminProdUpInputWrapper"> 
-                            <input type="text"  ng-model="addNewComment.nick"/>
-                        </div>
-                        <label>Коментарий:</label>
-                        <div class="adminProdUpInputWrapper">
-                            <textarea ng-model="addNewComment.body"></textarea>
-                        </div>
-                        <p class="addnewComment" ng-click="addComment()">Добавить коментарий</p>
-                    </div>
-                </div>
-            
-        </div>
-        
-        <div class="adminProdUpRightWrapper">
-            <div class="adminProdUpImgBlock">
-                <div class="adminProdUpImg">
-                    <input class="adminProdImageId" type="hidden" value="{{adminProd.product.imgId}}"/>
-                    <img id="adminProdImage" ng-src="/img/products{{adminProd.product.imgUrl}}" alt="Картинка не найдена"/>
-                </div>
+
+            <div class="adminProdUpRightWrapper">
+                <img class="adminProdImage" ng-src="{{adminProd.product.imgUrl}}" alt=""/>
+                <label for="adminImgMultipart" class="upProdLink">Выбрать новую картинку</label>
+                <input id="adminImgMultipart" class="displayNone" type="file" accept="image/*" ng-model="adminProd.product.imgUrl" ng-img />
+                <ul>
+                    <li ng-click="updateImg(adminProd.product.id, adminProd.product.imgId)">Изменить</li>
+                    <li ng-click="getOriginImg()">Востановить</li>
+                </ul>
             </div>
-            <div class="adminImgLinkWrapper">
-                <label for="adminImgMultipart">Сменить картинку</label>
-                 <input id="adminImgMultipart" type="file" accept="image/*" ng-model="adminProd.product.imgUrl" ng-img />
-                 <p class="adminProdUpLink" ng-click="updateImg()">Подтвердить изменение</p>
-                 <p class="adminProdUpLink" ng-click="getOriginImg()">Востановить картинку</p>
-            </div>
-        </div>
-            
-         
-            
+
         </div>
     </form>
 </div>

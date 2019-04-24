@@ -1,17 +1,26 @@
-.updateCategoryModal {     transition: opacity 0.4s;
-display: none; position: fixed;  max-height: fit-content ; width: 25vw; background-color: #CEFF81; margin-top: 20vh; padding: 2%; 
-                       border: 1px solid green;  /*background:linear-gradient(-45deg, transparent 10px, #58a 0);*/ }
-.categoryPage { margin-left: 5%; }
-.updateCategoryTitle { text-decoration: underline; }
-.updateCategoryModalInnerWrapper { margin-left: 5%;}
-.updateCategoryModalInnerWrapper input { margin-left: 5%; margin: 2% 0; min-width: 93%; max-width: 93%; }
-.updateCategoryModalInnerWrapper textarea { margin-left: 5%; margin: 2% 0; min-width: 93%; max-width: 93%;  height: 20vh; min-height: 30px; overflow: scroll; } 
-.updateCategoryModalInnerWrapper button { margin-top: 1%; }
-.upperCategoryWrapper { width: 100%; float: left; }
-.bottomCategoryWrapper{ width: 100%; float: left; }
-.updateCategoryModal label:hover { text-decoration: underline; cursor: pointer; }
-/*.prgrtCategoryLine p { float: left; }*/
-.updateCategoryTitle { float: left; margin-top: 0; }
-.updateCategoryExit { float: right; margin-top: 0; transition: 0.5s; cursor: pointer; }
-.updateCategoryExit:hover { font-size: 30px; transition: 0.5s; }
-.updateCategoryModalInnerWrapper { clear:both; }
+.categoryPage { font-size: 18px; }
+
+.addCat { display: none; width: 95%; padding: 10px; }
+.addCat label, .addCat span, .addCat input, .addCat textarea { float: left; }
+.addCat span { margin-left: 1%; }
+.addCat label { width: 100%; }
+.addCat input, .addCat textarea { width: 30%; max-width: 50%; }
+.addCat button { float: left; clear: both; }
+
+.updateCatModal { display: block; position: fixed; width: 40%; padding: 10px; border: 2px solid #ccc; background-color: white; }
+.updateCatModal label, .updateCatModal input, .updateCatModal textarea { float: left; }
+.updateCatModal span { margin-left: 1%; float: left; }
+.updateCatModal span p { margin: 0 auto; }
+.updateCatModal label { width: 100%; }
+.updateCatModal input, .updateCatModal textarea { width: 50%; max-width: 99%; }
+.updateCatModal button { float: left; clear: both; }
+.exButton { float: right; margin-right: 30px; margin-top: 10px; font-size: 20px; }
+.delCat { width: 50%; }
+
+.catTable { float: left; width: 95%; padding: 10px; margin-top: 20px; }
+.catTable tr:hover { background-color: #ccc; cursor:pointer;}
+.catTable th { background-color: black; color: white; }
+.catTable th, .catTable td { text-align: left; margin: 0; padding: 0 10px; }
+.catTable td { border: 1px solid black; max-width: 500px; word-break: break-all;}
+
+.addCatLink { font-size: 20px; text-decoration: underline; cursor: pointer; }

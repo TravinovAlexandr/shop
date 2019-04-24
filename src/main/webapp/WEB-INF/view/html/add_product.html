@@ -1,65 +1,109 @@
-<div class="addProductWrapper">
-        <div class="addProductDataWrapper">
-            <p>Добавить товар</p>
-            <form ng-submit="addNewProduct()">
-                <div class="productElement">
-                    <div class="productElement">
-                        <label for="productAddName">Имя:</label>
-                    </div>
-                    <input id="productAddName" ng-model="addName" type="text" />
-                </div>
-                <div class="productElement">
-                    <div class="productElement">
-                        <label for="productAddDesk">Описание:</label>
-                    </div>
-                    <textarea id="productAddDesk" ng-model="addDesc"></textarea>
-                </div>
-                <div class="productElement">
-                    <div class="productElement">
-                        <label for="productAddPrice">Цена:</label>
-                    </div>
-                    <input id="productAddPrice" type="number" ng-model="addPrice"/>
-                </div>
-                <div class="productElement">
-                    <div class="productElement">
-                        <label for="productAddQuant">Количество:</label>
-                    </div>
-                    <input id="productAddQuant" type="number" ng-model="addQuant"/>
-                </div>
-                
-                <div class="productElement">
-                    <div class="productElement">
-                        <label>Категории:</label>
-                    </div>
+<div class="addProductDataWrapper">
+    <h1>Добавить товар</h1>
+    <form name="addProdForm" ng-submit="addNewProduct(addProdForm)" >
 
-                    <div class="categoryCheckBoxWrapper">
-                        <div class="categoryCheckBoxBlock" ng-repeat="cat in categories">
-                            <div class="singleCheckElem">
-                                <input class="productAddCategory" type="checkbox" value="{{cat.id}}" /><a>{{cat.name}}</a>
-                            </div>
-                        </div>
-                    </div>
-                           
-                </div>
+        <label for="productAddName">Название:</label>
+        <span ng-show="addProdForm.name.$error.required && addProdForm.name.$touched">Название не определено</span>
+        <span ng-show="isNameExist === false">Название не уникально</span>
+        <input id="productAddName" type="text" name="name" required autocomplete="off" ng-model="addProd.name" ng-blur="validateName(addProd.name)"/>
 
-            <div class="productElement">
-                <div class="productElement">
-                    <label class="addImageButton" for="productAddImage">Добавить картинку</label>
-                </div>
-                    <input id="productAddImage" type="file" accept="image/*" ng-model="addImage"  ng-file-up/>
+        <label for="productAddTitle">Расширенное название:</label>
+        <span ng-show="addProdForm.title.$error.required && addProdForm.title.$touched">Расширенное название не определено</span>
+        <textarea id="productAddTitle" autocomplete="off" name="title" required ng-model="addProd.title"></textarea>
+
+        <label for="productAddDesk">Описание:</label>
+        <span ng-show="addProdForm.desc.$error.required && addProdForm.desc.$touched">Описание не определено</span>
+        <textarea id="productAddDesk" autocomplete="off" name="desc" required ng-model="addProd.description"></textarea>
+
+        <label for="productAddBrend">Бренд:</label>
+        <input id="productAddBrend" type="text" autocomplete="off" ng-model="addProd.brand" />
+
+        <label for="productAddTag">Новый тег:</label>
+        <input id="productAddTag" type="text" autocomplete="off" ng-model="addProd.tag" />
+
+        <label for="productAddEan">Ean:</label>
+        <input id="productAddEan" type="text" autocomplete="off" ng-model="addProd.ean" />
+
+        <label for="productAddMpn">Mpn:</label>
+        <input id="productAddMpn" type="text" autocomplete="off" ng-model="addProd.mpn" />
+
+        <label for="productAddPrice">Цена:</label>
+        <span ng-show="addProdForm.price.$error.required && addProdForm.price.$touched">Цена не определена</span>
+        <input id="productAddPrice" type="number" autocomplete="off" name="price" required ng-model="addProd.price"/>
+
+        <label for="productAddPrevPrice">Предыдущая цена:</label>
+        <input id="productAddPrevPrice" type="number" autocomplete="off" ng-model="addProd.prevPrice"/>
+
+        <label for="productAddDiscount">Скидка:</label>
+        <input id="productAddDiscount" type="number" autocomplete="off" name="discount" ng-model="addProd.discount"/>
+
+        <label for="productAddQuant">Количество:</label>
+        <span ng-show="addProdForm.quant.$error.required && addProdForm.quant.$touched">Количество не определено</span>
+        <input id="productAddQuant" type="number" autocomplete="off" name="quant" required ng-model="addProd.quantity"/>
+
+        <label for="productAddWeight">Вес:</label>
+        <input id="productAddWeight" type="number" autocomplete="off" ng-model="addProd.weight"/>
+
+        <label for="productAddWidth">Ширина:</label>
+        <input id="productAddWidth" type="number" autocomplete="off" ng-model="addProd.width"/>
+
+        <label for="productAddLenght">Длина:</label>
+        <input id="productAddLenght" type="number" autocomplete="off" ng-model="addProd.lenght"/>
+
+        <label for="productAddHeight">Высота:</label>
+        <input id="productAddHeight" type="number" autocomplete="off" ng-model="addProd.height"/>
+
+        <label for="productAddVolume">Объем:</label>
+        <input id="productAddVolume" type="number" autocomplete="off" ng-model="addProd.volume"/>
+
+        <label>В наличии:</label>
+        <select ng-init="addProd.isExist = 'True'" ng-model="addProd.isExist">
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
+
+        <label>Рекомендуется:</label>
+        <select ng-init="addProd.isRecommend = 'False'" ng-model="addProd.isRecommend">
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
+
+        <span class="showCatLabel link" ng-click="showAddCategories()">Выбрать категории</span>
+        <div class="categoryCheckBoxWrapper">
+            <div class="categoryCheckBoxBlock" ng-repeat="cat in categories">
+                <input type="checkbox" id="add{{cat.id}}}" value="{{cat.id}}" />
+                <label for="add{{cat.id}}}">{{cat.name}}</label>
             </div>
-
-            <div class="productElement">
-                <button  class="addProductButton">Отправить форму</button>
+        </div>
+        
+        <span class="link" ng-click="showModalProdTags()">Добавить теги</span>
+        <div class="modalAddProdTags">
+            <input type="text" autocomplete="off" ng-change="selectTags( selectTagWord )" ng-model="selectTagWord">
+            <div class="modalAddProdTagsCheckBoxes">
+                <div class="prodTags" ng-repeat="tag in tags">
+                    <input type="checkbox" id="addTagg{{tag.id}}" value="{{tag.id}}"/>
+                    <label for="addTagg{{tag.id}}">{{tag.name}}</label>
+                </div>
             </div>
+            <div class="paginationBar"></div>
+        </div>
+
+        <label class="link" for="productAddImage">Добавить главную картинку</label>
+        <input id="productAddImage" type="file" accept="image/*" ng-model="mainImg"  ng-file-up />
+
+        <div class="button" ngf-select="uploadFiles( $files )" ng-model="files" ngf-multiple="true">
+            <span class="link">Добавить дополнительные картинки</span>
+        </div>
+
+        <button>Добавить</button>
     </form>
-
-
 </div>
+
 <div class="addProductImageWrapper">
-    <div class="productAddImageShift">
-        <img id="prodBigImage" src="img/no_photo.png" /></div>
-</div>
+    <img id="prodBigImage" ng-src="" alt="Главная картинка не определена"/>
 
-
+    <div ng-repeat="img in additionImgs">
+        <img ng-src="{{img.blob}}" alt=""/>
+        <span class="link" ng-click="deleteAdditionImgs( img.index )">Удалить картинку</span>
+    </div>
 </div>

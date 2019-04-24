@@ -1,3 +1,19 @@
+/*admin_tags.html*/
+.tagAlphabet { float:left; width: 60%; }
+.tagAlphabet li { float: left; background-color: yellow; border: solid 1px #000; margin-right: 5px; margin-bottom: 5px; padding: 1%; list-style: none; cursor: pointer; }
+.lastAddedTagId, .addTag, .updateTag { float:left; width: 100%; margin-top: 20px; }
+.addTag label, .updateTag label { float: left; width: 80%; }
+.addTag input, .updateTag input { float:left; width: 70%; }
+.addTag button, .updateTag button { float:left; clear: both; width: 10%; }
+.tagTable { float:left; margin-top: 20px; max-width: 70%; }
+.tagTable th, .tagTable td { width: 20%; }
+.tagTable th { text-align: left; background-color: #000; color: white; }
+.tagView span { float:left; width: 100%; cursor: pointer; }
+.updateTag, .addTag { display: none; }
+.updateTag form, .addTag form { float: left; width: 40%; padding: 1%; background-color: yellow; }
+.updateTag form span { float: right; width: 10%; }
+/*tagTable*/
+
 /*EXCEPTION*/
 .adminExWrapper { width: 40%;  z-index: 999; position: fixed; margin: 20px 0; margin-left: 30%; }
 .adminExInfo { width: 100%; float: left; background-color: #A60400; padding: 1vh 1vh 0vh 1vh; }
@@ -10,89 +26,49 @@
 .adminExCause p {  margin: 2vh 0vh; }
 .adminExSTrace { width: 100%; float: left; background-color: #A60400; padding: 0vh 1vh 1vh 1vh; }
 .quitWrapper { float: right; height: available; width: 3vw; min-width: 30px; text-align: center; transition: 0.7s;  }
-.quitWrapper:hover { cursor: pointer; transition: 0.7s; transform: rotate(-90deg);}
-/*-o-transform: rotate(-90deg);-ms-transform: rotate(-90deg);-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);*/
+.quitWrapper:hover { cursor: pointer; transition: 0.7s; transform: rotate(-90deg); }
 .quitWrapper p { margin: 2vh 0vh; }
 .exceptionModalStrace { font-size: 16px;  }
 
-/* add product*/
-.addImageButton { text-align: center; cursor: pointer; line-height: 70px;}
-.addImageButton:hover { text-decoration: underline; color:#157700; }
-.addProductButton { height: 30px; } 
-#productAddImage { display: none; }
-
-
-
-
-
-
-
+/*ADD PRODUCT*/
 .mainWrapper { width: 100%; float: left; padding: 20px 0 20px 0; margin: 20px 0 20px 0; height: fit-content; min-height: 500px; }
 .leftMainWrapper { width: 30%; float: left; font-size: 18px; }
 .rightMainWrapper { width: 70%; float: right; }
 
+.addProductImageWrapper { float: left; width: 50%; }
+/*border: 1px solid white; border-top-width: 30px; border-bottom-width: 30px; box-shadow: 1px 1px 4px 4px #888 ;*/
+.addProductImageWrapper img, .addProductImageWrapper div img { margin-left: 5%; margin-top: 3px; width: 60%; }
+.addProductImageWrapper span { float: left; width: 60%; margin-left: 5%; margin-top: 10px; margin-bottom: 10px; color:yellow; }
+.addProductDataWrapper { float: left; width: 40%; background-color: gray; padding: 20px; }
+.addProductDataWrapper h1 { font-size: 20px; text-decoration: underline; color: rgb(255,255,255); }
+.addProductDataWrapper p { text-decoration: underline; }
+.addProductDataWrapper label { width: 100%; }
+.addProductDataWrapper input[type="text"], .addProductDataWrapper input[type="number"], .addProductDataWrapper textarea { width: 80%; max-width: 99%; }
+.addProductDataWrapper input[type="checkbox"] { display: none; }
+.addProductDataWrapper button { float: left; clear: both; margin-top: 15px; }
+.addProductDataWrapper select { float: left; margin-bottom: 20px; }
+.addProductDataWrapper span { float : left; color : yellow; font-size: 18px !important; width: 100%; }
+.link { color: yellow !important; margin-bottom: 0;}
+.link:hover { color: white !important; cursor: pointer; }
+#productAddImage { display: none; }
+.categoryCheckBoxWrapper { float:left; margin-bottom: 10px; }
+.categoryCheckBoxBlock { display: none; width: 100%; } 
+.categoryCheckBoxBlock label { color: white; }
+.categoryCheckBoxBlock label:hover { cursor: pointer; color: black; text-decoration: underline; }
+.categoryCheckBoxBlock label:before { content: " "; color: #000; display: inline-block; margin-right: 15px; text-align: center; width: 30px; height: 30px; background: gray; border: 1px solid black; vertical-align: middle; }
+.categoryCheckBoxBlock input:checked + label:before { content: "x"; color: white; }
+
+.modalAddProdTags { display: none; }
+.modalAddProdTags .modalAddProdTagsCheckBoxes { float: left; width: 100%; }
+.prodTags { float: left; width: fit-content !important; margin-right: 1%; }
+.prodTags label { float: left; width: fit-content !important; color: white; }
+.prodTags label:hover { cursor: pointer; color: black; text-decoration: underline; }
+.prodTags label:before { content: " "; color: #000; display: inline-block; margin-right: 15px; text-align: center; width: 30px; height: 30px; background: gray; border: 1px solid black; vertical-align: middle; }
+.prodTags input:checked + label:before { content: "x"; color: white; }
 
 
-
-
-
-
-
-.addProductWrapper {
-    width: 100%;
-}
-.addProductDataWrapper {
-    width: 40%;
-    float: left;
-    background-color: #CEFF81;
-    padding: 20px;
-}
-.addProductImageWrapper {
-    width: 50%;
-    display: inline-block;
-}
-.productElement {
-    width: 100%;
-    margin: 5px;
-    margin-bottom: 10px;
-    clear: both;
-}
-.productElement textarea {
-    width: 98%;
-    max-width: 98%;
-    height: 100px;
-}
-.productElement input[type=text] {
-    width: 350px;
-    height: 30px;
-    max-width: 70%;
-}
-.productElement input[type=number] {
-    width: 350px;
-    height: 30px;
-    max-width: 70%;
-}
-.categoryCheckBoxBlock {
-    float: left;
-}
-.categoryCheckBoxWrapper {
-    margin-bottom: 10px; 
-}
-#prodBigImage {
-    width : 70%;
-    transition: 0.7s;
-}
-#prodBigImage:hover {
-    width : 90%;
-}
-.productAddImageShift {
-    margin-left: 50px;
-}
 /*AUTH*/
-.authMainWrapper {
-    width: 100%;
-    padding: 230px 0 0 34%;
-}
+.authMainWrapper { width: 100%; padding: 230px 0 0 34%; }
 .authFormWrapper {
     width: 30%;
     min-width: 200px;

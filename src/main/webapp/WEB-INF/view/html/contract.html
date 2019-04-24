@@ -1,23 +1,23 @@
-<div class="contract">
+<div class="contract" ng-init="contract = {}">
     <form name="contractForm" ng-submit="submitContract()" >
         <span ng-show="contractProductsError">В вашей корзине есть товары, которых нет в наличии</span>
         <div ng-if="!contractProductsError">
             <div class="contractElement">
                 <label for="name">Введите ваше имя:</label>
-                <input id="name" name="name" check ng-model="contract.name" type="text" placeholder="ФИО" required maxlength="100" ng-maxlength="100"/>
+                <input id="name" name="name" check ng-model="contract.clientName" type="text" placeholder="ФИО" required maxlength="100" ng-maxlength="100"/>
 
                 <span ng-show="contractForm.name.$error.required">Введите ваше имя</span>
                 <span ng-show="contractForm.name.$error.maxlength">Максимальная длина имени - 100 символов</span>
             </div>
             <div class="contractElement">
                 <label for="email">Введите email:</label>
-                <input id="email" name="email" ng-model="contract.email" type="email" placeholder="Email" required maxlength="254" ng-maxlength="254"/>
+                <input id="email" name="email" ng-model="contract.clientEmail" type="email" placeholder="Email" required maxlength="254" ng-maxlength="254"/>
                 <span ng-show="contractForm.email.$error.required">Введите email</span>
                 <span ng-show="contractForm.email.$error.maxlength">Максимальная длина email - 254 символов</span>
             </div>
             <div class="contractElement">
                 <label for="telephone">Введите телефон:</label>
-                <input id="telephone" name="telephone" ng-model="contract.telephone" type="text" placeholder="Телефон"
+                <input id="telephone" name="telephone" ng-model="contract.clientTelephone" type="text" placeholder="Телефон"
                        required minlength="11" ng-minlength="11" maxlength="50" ng-maxlength="50"/>
                 <span ng-show="contractForm.telephone.$error.required">Введите ваш телефон</span>
                 <span ng-show="contractForm.telephone.$error.minlength">Минимальная длина телефона - 11 символов</span>
@@ -25,13 +25,21 @@
             </div>
             <div class="contractElement">
                 <label for="address">Введите адрес:</label>
-                <input id="address" name="address" ng-model="contract.address" type="text" placeholder="Адрес" maxlength="500" ng-maxlength="500"/>
+                <input id="address" name="address" ng-model="contract.clientAddress" type="text" placeholder="Адрес" maxlength="500" ng-maxlength="500"/>
                 <span ng-show="contractForm.address.$error.maxlength">Максимальная длина адреса - 300 символов</span>
             </div>
             <div class="contractElement">
                 <label for="wish">Дополнительные пожелания:</label>
-                <textarea id="wish" name="wish" ng-model="contract.wish" placeholder="Ваши пожелания к заказу" maxlength="1000" ng-maxlength="1000"></textarea>
+                <textarea id="wish" name="wish" ng-model="contract.clientWish" placeholder="Ваши пожелания к заказу" maxlength="1000" ng-maxlength="1000"></textarea>
                 <span ng-show="contractForm.wish.$error.maxlength">Максимальная длина - 1000 символов</span>
+            </div>
+            <div class="contractElement">
+                <label>Выберите способ доставки:</label>
+                <select ng-init="contract.delivery= 'COURIER'" ng-model="contract.delivery">
+                    <option value="COURIER">Курьером</option>
+                    <option value="MAIL">Почтой</option>
+                    <option value="STORAGE">Забрать со склада</option>
+                </select>
             </div>
             <div class="contractElement">
                 <button>Подтвердить</button>

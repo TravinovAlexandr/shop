@@ -4,7 +4,7 @@
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<queryString>
-		<![CDATA[select * from product p join cart_orders co on p.id = co.product_id join cart c on c.id = co.cart_id]]>
+		<![CDATA[select * from product p join cart_products co on p.id = co.product_id join cart c on c.id = co.cart_id]]>
 	</queryString>
 	<field name="id" class="java.lang.Long"/>
 	<field name="name" class="java.lang.String"/>

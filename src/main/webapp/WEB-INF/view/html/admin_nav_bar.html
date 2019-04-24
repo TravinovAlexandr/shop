@@ -1,61 +1,63 @@
 <div class="left"></div>
-<div ng-controller="adminNavController" class="right"           >
-    <div class="changeAdminDataBlock">
-        <div class="adminGreetings">
-            <a class="adminka" href="/admin">Админка</a>
-            <p ng-click="nickVisible()" class="changeNickPrgf">Сменить Ник</p>
-            <p ng-click="passwordVisible()" class="changePasswordPrgf">Сменить Пароль</p>
+<div ng-controller="adminNavController" class="right">
+    <div class="adminBarBlock">
+            <h1>Админка</h1>
+            <span ng-click="setVisible('changeNick')" >Сменить Ник</span>
+            <span ng-click="setVisible('changePassword')" >Сменить Пароль</span>
+    </div>
+
+    <div class="adminBarBlock">
+        <div class="adminNick hidden">
+            <form>
+                <label for="adminNickNick">Новый Ник:</label>
+                <input id="adminNickNick" type="text" />
+                <label for="adminNickPass">Пароль:</label>
+                <input id="adminNickPass" type="password" />
+                <button>Oк</button>
+            </form>
+        </div>
+        <div class="adminPassword hidden">
+            <form>
+                <label for="adminPasswordPassword">Новый Пароль:</label>
+                <input id="adminPasswordPassword" type="password" />
+                <label for="adminPasswordConfirm">Подтверждение:</label>
+                <input id="adminPasswordConfirm" type="password" />
+                <label for="adminPasswordCurrent">Текущий Пароль:</label>
+                <input id="adminPasswordCurrent" type="password" />
+                <button>Oк</button>
+            </form>
         </div>
     </div>
 
-    <div class="changeAdminDataBlock">
-        <div class="changeAdminData changeAdminDataNick">
-            <form>
-                <label for="nickCh"> Новый Ник:<label>
-                        <input id="nickCh" type="text" />
-                        <label for="nickChPswd"> Пароль:<label>
-                                <input id="nickChPswd" type="password" />
-                                <button>Подтвердить</button>
-                                </form>
-                                </div>
-                                <div class="changeAdminData changeAdminDataPassword">
-                                    <form>
-                                        <label for="pswdCh"> Новый Пароль:<label>
-                                                <input id="pswdCh" type="password" />
-                                                <label for="pswdChRet">Подтверждение:<label>
-                                                        <input id="pswdChRet" type="password" />
-                                                        <label for="pswdChPswd">Текущий Пароль:<label>
-                                                                <input id="pswdChPswd" type="password" />
-                                                                <button>Подтвердить</button>
-                                                                </form>
-                                                                </div>
-                                                                </div>
-
-                                                                <div class="changeAdminDataBlock">
-                                                                    <div class="adminNavigation">
-                                                                        <p class="navigaciya">Навигация</p>
-                                                                        <ul>
-                                                                            <li class="navCategory">
-                                                                                <p ng-click="productUlVisible()">Операции с товарами</p>
-                                                                                <ul class="hidden">
-                                                                                    <li><a ng-href="admin#!/addNewProduct">Добавить</a></li>
-                                                                                    <li><a ng-href="admin#!/searchProduct">Найти/Изменить/удалить</a></li>
-                                                                                    <li><a ng-href="admin#!/addRecommend"></a></li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li class="navCategory">
-                                                                                <p ng-click="categoryUlVisible()">Операции с категориями</p>
-                                                                                <ul class="hidden">
-                                                                                    <li><a ng-href="admin#!/categories">Добавить / Изменить / Удалить</a></li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li class="navCategory">
-                                                                                <p ng-click="categoryUlVisible()">Статистика</p>
-                                                                                <ul class="hidden">
-                                                                                    <li><a ng-href="admin#!/categories">Nop</a></li>
-                                                                                </ul>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                                </div>
+    <div class="adminBarBlock">
+            <span>Навигация</span>
+            <ul>
+                <li>
+                    <span ng-click="setVisible( 'product' )">Операции с товарами</span>
+                    <ul class="product hidden">
+                        <li><a ng-href="admin#!/addNewProduct">Добавить</a></li>
+                        <li><a ng-href="admin#!/searchProduct">Найти/удалить/Изменить</a></li>
+                        <li><a ng-href="admin#!/addRecommend"></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span ng-click="setVisible('category')">Операции с категориями</span>
+                    <ul class="category hidden">
+                        <li><a ng-href="admin#!/categories">Добавить/Удалить/Изменить</a></li>
+                    </ul>
+                </li> 
+                <li>
+                    <span ng-click="setVisible('tag')">Операции с тегами</span>  
+                    <ul class="tag hidden">
+                        <li><a ng-href="admin#!/tags">Добавить/Удалить/Изменить</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span ng-click="setVisible('statistic')">Статистика</span>
+                    <ul class="statistic hidden">
+                        <li><a ng-href="admin#!/categories">Nop</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+</div>
